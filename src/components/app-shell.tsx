@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hidden">
           {navGroups.map((group) => (
             <div key={group.title} className="mb-5">
               <div className="mb-1 px-3 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
