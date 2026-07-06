@@ -281,6 +281,6 @@ export const useWorkflow = create<State>()(
           },
         })),
     }),
-    { name: "impilo-workflow-v1" },
+    { name: "impilo-workflow-v2" },
   ),
 );
