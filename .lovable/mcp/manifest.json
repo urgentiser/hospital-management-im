@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "impilo-mcp",
+      "version": "0.1.0",
+      "title": "Impilo — Life Healthcare Platform"
+    },
+    "tools": [
+      {
+        "name": "list_facilities",
+        "title": "List Life Healthcare facilities",
+        "description": "List Life Healthcare hospitals available on the Impilo platform, with location, bed count, wards and theatres.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_patients",
+        "title": "List patients",
+        "description": "List patients on the Impilo Life Healthcare platform. Optionally filter by facility name (e.g. 'Life Fourways') or clinical status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "facility": {
+              "type": "string",
+              "description": "Filter by facility name, e.g. 'Life Fourways'."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "active",
+                "pending",
+                "review",
+                "closed",
+                "failed"
+              ],
+              "description": "Filter by workflow status."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "Maximum number of rows to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_admissions",
+        "title": "List admissions",
+        "description": "List current and recent hospital admissions across Life Healthcare facilities. Optionally filter by facility or status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "facility": {
+              "type": "string",
+              "description": "Filter by facility name."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "admitted",
+                "discharged",
+                "transferred",
+                "pending"
+              ],
+              "description": "Filter by admission status."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_patient",
+        "title": "Get patient by ID or MRN",
+        "description": "Look up a single patient by Impilo patient ID (e.g. 'P-10241') or MRN (e.g. 'MRN-0032411').",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "idOrMrn": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Patient ID or Medical Record Number."
+            }
+          },
+          "required": [
+            "idOrMrn"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_authorisations",
+        "title": "List medical scheme authorisations",
+        "description": "List medical scheme pre-authorisations for procedures across the Impilo Life Healthcare platform. Optional status filter.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "approved",
+                "pending",
+                "declined",
+                "review"
+              ],
+              "description": "Filter by authorisation status."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
