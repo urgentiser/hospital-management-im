@@ -48,20 +48,20 @@ export interface IntegrationEvent {
 }
 
 export const patients: Patient[] = [
-  { id: "P-10241", mrn: "MRN-0032411", name: "Nomvula Dlamini", dob: "1984-03-12", gender: "F", scheme: "Discovery Health", status: "active", admission: "ADM-88213", practitioner: "Dr. S. Naidoo", facility: "Sandton Mediclinic", updatedAt: "2m ago" },
-  { id: "P-10242", mrn: "MRN-0032510", name: "Johan van der Merwe", dob: "1972-11-04", gender: "M", scheme: "Bonitas", status: "review", practitioner: "Dr. M. Khumalo", facility: "Netcare Milpark", updatedAt: "14m ago" },
+  { id: "P-10241", mrn: "MRN-0032411", name: "Nomvula Dlamini", dob: "1984-03-12", gender: "F", scheme: "Discovery Health", status: "active", admission: "ADM-88213", practitioner: "Dr. S. Naidoo", facility: "Life Fourways", updatedAt: "2m ago" },
+  { id: "P-10242", mrn: "MRN-0032510", name: "Johan van der Merwe", dob: "1972-11-04", gender: "M", scheme: "Bonitas", status: "review", practitioner: "Dr. M. Khumalo", facility: "Life Groenkloof", updatedAt: "14m ago" },
   { id: "P-10243", mrn: "MRN-0032511", name: "Aisha Patel", dob: "1990-06-22", gender: "F", scheme: "Momentum Health", status: "pending", admission: "ADM-88220", practitioner: "Dr. R. Botha", facility: "Life Fourways", updatedAt: "1h ago" },
-  { id: "P-10244", mrn: "MRN-0032512", name: "Thabo Mokoena", dob: "1965-09-08", gender: "M", scheme: "GEMS", status: "active", admission: "ADM-88231", practitioner: "Dr. K. Sithole", facility: "Steve Biko Academic", updatedAt: "3h ago" },
-  { id: "P-10245", mrn: "MRN-0032513", name: "Emily Carter", dob: "1998-01-30", gender: "F", scheme: "Discovery Health", status: "closed", practitioner: "Dr. L. Pillay", facility: "Sandton Mediclinic", updatedAt: "1d ago" },
-  { id: "P-10246", mrn: "MRN-0032514", name: "Sipho Zulu", dob: "1978-12-19", gender: "M", scheme: "Polmed", status: "failed", practitioner: "Dr. A. Adams", facility: "Netcare Milpark", updatedAt: "2d ago" },
+  { id: "P-10244", mrn: "MRN-0032512", name: "Thabo Mokoena", dob: "1965-09-08", gender: "M", scheme: "GEMS", status: "active", admission: "ADM-88231", practitioner: "Dr. K. Sithole", facility: "Life Kingsbury", updatedAt: "3h ago" },
+  { id: "P-10245", mrn: "MRN-0032513", name: "Emily Carter", dob: "1998-01-30", gender: "F", scheme: "Discovery Health", status: "closed", practitioner: "Dr. L. Pillay", facility: "Life Fourways", updatedAt: "1d ago" },
+  { id: "P-10246", mrn: "MRN-0032514", name: "Sipho Zulu", dob: "1978-12-19", gender: "M", scheme: "Polmed", status: "failed", practitioner: "Dr. A. Adams", facility: "Life Groenkloof", updatedAt: "2d ago" },
 ];
 
 export const admissions: Admission[] = [
-  { id: "ADM-88213", patient: "Nomvula Dlamini", mrn: "MRN-0032411", facility: "Sandton Mediclinic", ward: "Ward 3B", bed: "12", admittedAt: "2026-07-04 08:12", los: 2, status: "admitted", practitioner: "Dr. S. Naidoo" },
+  { id: "ADM-88213", patient: "Nomvula Dlamini", mrn: "MRN-0032411", facility: "Life Fourways", ward: "Ward 3B", bed: "12", admittedAt: "2026-07-04 08:12", los: 2, status: "admitted", practitioner: "Dr. S. Naidoo" },
   { id: "ADM-88220", patient: "Aisha Patel", mrn: "MRN-0032511", facility: "Life Fourways", ward: "Maternity", bed: "04", admittedAt: "2026-07-05 22:41", los: 1, status: "admitted", practitioner: "Dr. R. Botha" },
-  { id: "ADM-88231", patient: "Thabo Mokoena", mrn: "MRN-0032512", facility: "Steve Biko Academic", ward: "ICU", bed: "07", admittedAt: "2026-07-06 03:20", los: 0, status: "admitted", practitioner: "Dr. K. Sithole" },
-  { id: "ADM-88190", patient: "Emily Carter", mrn: "MRN-0032513", facility: "Sandton Mediclinic", ward: "Ward 2A", bed: "18", admittedAt: "2026-07-02 11:00", los: 4, status: "discharged", practitioner: "Dr. L. Pillay" },
-  { id: "ADM-88205", patient: "Sipho Zulu", mrn: "MRN-0032514", facility: "Netcare Milpark", ward: "Cardiology", bed: "09", admittedAt: "2026-07-03 15:22", los: 3, status: "transferred", practitioner: "Dr. A. Adams" },
+  { id: "ADM-88231", patient: "Thabo Mokoena", mrn: "MRN-0032512", facility: "Life Kingsbury", ward: "ICU", bed: "07", admittedAt: "2026-07-06 03:20", los: 0, status: "admitted", practitioner: "Dr. K. Sithole" },
+  { id: "ADM-88190", patient: "Emily Carter", mrn: "MRN-0032513", facility: "Life Fourways", ward: "Ward 2A", bed: "18", admittedAt: "2026-07-02 11:00", los: 4, status: "discharged", practitioner: "Dr. L. Pillay" },
+  { id: "ADM-88205", patient: "Sipho Zulu", mrn: "MRN-0032514", facility: "Life Groenkloof", ward: "Cardiology", bed: "09", admittedAt: "2026-07-03 15:22", los: 3, status: "transferred", practitioner: "Dr. A. Adams" },
 ];
 
 export const authorisations: Authorisation[] = [

@@ -92,7 +92,7 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
   }));
 
   const pharmacy: WorkflowItem[] = [
-    { id: "RX-70011", title: "Amoxicillin 500mg × 21", subtitle: "Nomvula Dlamini · Sandton Mediclinic",
+    { id: "RX-70011", title: "Amoxicillin 500mg × 21", subtitle: "Nomvula Dlamini · Life Fourways",
       status: "ordered", fields: { Patient: "Nomvula Dlamini", Ward: "Ward 3B", Prescriber: "Dr. S. Naidoo" },
       history: [{ at: nowFmt(), action: "Order created", by: "Dr. S. Naidoo" }], createdAt: now(), updatedAt: now() },
     { id: "RX-70012", title: "Insulin glargine 10U/day", subtitle: "Thabo Mokoena · ICU",
@@ -109,13 +109,13 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
   ];
   const ward: WorkflowItem[] = [
     { id: "BED-3B-12", title: "Ward 3B · Bed 12", subtitle: "Nomvula Dlamini",
-      status: "occupied", fields: { Facility: "Sandton Mediclinic", Ward: "3B", Bed: "12" },
+      status: "occupied", fields: { Facility: "Life Fourways", Ward: "3B", Bed: "12" },
       history: [{ at: nowFmt(), action: "Bed occupied", by: "Nurse Manager" }], createdAt: now(), updatedAt: now() },
     { id: "BED-ICU-07", title: "ICU · Bed 07", subtitle: "Thabo Mokoena",
-      status: "occupied", fields: { Facility: "Steve Biko Academic", Ward: "ICU", Bed: "07" },
+      status: "occupied", fields: { Facility: "Life Kingsbury", Ward: "ICU", Bed: "07" },
       history: [{ at: nowFmt(), action: "Bed occupied", by: "Nurse Manager" }], createdAt: now(), updatedAt: now() },
     { id: "BED-2A-18", title: "Ward 2A · Bed 18", subtitle: "Available",
-      status: "available", fields: { Facility: "Sandton Mediclinic", Ward: "2A", Bed: "18" },
+      status: "available", fields: { Facility: "Life Fourways", Ward: "2A", Bed: "18" },
       history: [{ at: nowFmt(), action: "Bed cleaned", by: "Housekeeping" }], createdAt: now(), updatedAt: now() },
   ];
   const facilities: WorkflowItem[] = [
@@ -145,11 +145,11 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       history: [{ at: nowFmt(), action: "Facility onboarded", by: "Admin" }], createdAt: now(), updatedAt: now() },
   ];
   const practitioners: WorkflowItem[] = [
-    { id: "PR-101", title: "Dr. S. Naidoo", subtitle: "General Surgery · Sandton",
-      status: "active", fields: { HPCSA: "MP0123456", Speciality: "Surgery", Facility: "Sandton" },
+    { id: "PR-101", title: "Dr. S. Naidoo", subtitle: "General Surgery · Fourways",
+      status: "active", fields: { HPCSA: "MP0123456", Speciality: "Surgery", Facility: "Fourways" },
       history: [{ at: nowFmt(), action: "Credentialed", by: "Admin" }], createdAt: now(), updatedAt: now() },
-    { id: "PR-102", title: "Dr. M. Khumalo", subtitle: "Internal Medicine · Milpark",
-      status: "active", fields: { HPCSA: "MP0223391", Speciality: "Internal Med", Facility: "Milpark" },
+    { id: "PR-102", title: "Dr. M. Khumalo", subtitle: "Internal Medicine · Groenkloof",
+      status: "active", fields: { HPCSA: "MP0223391", Speciality: "Internal Med", Facility: "Groenkloof" },
       history: [{ at: nowFmt(), action: "Credentialed", by: "Admin" }], createdAt: now(), updatedAt: now() },
     { id: "PR-103", title: "Dr. R. Botha", subtitle: "Obstetrics · Fourways",
       status: "pending", fields: { HPCSA: "MP0330012", Speciality: "OB/GYN", Facility: "Fourways" },
@@ -196,7 +196,7 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       history: [{ at: nowFmt(), action: "Recorded", by: "Audit trail" }], createdAt: now(), updatedAt: now() },
   ];
   const admin: WorkflowItem[] = [
-    { id: "USR-001", title: "Dr. K. Naidoo", subtitle: "Clinical Lead · Sandton",
+    { id: "USR-001", title: "Dr. K. Naidoo", subtitle: "Clinical Lead · Fourways",
       status: "active", fields: { Email: "k.naidoo@impilo.co.za", Role: "Clinical Lead" },
       history: [{ at: nowFmt(), action: "Account created", by: "Admin" }], createdAt: now(), updatedAt: now() },
     { id: "USR-002", title: "J. Adams", subtitle: "Case Manager",
