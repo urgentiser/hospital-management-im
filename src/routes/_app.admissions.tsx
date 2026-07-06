@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_app/admissions")({
         fields: [
           { key: "patient", label: "Patient name", required: true },
           { key: "mrn", label: "MRN", required: true },
-          { key: "facility", label: "Facility", type: "select", required: true, options: ["Sandton Mediclinic", "Netcare Milpark", "Life Fourways", "Steve Biko Academic"] },
+          { key: "facility", label: "Facility", type: "select", required: true, options: ["Life Fourways", "Life Groenkloof", "Life Fourways", "Life Kingsbury"] },
           { key: "ward", label: "Ward", placeholder: "e.g. Ward 3B" },
           { key: "bed", label: "Bed", placeholder: "e.g. 12" },
           { key: "practitioner", label: "Attending practitioner" },
