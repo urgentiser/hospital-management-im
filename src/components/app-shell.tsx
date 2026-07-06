@@ -223,6 +223,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <AskImpiloAI />
+
 
 
 
