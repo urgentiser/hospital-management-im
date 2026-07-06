@@ -159,14 +159,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link
-            to="/admissions"
-            search={{ new: "1" }}
+          <a
+            href="/admissions?new=1"
             className="hidden items-center gap-2 rounded-lg bg-gradient-primary px-3.5 py-2 text-sm font-medium text-primary-foreground shadow-glow transition-opacity hover:opacity-90 md:inline-flex"
           >
             <Plus className="h-4 w-4" />
             New Admission
-          </Link>
+          </a>
           <button className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground hover:text-foreground">
             <Bell className="h-4 w-4" />
             <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
