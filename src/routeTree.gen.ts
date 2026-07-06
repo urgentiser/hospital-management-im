@@ -11,11 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppWardRouteImport } from './routes/_app.ward'
+import { Route as AppTheatreRouteImport } from './routes/_app.theatre'
+import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppPractitionersRouteImport } from './routes/_app.practitioners'
 import { Route as AppPharmacyRouteImport } from './routes/_app.pharmacy'
 import { Route as AppPatientsRouteImport } from './routes/_app.patients'
 import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
+import { Route as AppFundingRouteImport } from './routes/_app.funding'
+import { Route as AppFacilitiesRouteImport } from './routes/_app.facilities'
+import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
+import { Route as AppCaseManagementRouteImport } from './routes/_app.case-management'
+import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAuthorisationsRouteImport } from './routes/_app.authorisations'
+import { Route as AppAuditRouteImport } from './routes/_app.audit'
 import { Route as AppAdmissionsRouteImport } from './routes/_app.admissions'
+import { Route as AppAdminRouteImport } from './routes/_app.admin'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -24,6 +35,26 @@ const AppRoute = AppRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWardRoute = AppWardRouteImport.update({
+  id: '/ward',
+  path: '/ward',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTheatreRoute = AppTheatreRouteImport.update({
+  id: '/theatre',
+  path: '/theatre',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPractitionersRoute = AppPractitionersRouteImport.update({
+  id: '/practitioners',
+  path: '/practitioners',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPharmacyRoute = AppPharmacyRouteImport.update({
@@ -41,9 +72,39 @@ const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
   path: '/integrations',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFundingRoute = AppFundingRouteImport.update({
+  id: '/funding',
+  path: '/funding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFacilitiesRoute = AppFacilitiesRouteImport.update({
+  id: '/facilities',
+  path: '/facilities',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDocumentsRoute = AppDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCaseManagementRoute = AppCaseManagementRouteImport.update({
+  id: '/case-management',
+  path: '/case-management',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBillingRoute = AppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAuthorisationsRoute = AppAuthorisationsRouteImport.update({
   id: '/authorisations',
   path: '/authorisations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAuditRoute = AppAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdmissionsRoute = AppAdmissionsRouteImport.update({
@@ -51,58 +112,129 @@ const AppAdmissionsRoute = AppAdmissionsRouteImport.update({
   path: '/admissions',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/admin': typeof AppAdminRoute
   '/admissions': typeof AppAdmissionsRoute
+  '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
+  '/billing': typeof AppBillingRoute
+  '/case-management': typeof AppCaseManagementRoute
+  '/documents': typeof AppDocumentsRoute
+  '/facilities': typeof AppFacilitiesRoute
+  '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
   '/patients': typeof AppPatientsRoute
   '/pharmacy': typeof AppPharmacyRoute
+  '/practitioners': typeof AppPractitionersRoute
+  '/reports': typeof AppReportsRoute
+  '/theatre': typeof AppTheatreRoute
+  '/ward': typeof AppWardRoute
 }
 export interface FileRoutesByTo {
+  '/admin': typeof AppAdminRoute
   '/admissions': typeof AppAdmissionsRoute
+  '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
+  '/billing': typeof AppBillingRoute
+  '/case-management': typeof AppCaseManagementRoute
+  '/documents': typeof AppDocumentsRoute
+  '/facilities': typeof AppFacilitiesRoute
+  '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
   '/patients': typeof AppPatientsRoute
   '/pharmacy': typeof AppPharmacyRoute
+  '/practitioners': typeof AppPractitionersRoute
+  '/reports': typeof AppReportsRoute
+  '/theatre': typeof AppTheatreRoute
+  '/ward': typeof AppWardRoute
   '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/_app/admin': typeof AppAdminRoute
   '/_app/admissions': typeof AppAdmissionsRoute
+  '/_app/audit': typeof AppAuditRoute
   '/_app/authorisations': typeof AppAuthorisationsRoute
+  '/_app/billing': typeof AppBillingRoute
+  '/_app/case-management': typeof AppCaseManagementRoute
+  '/_app/documents': typeof AppDocumentsRoute
+  '/_app/facilities': typeof AppFacilitiesRoute
+  '/_app/funding': typeof AppFundingRoute
   '/_app/integrations': typeof AppIntegrationsRoute
   '/_app/patients': typeof AppPatientsRoute
   '/_app/pharmacy': typeof AppPharmacyRoute
+  '/_app/practitioners': typeof AppPractitionersRoute
+  '/_app/reports': typeof AppReportsRoute
+  '/_app/theatre': typeof AppTheatreRoute
+  '/_app/ward': typeof AppWardRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/admissions'
+    | '/audit'
     | '/authorisations'
+    | '/billing'
+    | '/case-management'
+    | '/documents'
+    | '/facilities'
+    | '/funding'
     | '/integrations'
     | '/patients'
     | '/pharmacy'
+    | '/practitioners'
+    | '/reports'
+    | '/theatre'
+    | '/ward'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/admin'
     | '/admissions'
+    | '/audit'
     | '/authorisations'
+    | '/billing'
+    | '/case-management'
+    | '/documents'
+    | '/facilities'
+    | '/funding'
     | '/integrations'
     | '/patients'
     | '/pharmacy'
+    | '/practitioners'
+    | '/reports'
+    | '/theatre'
+    | '/ward'
     | '/'
   id:
     | '__root__'
     | '/_app'
+    | '/_app/admin'
     | '/_app/admissions'
+    | '/_app/audit'
     | '/_app/authorisations'
+    | '/_app/billing'
+    | '/_app/case-management'
+    | '/_app/documents'
+    | '/_app/facilities'
+    | '/_app/funding'
     | '/_app/integrations'
     | '/_app/patients'
     | '/_app/pharmacy'
+    | '/_app/practitioners'
+    | '/_app/reports'
+    | '/_app/theatre'
+    | '/_app/ward'
     | '/_app/'
   fileRoutesById: FileRoutesById
 }
@@ -126,6 +258,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/ward': {
+      id: '/_app/ward'
+      path: '/ward'
+      fullPath: '/ward'
+      preLoaderRoute: typeof AppWardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/theatre': {
+      id: '/_app/theatre'
+      path: '/theatre'
+      fullPath: '/theatre'
+      preLoaderRoute: typeof AppTheatreRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/practitioners': {
+      id: '/_app/practitioners'
+      path: '/practitioners'
+      fullPath: '/practitioners'
+      preLoaderRoute: typeof AppPractitionersRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/pharmacy': {
       id: '/_app/pharmacy'
       path: '/pharmacy'
@@ -147,11 +307,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIntegrationsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/funding': {
+      id: '/_app/funding'
+      path: '/funding'
+      fullPath: '/funding'
+      preLoaderRoute: typeof AppFundingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/facilities': {
+      id: '/_app/facilities'
+      path: '/facilities'
+      fullPath: '/facilities'
+      preLoaderRoute: typeof AppFacilitiesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/documents': {
+      id: '/_app/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AppDocumentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/case-management': {
+      id: '/_app/case-management'
+      path: '/case-management'
+      fullPath: '/case-management'
+      preLoaderRoute: typeof AppCaseManagementRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/billing': {
+      id: '/_app/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AppBillingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/authorisations': {
       id: '/_app/authorisations'
       path: '/authorisations'
       fullPath: '/authorisations'
       preLoaderRoute: typeof AppAuthorisationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/audit': {
+      id: '/_app/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AppAuditRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admissions': {
@@ -161,24 +363,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdmissionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppAdmissionsRoute: typeof AppAdmissionsRoute
+  AppAuditRoute: typeof AppAuditRoute
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
+  AppBillingRoute: typeof AppBillingRoute
+  AppCaseManagementRoute: typeof AppCaseManagementRoute
+  AppDocumentsRoute: typeof AppDocumentsRoute
+  AppFacilitiesRoute: typeof AppFacilitiesRoute
+  AppFundingRoute: typeof AppFundingRoute
   AppIntegrationsRoute: typeof AppIntegrationsRoute
   AppPatientsRoute: typeof AppPatientsRoute
   AppPharmacyRoute: typeof AppPharmacyRoute
+  AppPractitionersRoute: typeof AppPractitionersRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppTheatreRoute: typeof AppTheatreRoute
+  AppWardRoute: typeof AppWardRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppAdmissionsRoute: AppAdmissionsRoute,
+  AppAuditRoute: AppAuditRoute,
   AppAuthorisationsRoute: AppAuthorisationsRoute,
+  AppBillingRoute: AppBillingRoute,
+  AppCaseManagementRoute: AppCaseManagementRoute,
+  AppDocumentsRoute: AppDocumentsRoute,
+  AppFacilitiesRoute: AppFacilitiesRoute,
+  AppFundingRoute: AppFundingRoute,
   AppIntegrationsRoute: AppIntegrationsRoute,
   AppPatientsRoute: AppPatientsRoute,
   AppPharmacyRoute: AppPharmacyRoute,
+  AppPractitionersRoute: AppPractitionersRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppTheatreRoute: AppTheatreRoute,
+  AppWardRoute: AppWardRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
