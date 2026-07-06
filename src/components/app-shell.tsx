@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Users,
@@ -23,7 +24,11 @@ import {
   Command,
   ExternalLink,
   Plus,
+  Sparkles,
+  RotateCcw,
 } from "lucide-react";
+import { CommandPalette } from "@/components/command-palette";
+
 
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string };
 type NavGroup = { title: string; items: NavItem[] };
