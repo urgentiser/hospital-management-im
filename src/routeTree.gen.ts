@@ -10,32 +10,104 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppPharmacyRouteImport } from './routes/_app.pharmacy'
+import { Route as AppPatientsRouteImport } from './routes/_app.patients'
+import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
+import { Route as AppAuthorisationsRouteImport } from './routes/_app.authorisations'
+import { Route as AppAdmissionsRouteImport } from './routes/_app.admissions'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPharmacyRoute = AppPharmacyRouteImport.update({
+  id: '/pharmacy',
+  path: '/pharmacy',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPatientsRoute = AppPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAuthorisationsRoute = AppAuthorisationsRouteImport.update({
+  id: '/authorisations',
+  path: '/authorisations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdmissionsRoute = AppAdmissionsRouteImport.update({
+  id: '/admissions',
+  path: '/admissions',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppRoute
+  '/': typeof AppIndexRoute
+  '/admissions': typeof AppAdmissionsRoute
+  '/authorisations': typeof AppAuthorisationsRoute
+  '/integrations': typeof AppIntegrationsRoute
+  '/patients': typeof AppPatientsRoute
+  '/pharmacy': typeof AppPharmacyRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AppRoute
+  '/admissions': typeof AppAdmissionsRoute
+  '/authorisations': typeof AppAuthorisationsRoute
+  '/integrations': typeof AppIntegrationsRoute
+  '/patients': typeof AppPatientsRoute
+  '/pharmacy': typeof AppPharmacyRoute
+  '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_app': typeof AppRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_app/admissions': typeof AppAdmissionsRoute
+  '/_app/authorisations': typeof AppAuthorisationsRoute
+  '/_app/integrations': typeof AppIntegrationsRoute
+  '/_app/patients': typeof AppPatientsRoute
+  '/_app/pharmacy': typeof AppPharmacyRoute
+  '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admissions'
+    | '/authorisations'
+    | '/integrations'
+    | '/patients'
+    | '/pharmacy'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_app'
+  to:
+    | '/admissions'
+    | '/authorisations'
+    | '/integrations'
+    | '/patients'
+    | '/pharmacy'
+    | '/'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_app/admissions'
+    | '/_app/authorisations'
+    | '/_app/integrations'
+    | '/_app/patients'
+    | '/_app/pharmacy'
+    | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AppRoute: typeof AppRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -47,11 +119,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/pharmacy': {
+      id: '/_app/pharmacy'
+      path: '/pharmacy'
+      fullPath: '/pharmacy'
+      preLoaderRoute: typeof AppPharmacyRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/patients': {
+      id: '/_app/patients'
+      path: '/patients'
+      fullPath: '/patients'
+      preLoaderRoute: typeof AppPatientsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/integrations': {
+      id: '/_app/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof AppIntegrationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/authorisations': {
+      id: '/_app/authorisations'
+      path: '/authorisations'
+      fullPath: '/authorisations'
+      preLoaderRoute: typeof AppAuthorisationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admissions': {
+      id: '/_app/admissions'
+      path: '/admissions'
+      fullPath: '/admissions'
+      preLoaderRoute: typeof AppAdmissionsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAdmissionsRoute: typeof AppAdmissionsRoute
+  AppAuthorisationsRoute: typeof AppAuthorisationsRoute
+  AppIntegrationsRoute: typeof AppIntegrationsRoute
+  AppPatientsRoute: typeof AppPatientsRoute
+  AppPharmacyRoute: typeof AppPharmacyRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAdmissionsRoute: AppAdmissionsRoute,
+  AppAuthorisationsRoute: AppAuthorisationsRoute,
+  AppIntegrationsRoute: AppIntegrationsRoute,
+  AppPatientsRoute: AppPatientsRoute,
+  AppPharmacyRoute: AppPharmacyRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  AppRoute: AppRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
