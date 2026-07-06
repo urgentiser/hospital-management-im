@@ -1,58 +1,41 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card, PageHeader, StatusChip } from "@/components/app-shell";
-import { authorisations } from "@/lib/mock-data";
+import { WorkflowModule } from "@/components/workflow-module";
 
 export const Route = createFileRoute("/_app/authorisations")({
-  head: () => ({
-    meta: [
-      { title: "Authorisations — Impilo" },
-      { name: "description", content: "Scheme authorisations queue and review workflow." },
-    ],
-  }),
-  component: AuthPage,
+  head: () => ({ meta: [{ title: "Authorisations — Impilo" }] }),
+  component: () => (
+    <WorkflowModule
+      config={{
+        moduleKey: "authorisations",
+        eyebrow: "Clinical · Funding & Authorisation",
+        title: "Authorisations",
+        description: "Submit and track scheme authorisations from request through approval or appeal.",
+        workflow: ["pending", "review", "approved"],
+        outcomes: ["declined"],
+        columns: [
+          { key: "title", label: "Procedure" },
+          { key: "Patient", label: "Patient" },
+          { key: "Scheme", label: "Scheme" },
+          { key: "Amount", label: "Amount" },
+          { key: "Submitted", label: "Submitted" },
+        ],
+        fields: [
+          { key: "procedure", label: "Procedure", required: true },
+          { key: "patient", label: "Patient", required: true },
+          { key: "scheme", label: "Scheme", type: "select", required: true, options: ["Discovery Health", "Bonitas", "GEMS", "Momentum Health", "Polmed"] },
+          { key: "amount", label: "Amount (ZAR)", type: "number", required: true },
+          { key: "submittedAt", label: "Submitted", placeholder: "YYYY-MM-DD" },
+          { key: "clinical", label: "Clinical motivation", type: "textarea" },
+        ],
+        titleFrom: (f) => String(f["Procedure"] || "New authorisation"),
+        subtitleFrom: (f) => `${f["Patient"]} · ${f["Scheme"]}`,
+        kpis: (items) => [
+          { label: "Pending", value: items.filter((i) => i.status === "pending").length },
+          { label: "Review", value: items.filter((i) => i.status === "review").length },
+          { label: "Approved", value: items.filter((i) => i.status === "approved").length },
+          { label: "Declined", value: items.filter((i) => i.status === "declined").length },
+        ],
+      }}
+    />
+  ),
 });
-
-function AuthPage() {
-  return (
-    <>
-      <PageHeader
-        eyebrow="Clinical · Funding & Authorisation"
-        title="Authorisations"
-        description="Track scheme authorisations across their lifecycle — from submission through approval, review, and appeal."
-      />
-
-      <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-5 py-3 font-medium">Ref</th>
-                <th className="px-5 py-3 font-medium">Patient</th>
-                <th className="px-5 py-3 font-medium">Scheme</th>
-                <th className="px-5 py-3 font-medium">Procedure</th>
-                <th className="px-5 py-3 text-right font-medium">Amount</th>
-                <th className="px-5 py-3 font-medium">Submitted</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {authorisations.map((a) => (
-                <tr key={a.id} className="hover:bg-muted/30">
-                  <td className="px-5 py-3 font-mono text-xs">{a.id}</td>
-                  <td className="px-5 py-3">{a.patient}</td>
-                  <td className="px-5 py-3 text-muted-foreground">{a.scheme}</td>
-                  <td className="px-5 py-3">{a.procedure}</td>
-                  <td className="px-5 py-3 text-right font-mono">R {a.amount.toLocaleString()}</td>
-                  <td className="px-5 py-3 text-xs text-muted-foreground">{a.submittedAt}</td>
-                  <td className="px-5 py-3">
-                    <StatusChip status={a.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </>
-  );
-}
