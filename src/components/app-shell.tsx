@@ -13,6 +13,7 @@ import {
   Pill,
   Activity,
   ClipboardList,
+  ClipboardEdit,
   Receipt,
   FileText,
   BarChart3,
