@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Users,
@@ -23,7 +24,11 @@ import {
   Command,
   ExternalLink,
   Plus,
+  Sparkles,
+  RotateCcw,
 } from "lucide-react";
+import { CommandPalette } from "@/components/command-palette";
+
 
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string };
 type NavGroup = { title: string; items: NavItem[] };
@@ -70,6 +75,19 @@ const navGroups: NavGroup[] = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -147,25 +165,45 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Topbar */}
       <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-border bg-background/70 px-4 backdrop-blur-xl lg:pl-[17rem] lg:pr-6">
-        <div className="flex max-w-xl flex-1 items-center gap-2 rounded-xl border border-border bg-card/60 px-3.5 py-2 text-sm text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => setPaletteOpen(true)}
+          className="flex max-w-xl flex-1 items-center gap-2 rounded-xl border border-border bg-card/60 px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        >
           <Search className="h-4 w-4" />
-          <input
-            placeholder="Search patients, admissions, authorisations…"
-            className="w-full bg-transparent outline-none placeholder:text-muted-foreground/70"
-          />
+          <span className="flex-1 truncate">Search patients, admissions, authorisations…</span>
           <kbd className="hidden items-center gap-1 rounded-md border border-border bg-muted/70 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground md:flex">
             <Command className="h-3 w-3" /> K
           </kbd>
-        </div>
+        </button>
 
         <div className="ml-auto flex items-center gap-2">
-          <a
-            href="/admissions?new=1"
+          <span className="hidden items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-accent md:inline-flex">
+            <Sparkles className="h-3 w-3" /> Demo
+          </span>
+          <button
+            title="Reset demo data"
+            onClick={() => {
+              try {
+                localStorage.removeItem("impilo-workflow-v2");
+                toast.success("Demo data reset", { description: "Reloading with fresh seed data…" });
+                setTimeout(() => window.location.reload(), 400);
+              } catch {
+                toast.error("Could not reset demo data");
+              }
+            }}
+            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground hover:text-foreground md:inline-flex"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </button>
+          <Link
+            to="/admissions"
+            search={{ new: "1" }}
             className="hidden items-center gap-2 rounded-lg bg-gradient-primary px-3.5 py-2 text-sm font-medium text-primary-foreground shadow-glow transition-opacity hover:opacity-90 md:inline-flex"
           >
             <Plus className="h-4 w-4" />
             New Admission
-          </a>
+          </Link>
           <button className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground hover:text-foreground">
             <Bell className="h-4 w-4" />
             <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
@@ -181,6 +219,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
+
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+
+
 
       <main className="min-h-[calc(100vh-4rem)] bg-gradient-hero lg:pl-64">
         <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">{children}</div>
