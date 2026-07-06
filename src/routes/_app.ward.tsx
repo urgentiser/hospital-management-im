@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_app/ward")({
           { key: "Facility", label: "Facility" },
         ],
         fields: [
-          { key: "facility", label: "Facility", type: "select", required: true, options: ["Life Fourways", "Life Groenkloof", "Life Fourways", "Life Kingsbury"] },
+          { key: "facility", label: "Facility", type: "select", required: true, options: ["Life Fourways", "Life Groenkloof", "Life Kingsbury", "Life Vincent Pallotti", "Life Glynnwood", "Life East London", "Life Westville", "Life Entabeni"] },
           { key: "ward", label: "Ward", required: true },
           { key: "bed", label: "Bed number", required: true },
           { key: "patient", label: "Patient (optional)" },

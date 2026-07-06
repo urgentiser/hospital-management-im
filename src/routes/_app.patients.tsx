@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_app/patients")({
           { key: "dob", label: "Date of birth", placeholder: "YYYY-MM-DD" },
           { key: "gender", label: "Gender", type: "select", options: ["M", "F", "Other"] },
           { key: "scheme", label: "Scheme", type: "select", options: ["Discovery Health", "Bonitas", "GEMS", "Momentum Health", "Polmed", "Other"] },
-          { key: "facility", label: "Facility", type: "select", options: ["Life Fourways", "Life Groenkloof", "Life Fourways", "Life Kingsbury"] },
+          { key: "facility", label: "Facility", type: "select", options: ["Life Fourways", "Life Groenkloof", "Life Kingsbury", "Life Vincent Pallotti", "Life Glynnwood", "Life East London", "Life Westville", "Life Entabeni"] },
           { key: "practitioner", label: "Practitioner", placeholder: "e.g. Dr. S. Naidoo" },
         ],
         titleFrom: (f) => String(f["Full name"] || "New patient"),
