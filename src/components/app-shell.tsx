@@ -50,6 +50,7 @@ const navGroups: NavGroup[] = [
     title: "Clinical",
     items: [
       { to: "/patients", label: "Patients", icon: Users, badge: "320" },
+      { to: "/preadmissions", label: "Pre-admissions", icon: ClipboardEdit },
       { to: "/admissions", label: "Admissions", icon: BedDouble, badge: "128" },
       { to: "/authorisations", label: "Authorisations", icon: ShieldCheck, badge: "42" },
       { to: "/pharmacy", label: "Pharmacy", icon: Pill },
