@@ -21,10 +21,11 @@ export function AskImpiloAI() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] active:scale-100"
+        aria-label="Ask Impilo AI"
+        className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] active:scale-100 sm:bottom-5 sm:right-5"
       >
         <Sparkles className="h-4 w-4" />
-        Ask Impilo AI
+        <span className="hidden sm:inline">Ask Impilo AI</span>
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
