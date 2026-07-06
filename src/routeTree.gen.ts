@@ -16,6 +16,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AppWardRouteImport } from './routes/_app.ward'
 import { Route as AppTheatreRouteImport } from './routes/_app.theatre'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppPreadmissionsRouteImport } from './routes/_app.preadmissions'
 import { Route as AppPractitionersRouteImport } from './routes/_app.practitioners'
 import { Route as AppPharmacyRouteImport } from './routes/_app.pharmacy'
 import { Route as AppPatientsRouteImport } from './routes/_app.patients'
@@ -65,6 +66,11 @@ const AppTheatreRoute = AppTheatreRouteImport.update({
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPreadmissionsRoute = AppPreadmissionsRouteImport.update({
+  id: '/preadmissions',
+  path: '/preadmissions',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPractitionersRoute = AppPractitionersRouteImport.update({
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/patients': typeof AppPatientsRoute
   '/pharmacy': typeof AppPharmacyRoute
   '/practitioners': typeof AppPractitionersRoute
+  '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
   '/theatre': typeof AppTheatreRoute
   '/ward': typeof AppWardRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/patients': typeof AppPatientsRoute
   '/pharmacy': typeof AppPharmacyRoute
   '/practitioners': typeof AppPractitionersRoute
+  '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
   '/theatre': typeof AppTheatreRoute
   '/ward': typeof AppWardRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/_app/patients': typeof AppPatientsRoute
   '/_app/pharmacy': typeof AppPharmacyRoute
   '/_app/practitioners': typeof AppPractitionersRoute
+  '/_app/preadmissions': typeof AppPreadmissionsRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/theatre': typeof AppTheatreRoute
   '/_app/ward': typeof AppWardRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/patients'
     | '/pharmacy'
     | '/practitioners'
+    | '/preadmissions'
     | '/reports'
     | '/theatre'
     | '/ward'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/patients'
     | '/pharmacy'
     | '/practitioners'
+    | '/preadmissions'
     | '/reports'
     | '/theatre'
     | '/ward'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/_app/patients'
     | '/_app/pharmacy'
     | '/_app/practitioners'
+    | '/_app/preadmissions'
     | '/_app/reports'
     | '/_app/theatre'
     | '/_app/ward'
@@ -359,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/preadmissions': {
+      id: '/_app/preadmissions'
+      path: '/preadmissions'
+      fullPath: '/preadmissions'
+      preLoaderRoute: typeof AppPreadmissionsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/practitioners': {
@@ -490,6 +509,7 @@ interface AppRouteChildren {
   AppPatientsRoute: typeof AppPatientsRoute
   AppPharmacyRoute: typeof AppPharmacyRoute
   AppPractitionersRoute: typeof AppPractitionersRoute
+  AppPreadmissionsRoute: typeof AppPreadmissionsRoute
   AppReportsRoute: typeof AppReportsRoute
   AppTheatreRoute: typeof AppTheatreRoute
   AppWardRoute: typeof AppWardRoute
@@ -510,6 +530,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPatientsRoute: AppPatientsRoute,
   AppPharmacyRoute: AppPharmacyRoute,
   AppPractitionersRoute: AppPractitionersRoute,
+  AppPreadmissionsRoute: AppPreadmissionsRoute,
   AppReportsRoute: AppReportsRoute,
   AppTheatreRoute: AppTheatreRoute,
   AppWardRoute: AppWardRoute,
