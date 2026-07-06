@@ -1,0 +1,249 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import type { ReactNode } from "react";
+import {
+  LayoutDashboard,
+  Users,
+  BedDouble,
+  ShieldCheck,
+  Building2,
+  Stethoscope,
+  Wallet,
+  HeartPulse,
+  Pill,
+  Activity,
+  ClipboardList,
+  Receipt,
+  FileText,
+  BarChart3,
+  ScrollText,
+  Settings,
+  Search,
+  Bell,
+  CircleUser,
+  Command,
+  ExternalLink,
+  Plus,
+} from "lucide-react";
+
+type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string };
+type NavGroup = { title: string; items: NavItem[] };
+
+const navGroups: NavGroup[] = [
+  {
+    title: "Overview",
+    items: [
+      { to: "/", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/reports", label: "Reports", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "Clinical",
+    items: [
+      { to: "/patients", label: "Patients", icon: Users, badge: "320" },
+      { to: "/admissions", label: "Admissions", icon: BedDouble, badge: "128" },
+      { to: "/authorisations", label: "Authorisations", icon: ShieldCheck, badge: "42" },
+      { to: "/pharmacy", label: "Pharmacy", icon: Pill },
+      { to: "/theatre", label: "Theatre", icon: Activity },
+      { to: "/ward", label: "Ward", icon: HeartPulse },
+    ],
+  },
+  {
+    title: "Operational",
+    items: [
+      { to: "/facilities", label: "Facilities", icon: Building2 },
+      { to: "/practitioners", label: "Practitioners", icon: Stethoscope },
+      { to: "/case-management", label: "Case Management", icon: ClipboardList },
+      { to: "/billing", label: "Billing", icon: Receipt },
+      { to: "/funding", label: "Funding", icon: Wallet },
+      { to: "/documents", label: "Documents", icon: FileText },
+    ],
+  },
+  {
+    title: "Platform",
+    items: [
+      { to: "/integrations", label: "Integrations", icon: Activity },
+      { to: "/audit", label: "Audit", icon: ScrollText },
+      { to: "/admin", label: "Administration", icon: Settings },
+    ],
+  },
+];
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Sidebar */}
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
+            <HeartPulse className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span className="font-display text-lg tracking-tight text-sidebar-foreground">Impilo</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Modern Platform</span>
+          </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
+          {navGroups.map((group) => (
+            <div key={group.title} className="mb-5">
+              <div className="mb-1 px-3 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                {group.title}
+              </div>
+              <ul className="space-y-0.5">
+                {group.items.map((item) => {
+                  const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        className={
+                          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors " +
+                          (active
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-soft"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground")
+                        }
+                      >
+                        <Icon
+                          className={
+                            "h-4 w-4 shrink-0 " +
+                            (active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")
+                          }
+                        />
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {item.badge && (
+                          <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
+
+        <div className="border-t border-sidebar-border p-3">
+          <a
+            href="#"
+            className="flex items-center justify-between rounded-lg border border-sidebar-border bg-sidebar-accent/40 px-3 py-2.5 text-xs text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-accent/20 text-accent">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </div>
+              <div className="leading-tight">
+                <div className="font-medium">Open PCMS</div>
+                <div className="text-[10px] text-muted-foreground">Product master data</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </aside>
+
+      {/* Topbar */}
+      <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-border bg-background/70 px-4 backdrop-blur-xl lg:pl-[17rem] lg:pr-6">
+        <div className="flex max-w-xl flex-1 items-center gap-2 rounded-xl border border-border bg-card/60 px-3.5 py-2 text-sm text-muted-foreground">
+          <Search className="h-4 w-4" />
+          <input
+            placeholder="Search patients, admissions, authorisations…"
+            className="w-full bg-transparent outline-none placeholder:text-muted-foreground/70"
+          />
+          <kbd className="hidden items-center gap-1 rounded-md border border-border bg-muted/70 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground md:flex">
+            <Command className="h-3 w-3" /> K
+          </kbd>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          <button className="hidden items-center gap-2 rounded-lg bg-gradient-primary px-3.5 py-2 text-sm font-medium text-primary-foreground shadow-glow transition-opacity hover:opacity-90 md:inline-flex">
+            <Plus className="h-4 w-4" />
+            New Admission
+          </button>
+          <button className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground hover:text-foreground">
+            <Bell className="h-4 w-4" />
+            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
+          </button>
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-card/60 py-1 pl-1 pr-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+              <CircleUser className="h-4 w-4" />
+            </div>
+            <div className="hidden text-left leading-tight md:block">
+              <div className="text-xs font-medium">Dr. K. Naidoo</div>
+              <div className="text-[10px] text-muted-foreground">Clinical Lead</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="min-h-[calc(100vh-4rem)] bg-gradient-hero lg:pl-64">
+        <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">{children}</div>
+      </main>
+    </div>
+  );
+}
+
+export function PageHeader({
+  title,
+  description,
+  actions,
+  eyebrow,
+}: {
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+  eyebrow?: string;
+}) {
+  return (
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        {eyebrow && (
+          <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-primary">{eyebrow}</div>
+        )}
+        <h1 className="font-display text-4xl tracking-tight text-foreground">{title}</h1>
+        {description && <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    </div>
+  );
+}
+
+export function StatusChip({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    active: "bg-success/15 text-success border-success/30",
+    admitted: "bg-success/15 text-success border-success/30",
+    delivered: "bg-success/15 text-success border-success/30",
+    approved: "bg-success/15 text-success border-success/30",
+    pending: "bg-warning/15 text-warning border-warning/30",
+    review: "bg-info/15 text-info border-info/30",
+    retry: "bg-warning/15 text-warning border-warning/30",
+    transferred: "bg-info/15 text-info border-info/30",
+    discharged: "bg-muted text-muted-foreground border-border",
+    closed: "bg-muted text-muted-foreground border-border",
+    declined: "bg-destructive/15 text-destructive border-destructive/30",
+    failed: "bg-destructive/15 text-destructive border-destructive/30",
+    deadletter: "bg-destructive/15 text-destructive border-destructive/30",
+  };
+  const cls = map[status] ?? "bg-muted text-muted-foreground border-border";
+  return (
+    <span className={"inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize " + cls}>
+      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
+      {status}
+    </span>
+  );
+}
+
+export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <div
+      className={
+        "rounded-2xl border border-border bg-card/60 bg-gradient-surface shadow-soft backdrop-blur-sm " + className
+      }
+    >
+      {children}
+    </div>
+  );
+}
