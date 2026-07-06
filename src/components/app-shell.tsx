@@ -28,6 +28,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { CommandPalette } from "@/components/command-palette";
+import { AskImpiloAI } from "@/components/ask-impilo-ai";
+
 
 
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string };
