@@ -682,7 +682,86 @@ function AdmissionsPage() {
           />
         </>
       )}
+
+      {/* Picker for quick actions that need a selected admission */}
+      <Dialog open={!!pickerFor} onOpenChange={(o) => !o && setPickerFor(null)}>
+        <DialogContent className="max-h-[90vh] w-[calc(100vw-2rem)] max-w-2xl overflow-hidden p-0 sm:w-full">
+          <DialogHeader className="border-b border-border px-6 pb-4 pt-6">
+            <DialogTitle>Select an admission</DialogTitle>
+            <DialogDescription>
+              Choose the admission to {pickerFor ? pickerFor.replace(/-/g, " ") : ""}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="border-b border-border px-6 py-3">
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <input
+                autoFocus
+                value={pickerQuery}
+                onChange={(e) => setPickerQuery(e.target.value)}
+                placeholder="Patient, MRN, ward…"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/70"
+              />
+            </div>
+          </div>
+          <div className="max-h-[60vh] overflow-y-auto px-2 py-2">
+            {(() => {
+              const q = pickerQuery.trim().toLowerCase();
+              const list = items.filter((i) => {
+                if (!q) return true;
+                return [i.id, i.title, i.subtitle ?? "", ...Object.values(i.fields).map(String)]
+                  .join(" ")
+                  .toLowerCase()
+                  .includes(q);
+              });
+              if (list.length === 0) {
+                return (
+                  <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+                    No admissions match your search.
+                  </div>
+                );
+              }
+              return (
+                <ul className="divide-y divide-border">
+                  {list.slice(0, 40).map((r) => (
+                    <li key={r.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const k = pickerFor;
+                          setPickerFor(null);
+                          if (k) openAction(r.id, k);
+                        }}
+                        className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40"
+                      >
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-medium">{r.title}</div>
+                          <div className="truncate text-xs text-muted-foreground">{r.subtitle}</div>
+                          <div className="mt-1 text-[11px] text-muted-foreground">
+                            {String(r.fields.Facility ?? "—")} · {String(r.fields.Ward ?? "—")} · Bed{" "}
+                            {String(r.fields.Bed ?? "—")}
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <StatusChip status={r.status} />
+                          <span className="rounded-md border border-border bg-muted/40 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                            {r.id}
+                          </span>
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
+          </div>
+          <DialogFooter className="border-t border-border px-6 py-4">
+            <Button variant="outline" onClick={() => setPickerFor(null)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
+
   );
 }
 
