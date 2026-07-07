@@ -220,13 +220,21 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       history: [{ at: nowFmt(), action: "Shared with Ops", by: "K. Naidoo" }], createdAt: now(), updatedAt: now() },
   ];
 
-  const triangle: WorkflowItem[] = [
-    { id: "TRI-4001", title: "Discovery — variance review", subtitle: "Tariff vs claim vs remittance",
-      status: "open", fields: { Scheme: "Discovery Health", Claims: 128, Variance: "R 12,430", Period: "Week 27" },
-      history: [{ at: nowFmt(), action: "Triangle opened", by: "Reconciliation" }], createdAt: now(), updatedAt: now() },
-    { id: "TRI-4002", title: "GEMS — remittance triangulation", subtitle: "Auto-matched 96%",
-      status: "reconciled", fields: { Scheme: "GEMS", Claims: 84, Variance: "R 0", Period: "June" },
-      history: [{ at: nowFmt(), action: "Auto-reconciled", by: "System" }], createdAt: now(), updatedAt: now() },
+  const triage: WorkflowItem[] = [
+    { id: "TRG-4001", title: "N. Dlamini · chest pain", subtitle: "ESI 2 · Fourways EU",
+      status: "waiting", fields: { Kind: "Triage Patient", Patient: "N. Dlamini", ESI: "2", Complaint: "Chest pain", Facility: "Life Fourways" },
+      history: [{ at: nowFmt(), action: "Triaged", by: "Sr. M. Zulu" }], createdAt: now(), updatedAt: now() },
+    { id: "TRG-4002", title: "T. Mokoena · laceration", subtitle: "ESI 3 · Kingsbury EU",
+      status: "in-progress", fields: { Kind: "Triage Patient", Patient: "T. Mokoena", ESI: "3", Complaint: "Hand laceration", Facility: "Life Kingsbury" },
+      history: [{ at: nowFmt(), action: "In treatment", by: "Dr. R. Botha" }], createdAt: now(), updatedAt: now() },
+  ];
+  const preadmissions: WorkflowItem[] = [
+    { id: "PA-7086684", title: "GOPOLANG, MAKOKWE", subtitle: "Life Fourways · 2026-07-14",
+      status: "verified", fields: { Kind: "Preadmit Patient", Patient: "GOPOLANG, MAKOKWE", Facility: "Life Fourways", Scheme: "Bank Of Botswana", Auth: "668877" },
+      history: [{ at: nowFmt(), action: "Preadmission created", by: "System" }], createdAt: now(), updatedAt: now() },
+    { id: "PA-7086701", title: "DLAMINI, NOMVULA", subtitle: "Life Kingsbury · 2026-07-12",
+      status: "assessed", fields: { Kind: "Assess Patient", Patient: "DLAMINI, NOMVULA", Facility: "Life Kingsbury", Scheme: "Discovery Health", Auth: "AUTH-40921" },
+      history: [{ at: nowFmt(), action: "Assessment completed", by: "Sr. J. Adams" }], createdAt: now(), updatedAt: now() },
   ];
   const coid: WorkflowItem[] = [
     { id: "COID-9001", title: "Injury on duty — T. Mokoena", subtitle: "Employer: Steelworks SA",
