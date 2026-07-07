@@ -34,6 +34,7 @@ export type ModuleConfig = {
   subtitleFrom?: (fields: Record<string, string | number>) => string;
   idPrefix?: string;
   kpis?: (items: WorkflowItem[]) => { label: string; value: string | number }[];
+  extras?: React.ReactNode;
 };
 
 export function WorkflowModule({ config }: { config: ModuleConfig }) {
@@ -110,6 +111,9 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
           ))}
         </div>
       )}
+
+      {config.extras && <div className="mb-6">{config.extras}</div>}
+
 
       <Card>
         <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
