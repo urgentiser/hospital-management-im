@@ -28,6 +28,10 @@ import {
   Sparkles,
   RotateCcw,
   Menu,
+  Triangle,
+  HardHat,
+  Zap,
+  Calculator,
 } from "lucide-react";
 import { CommandPalette } from "@/components/command-palette";
 import { AskImpiloAI } from "@/components/ask-impilo-ai";
