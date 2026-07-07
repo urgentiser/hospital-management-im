@@ -265,7 +265,7 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
     patients, admissions, authorisations, pharmacy, theatre, ward,
     facilities, practitioners, "case-management": cases, billing, funding,
     documents, integrations, audit, admin, reports,
-    triangle, coid, adhoc, accounting,
+    triage, preadmissions, coid, adhoc, accounting,
   };
 }
 
