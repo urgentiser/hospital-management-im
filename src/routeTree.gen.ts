@@ -38,6 +38,12 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AppPharmacyIndexRouteImport } from './routes/_app.pharmacy.index'
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
+import { Route as AppPharmacyWardTheatreRouteImport } from './routes/_app.pharmacy.ward-theatre'
+import { Route as AppPharmacyRetailAccountsRouteImport } from './routes/_app.pharmacy.retail-accounts'
+import { Route as AppPharmacyLabelsStockRouteImport } from './routes/_app.pharmacy.labels-stock'
+import { Route as AppPharmacyEnquiryRouteImport } from './routes/_app.pharmacy.enquiry'
+import { Route as AppPharmacyDispensingRouteImport } from './routes/_app.pharmacy.dispensing'
+import { Route as AppPharmacyCompoundingRouteImport } from './routes/_app.pharmacy.compounding'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminReferenceRouteImport } from './routes/_app.admin.reference'
 import { Route as AppAdminPrintingRouteImport } from './routes/_app.admin.printing'
@@ -192,6 +198,37 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppPharmacyWardTheatreRoute = AppPharmacyWardTheatreRouteImport.update({
+  id: '/ward-theatre',
+  path: '/ward-theatre',
+  getParentRoute: () => AppPharmacyRoute,
+} as any)
+const AppPharmacyRetailAccountsRoute =
+  AppPharmacyRetailAccountsRouteImport.update({
+    id: '/retail-accounts',
+    path: '/retail-accounts',
+    getParentRoute: () => AppPharmacyRoute,
+  } as any)
+const AppPharmacyLabelsStockRoute = AppPharmacyLabelsStockRouteImport.update({
+  id: '/labels-stock',
+  path: '/labels-stock',
+  getParentRoute: () => AppPharmacyRoute,
+} as any)
+const AppPharmacyEnquiryRoute = AppPharmacyEnquiryRouteImport.update({
+  id: '/enquiry',
+  path: '/enquiry',
+  getParentRoute: () => AppPharmacyRoute,
+} as any)
+const AppPharmacyDispensingRoute = AppPharmacyDispensingRouteImport.update({
+  id: '/dispensing',
+  path: '/dispensing',
+  getParentRoute: () => AppPharmacyRoute,
+} as any)
+const AppPharmacyCompoundingRoute = AppPharmacyCompoundingRouteImport.update({
+  id: '/compounding',
+  path: '/compounding',
+  getParentRoute: () => AppPharmacyRoute,
+} as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -263,6 +300,12 @@ export interface FileRoutesByFullPath {
   '/admin/printing': typeof AppAdminPrintingRoute
   '/admin/reference': typeof AppAdminReferenceRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
+  '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
+  '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
+  '/pharmacy/labels-stock': typeof AppPharmacyLabelsStockRoute
+  '/pharmacy/retail-accounts': typeof AppPharmacyRetailAccountsRoute
+  '/pharmacy/ward-theatre': typeof AppPharmacyWardTheatreRoute
   '/admin/': typeof AppAdminIndexRoute
   '/pharmacy/': typeof AppPharmacyIndexRoute
 }
@@ -298,6 +341,12 @@ export interface FileRoutesByTo {
   '/admin/printing': typeof AppAdminPrintingRoute
   '/admin/reference': typeof AppAdminReferenceRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
+  '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
+  '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
+  '/pharmacy/labels-stock': typeof AppPharmacyLabelsStockRoute
+  '/pharmacy/retail-accounts': typeof AppPharmacyRetailAccountsRoute
+  '/pharmacy/ward-theatre': typeof AppPharmacyWardTheatreRoute
   '/admin': typeof AppAdminIndexRoute
   '/pharmacy': typeof AppPharmacyIndexRoute
 }
@@ -337,6 +386,12 @@ export interface FileRoutesById {
   '/_app/admin/printing': typeof AppAdminPrintingRoute
   '/_app/admin/reference': typeof AppAdminReferenceRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
+  '/_app/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
+  '/_app/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
+  '/_app/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
+  '/_app/pharmacy/labels-stock': typeof AppPharmacyLabelsStockRoute
+  '/_app/pharmacy/retail-accounts': typeof AppPharmacyRetailAccountsRoute
+  '/_app/pharmacy/ward-theatre': typeof AppPharmacyWardTheatreRoute
   '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/pharmacy/': typeof AppPharmacyIndexRoute
 }
@@ -376,6 +431,12 @@ export interface FileRouteTypes {
     | '/admin/printing'
     | '/admin/reference'
     | '/admin/users'
+    | '/pharmacy/compounding'
+    | '/pharmacy/dispensing'
+    | '/pharmacy/enquiry'
+    | '/pharmacy/labels-stock'
+    | '/pharmacy/retail-accounts'
+    | '/pharmacy/ward-theatre'
     | '/admin/'
     | '/pharmacy/'
   fileRoutesByTo: FileRoutesByTo
@@ -411,6 +472,12 @@ export interface FileRouteTypes {
     | '/admin/printing'
     | '/admin/reference'
     | '/admin/users'
+    | '/pharmacy/compounding'
+    | '/pharmacy/dispensing'
+    | '/pharmacy/enquiry'
+    | '/pharmacy/labels-stock'
+    | '/pharmacy/retail-accounts'
+    | '/pharmacy/ward-theatre'
     | '/admin'
     | '/pharmacy'
   id:
@@ -449,6 +516,12 @@ export interface FileRouteTypes {
     | '/_app/admin/printing'
     | '/_app/admin/reference'
     | '/_app/admin/users'
+    | '/_app/pharmacy/compounding'
+    | '/_app/pharmacy/dispensing'
+    | '/_app/pharmacy/enquiry'
+    | '/_app/pharmacy/labels-stock'
+    | '/_app/pharmacy/retail-accounts'
+    | '/_app/pharmacy/ward-theatre'
     | '/_app/admin/'
     | '/_app/pharmacy/'
   fileRoutesById: FileRoutesById
@@ -667,6 +740,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/_app/pharmacy/ward-theatre': {
+      id: '/_app/pharmacy/ward-theatre'
+      path: '/ward-theatre'
+      fullPath: '/pharmacy/ward-theatre'
+      preLoaderRoute: typeof AppPharmacyWardTheatreRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
+    '/_app/pharmacy/retail-accounts': {
+      id: '/_app/pharmacy/retail-accounts'
+      path: '/retail-accounts'
+      fullPath: '/pharmacy/retail-accounts'
+      preLoaderRoute: typeof AppPharmacyRetailAccountsRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
+    '/_app/pharmacy/labels-stock': {
+      id: '/_app/pharmacy/labels-stock'
+      path: '/labels-stock'
+      fullPath: '/pharmacy/labels-stock'
+      preLoaderRoute: typeof AppPharmacyLabelsStockRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
+    '/_app/pharmacy/enquiry': {
+      id: '/_app/pharmacy/enquiry'
+      path: '/enquiry'
+      fullPath: '/pharmacy/enquiry'
+      preLoaderRoute: typeof AppPharmacyEnquiryRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
+    '/_app/pharmacy/dispensing': {
+      id: '/_app/pharmacy/dispensing'
+      path: '/dispensing'
+      fullPath: '/pharmacy/dispensing'
+      preLoaderRoute: typeof AppPharmacyDispensingRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
+    '/_app/pharmacy/compounding': {
+      id: '/_app/pharmacy/compounding'
+      path: '/compounding'
+      fullPath: '/pharmacy/compounding'
+      preLoaderRoute: typeof AppPharmacyCompoundingRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
     '/_app/admin/users': {
       id: '/_app/admin/users'
       path: '/users'
@@ -744,10 +859,22 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 )
 
 interface AppPharmacyRouteChildren {
+  AppPharmacyCompoundingRoute: typeof AppPharmacyCompoundingRoute
+  AppPharmacyDispensingRoute: typeof AppPharmacyDispensingRoute
+  AppPharmacyEnquiryRoute: typeof AppPharmacyEnquiryRoute
+  AppPharmacyLabelsStockRoute: typeof AppPharmacyLabelsStockRoute
+  AppPharmacyRetailAccountsRoute: typeof AppPharmacyRetailAccountsRoute
+  AppPharmacyWardTheatreRoute: typeof AppPharmacyWardTheatreRoute
   AppPharmacyIndexRoute: typeof AppPharmacyIndexRoute
 }
 
 const AppPharmacyRouteChildren: AppPharmacyRouteChildren = {
+  AppPharmacyCompoundingRoute: AppPharmacyCompoundingRoute,
+  AppPharmacyDispensingRoute: AppPharmacyDispensingRoute,
+  AppPharmacyEnquiryRoute: AppPharmacyEnquiryRoute,
+  AppPharmacyLabelsStockRoute: AppPharmacyLabelsStockRoute,
+  AppPharmacyRetailAccountsRoute: AppPharmacyRetailAccountsRoute,
+  AppPharmacyWardTheatreRoute: AppPharmacyWardTheatreRoute,
   AppPharmacyIndexRoute: AppPharmacyIndexRoute,
 }
 
