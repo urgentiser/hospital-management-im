@@ -36,6 +36,7 @@ import { Route as AppAdhocRouteImport } from './routes/_app.adhoc'
 import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const McpRoute = McpRouteImport.update({
@@ -174,6 +175,11 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -188,7 +194,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
-  '/admin': typeof AppAdminRoute
+  '/admin': typeof AppAdminRouteWithChildren
   '/admissions': typeof AppAdmissionsRoute
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin/': typeof AppAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
@@ -216,7 +223,6 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
-  '/admin': typeof AppAdminRoute
   '/admissions': typeof AppAdmissionsRoute
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
@@ -238,6 +244,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/': typeof AppIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin': typeof AppAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -247,7 +254,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_app/accounting': typeof AppAccountingRoute
   '/_app/adhoc': typeof AppAdhocRoute
-  '/_app/admin': typeof AppAdminRoute
+  '/_app/admin': typeof AppAdminRouteWithChildren
   '/_app/admissions': typeof AppAdmissionsRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/authorisations': typeof AppAuthorisationsRoute
@@ -269,6 +276,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/_app/': typeof AppIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/_app/admin/': typeof AppAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -300,6 +308,7 @@ export interface FileRouteTypes {
     | '/ward'
     | '/api/chat'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/mcp'
@@ -307,7 +316,6 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/accounting'
     | '/adhoc'
-    | '/admin'
     | '/admissions'
     | '/audit'
     | '/authorisations'
@@ -329,6 +337,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin'
   id:
     | '__root__'
     | '/_app'
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/_app/'
     | '/.mcp/invoke-tool/$tool'
+    | '/_app/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -561,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/admin/': {
+      id: '/_app/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
       path: '/.mcp/invoke-tool/$tool'
@@ -571,10 +588,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppAdminRouteChildren {
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
+}
+
+const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminIndexRoute: AppAdminIndexRoute,
+}
+
+const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
+  AppAdminRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAccountingRoute: typeof AppAccountingRoute
   AppAdhocRoute: typeof AppAdhocRoute
-  AppAdminRoute: typeof AppAdminRoute
+  AppAdminRoute: typeof AppAdminRouteWithChildren
   AppAdmissionsRoute: typeof AppAdmissionsRoute
   AppAuditRoute: typeof AppAuditRoute
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
@@ -599,7 +628,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAccountingRoute: AppAccountingRoute,
   AppAdhocRoute: AppAdhocRoute,
-  AppAdminRoute: AppAdminRoute,
+  AppAdminRoute: AppAdminRouteWithChildren,
   AppAdmissionsRoute: AppAdmissionsRoute,
   AppAuditRoute: AppAuditRoute,
   AppAuthorisationsRoute: AppAuthorisationsRoute,
