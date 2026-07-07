@@ -76,7 +76,7 @@ const navGroups: NavGroup[] = [
   {
     title: "Financial & Ops",
     items: [
-      { to: "/triangle", label: "Triangle", icon: Triangle },
+      { to: "/triage", label: "Triage", icon: Triangle },
       { to: "/coid", label: "COID", icon: HardHat },
       { to: "/adhoc", label: "Adhoc", icon: Zap },
       { to: "/accounting", label: "Accounting", icon: Calculator },
