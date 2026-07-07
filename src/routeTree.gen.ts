@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AppWardRouteImport } from './routes/_app.ward'
+import { Route as AppTriangleRouteImport } from './routes/_app.triangle'
 import { Route as AppTheatreRouteImport } from './routes/_app.theatre'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppPreadmissionsRouteImport } from './routes/_app.preadmissions'
@@ -56,6 +57,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
 const AppWardRoute = AppWardRouteImport.update({
   id: '/ward',
   path: '/ward',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTriangleRoute = AppTriangleRouteImport.update({
+  id: '/triangle',
+  path: '/triangle',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTheatreRoute = AppTheatreRouteImport.update({
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
   '/theatre': typeof AppTheatreRoute
+  '/triangle': typeof AppTriangleRoute
   '/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
   '/theatre': typeof AppTheatreRoute
+  '/triangle': typeof AppTriangleRoute
   '/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AppIndexRoute
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/_app/preadmissions': typeof AppPreadmissionsRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/theatre': typeof AppTheatreRoute
+  '/_app/triangle': typeof AppTriangleRoute
   '/_app/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/_app/': typeof AppIndexRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/preadmissions'
     | '/reports'
     | '/theatre'
+    | '/triangle'
     | '/ward'
     | '/api/chat'
     | '/.mcp/invoke-tool/$tool'
@@ -281,6 +291,7 @@ export interface FileRouteTypes {
     | '/preadmissions'
     | '/reports'
     | '/theatre'
+    | '/triangle'
     | '/ward'
     | '/api/chat'
     | '/'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/_app/preadmissions'
     | '/_app/reports'
     | '/_app/theatre'
+    | '/_app/triangle'
     | '/_app/ward'
     | '/api/chat'
     | '/_app/'
@@ -357,6 +369,13 @@ declare module '@tanstack/react-router' {
       path: '/ward'
       fullPath: '/ward'
       preLoaderRoute: typeof AppWardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/triangle': {
+      id: '/_app/triangle'
+      path: '/triangle'
+      fullPath: '/triangle'
+      preLoaderRoute: typeof AppTriangleRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/theatre': {
@@ -512,6 +531,7 @@ interface AppRouteChildren {
   AppPreadmissionsRoute: typeof AppPreadmissionsRoute
   AppReportsRoute: typeof AppReportsRoute
   AppTheatreRoute: typeof AppTheatreRoute
+  AppTriangleRoute: typeof AppTriangleRoute
   AppWardRoute: typeof AppWardRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -533,6 +553,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPreadmissionsRoute: AppPreadmissionsRoute,
   AppReportsRoute: AppReportsRoute,
   AppTheatreRoute: AppTheatreRoute,
+  AppTriangleRoute: AppTriangleRoute,
   AppWardRoute: AppWardRoute,
   AppIndexRoute: AppIndexRoute,
 }
