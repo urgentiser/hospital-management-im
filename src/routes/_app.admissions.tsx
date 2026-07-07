@@ -341,26 +341,53 @@ function AdmissionsPage() {
         onSubmit={(vals) => {
           const created = create("admissions", {
             title: vals.patient,
-            subtitle: `${vals.facility} · ${vals.ward} · Bed ${vals.bed}`,
+            subtitle: `${vals.facility} · ${vals.wardRoomBed || `${vals.ward} · Bed ${vals.bed}`}`,
             status: "admitted",
             fields: {
-              MRN: vals.mrn,
+              // Patient details
+              MRN: vals.lifeNumber || vals.mrn,
+              "Life Number": vals.lifeNumber,
+              "SA ID": vals.saId,
+              DOB: vals.dob,
+              DOD: vals.dod,
+              Gender: vals.gender,
+              // Next of kin
+              "NOK Contact": vals.nokContact,
+              "NOK Relationship": vals.nokRelationship,
+              "NOK Mobile": vals.nokMobile,
+              "NOK Work": vals.nokWork,
+              "NOK Home": vals.nokHome,
+              // Admission details
+              "Visit Number": vals.visitNumber,
+              "Visit Type": vals.visitType,
+              "Care Type": vals.careType,
+              "Admission Date": vals.admissionDate,
               Facility: vals.facility,
               Ward: vals.ward,
               Bed: vals.bed,
+              "Ward, Room, Bed": vals.wardRoomBed,
+              Practitioner: vals.admittingDoctor,
+              "Primary ICD": vals.primaryIcd,
+              "Primary CPT": vals.primaryCpt,
+              // Funding
+              "Funding Type": vals.fundingType,
               Scheme: vals.scheme,
-              Auth: vals.auth || "None",
+              Plan: vals.plan,
+              "Membership Number": vals.membershipNumber,
+              Auth: vals.authNumber || "None",
+              "Auth Status": vals.authStatus,
+              Copayment: vals.copayment,
               Reason: vals.reason,
-              Practitioner: vals.practitioner,
               Admitted: new Date().toLocaleString(),
               LOS: "0",
               "Billing Status": "open",
             },
           });
-          toast.success("Patient admitted", { description: `${created.id} · ${vals.patient}` });
+          toast.success("Admission completed", { description: `${created.id} · ${vals.patient}` });
           closeAction();
         }}
       />
+
 
       {/* Simple action dialogs */}
       {active && (
@@ -686,59 +713,166 @@ function DialogShell({
   );
 }
 
+type AdmitValues = {
+  // Patient details
+  patient: string; saId: string; dob: string; lifeNumber: string; dod: string; gender: string;
+  // Next of kin
+  nokContact: string; nokRelationship: string; nokMobile: string; nokWork: string; nokHome: string;
+  // Admission details
+  visitNumber: string; admissionDate: string; visitType: string; careType: string;
+  admittingDoctor: string; primaryIcd: string; primaryCpt: string; wardRoomBed: string;
+  fundingType: string; scheme: string; plan: string; membershipNumber: string;
+  authNumber: string; authStatus: string; copayment: string;
+  // Legacy compatibility with the rest of the workflow
+  mrn: string; facility: string; ward: string; bed: string; auth: string; reason: string; practitioner: string;
+};
+
+const nowLocal = () => {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const genVisitNumber = () => String(Math.floor(100000 + Math.random() * 900000));
+
+const initialAdmit = (): AdmitValues => ({
+  patient: "", saId: "Unknown", dob: "", lifeNumber: "", dod: "", gender: "",
+  nokContact: "", nokRelationship: "", nokMobile: "", nokWork: "", nokHome: "",
+  visitNumber: genVisitNumber(), admissionDate: nowLocal(), visitType: "In Patient", careType: "Medical",
+  admittingDoctor: "", primaryIcd: "", primaryCpt: "", wardRoomBed: "",
+  fundingType: "Medical Aid", scheme: SCHEMES[0], plan: "", membershipNumber: "",
+  authNumber: "", authStatus: "Pending", copayment: "",
+  mrn: "", facility: FACILITIES[0], ward: WARDS[0], bed: "", auth: "", reason: "", practitioner: "",
+});
+
 function AdmitDialog({
-  open,
-  onClose,
-  onSubmit,
+  open, onClose, onSubmit,
 }: {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (v: {
-    patient: string; mrn: string; facility: string; ward: string; bed: string;
-    scheme: string; auth: string; reason: string; practitioner: string;
-  }) => void;
+  open: boolean; onClose: () => void; onSubmit: (v: AdmitValues) => void;
 }) {
-  const [v, set] = useState({
-    patient: "", mrn: "", facility: FACILITIES[0], ward: WARDS[0], bed: "",
-    scheme: SCHEMES[0], auth: "", reason: "", practitioner: "",
-  });
-  const upd = (k: keyof typeof v, val: string) => set((s) => ({ ...s, [k]: val }));
-  const submit = () => {
-    if (!v.patient || !v.mrn || !v.bed) {
-      toast.error("Patient, MRN and bed are required");
-      return;
+  const [v, set] = useState<AdmitValues>(initialAdmit);
+  const upd = <K extends keyof AdmitValues>(k: K, val: AdmitValues[K]) =>
+    set((s) => ({ ...s, [k]: val }));
+
+  // Keep legacy fields in sync with the new ones so downstream table & filters still work
+  const syncedSubmit = () => {
+    if (!v.patient) return toast.error("Patient name is required");
+    if (!v.lifeNumber) return toast.error("Life Number is required");
+    const wrb = v.wardRoomBed.trim();
+    // Try to parse "Ward · Bed" if a single field was used
+    let ward = v.ward, bed = v.bed;
+    if (wrb && !bed) {
+      const parts = wrb.split(/[,·\-\/]|\s{2,}/).map((p) => p.trim()).filter(Boolean);
+      if (parts[0]) ward = parts[0];
+      if (parts[parts.length - 1]) bed = parts[parts.length - 1];
     }
-    onSubmit(v);
-    set({ patient: "", mrn: "", facility: FACILITIES[0], ward: WARDS[0], bed: "", scheme: SCHEMES[0], auth: "", reason: "", practitioner: "" });
+    onSubmit({
+      ...v,
+      ward, bed,
+      mrn: v.lifeNumber,
+      auth: v.authNumber,
+      practitioner: v.admittingDoctor,
+      reason: v.reason,
+    });
+    set(initialAdmit());
   };
+
   return (
     <DialogShell
       open={open} onClose={onClose}
-      title="Admit a patient" icon={UserPlus} wide
-      description="Register a new inpatient admission and reserve a bed."
+      title="Admission Actions" icon={UserPlus} wide
+      description="Capture patient, next-of-kin and admission details, then complete the admission."
       footer={
-        <>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={submit} className="bg-gradient-primary hover:opacity-90">Admit patient</Button>
-        </>
+        <div className="flex w-full items-center justify-center gap-3">
+          <Button variant="outline" onClick={onClose}>Back</Button>
+          <Button onClick={syncedSubmit} className="bg-gradient-primary hover:opacity-90 min-w-24">
+            Complete
+          </Button>
+        </div>
       }
     >
-      <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Patient full name *"><Input value={v.patient} onChange={(e) => upd("patient", e.target.value)} /></Field>
-        <Field label="MRN *"><Input value={v.mrn} onChange={(e) => upd("mrn", e.target.value)} placeholder="MRN-0000000" /></Field>
-        <Field label="Facility"><SelectFrom value={v.facility} onChange={(x) => upd("facility", x)} options={FACILITIES} /></Field>
-        <Field label="Ward"><SelectFrom value={v.ward} onChange={(x) => upd("ward", x)} options={WARDS} /></Field>
-        <Field label="Bed *"><Input value={v.bed} onChange={(e) => upd("bed", e.target.value)} placeholder="e.g. 12" /></Field>
-        <Field label="Scheme"><SelectFrom value={v.scheme} onChange={(x) => upd("scheme", x)} options={SCHEMES} /></Field>
-        <Field label="Authorisation ref"><Input value={v.auth} onChange={(e) => upd("auth", e.target.value)} placeholder="AUTH-40921 or leave blank for No-Auth" /></Field>
-        <Field label="Practitioner"><Input value={v.practitioner} onChange={(e) => upd("practitioner", e.target.value)} placeholder="Dr. …" /></Field>
-        <div className="md:col-span-2">
-          <Field label="Reason for admission"><Textarea rows={3} value={v.reason} onChange={(e) => upd("reason", e.target.value)} /></Field>
-        </div>
+      <div className="space-y-6">
+        {/* Patient Details */}
+        <Section title="Patient Details">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Patient"><Input value={v.patient} onChange={(e) => upd("patient", e.target.value)} placeholder="e.g. Mr Mosh, Testing" /></Field>
+            <Field label="South Africa ID"><Input value={v.saId} onChange={(e) => upd("saId", e.target.value)} placeholder="13-digit RSA ID or Unknown" /></Field>
+            <Field label="Date Of Birth"><Input type="date" value={v.dob} onChange={(e) => upd("dob", e.target.value)} /></Field>
+            <Field label="Life Number"><Input value={v.lifeNumber} onChange={(e) => upd("lifeNumber", e.target.value)} placeholder="e.g. 8013657" /></Field>
+            <Field label="Date Of Death"><Input type="date" value={v.dod} onChange={(e) => upd("dod", e.target.value)} /></Field>
+            <Field label="Gender">
+              <SelectFrom value={v.gender} onChange={(x) => upd("gender", x)} options={["Male", "Female", "Other", "Unknown"]} />
+            </Field>
+          </div>
+        </Section>
+
+        {/* Next of Kin Contact Details */}
+        <Section title="Next Of Kin Contact Details">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Contact"><Input value={v.nokContact} onChange={(e) => upd("nokContact", e.target.value)} placeholder="Full name" /></Field>
+            <Field label="Mobile Number"><Input value={v.nokMobile} onChange={(e) => upd("nokMobile", e.target.value)} placeholder="+27 …" /></Field>
+            <Field label="Relationship">
+              <SelectFrom value={v.nokRelationship} onChange={(x) => upd("nokRelationship", x)}
+                options={["Spouse", "Parent", "Child", "Sibling", "Guardian", "Friend", "Other"]} />
+            </Field>
+            <Field label="Work Number"><Input value={v.nokWork} onChange={(e) => upd("nokWork", e.target.value)} /></Field>
+            <div className="hidden md:block" />
+            <Field label="Home Number"><Input value={v.nokHome} onChange={(e) => upd("nokHome", e.target.value)} /></Field>
+          </div>
+        </Section>
+
+        {/* Admission Details */}
+        <Section title="Admission Details">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Visit Number"><Input value={v.visitNumber} onChange={(e) => upd("visitNumber", e.target.value)} /></Field>
+            <Field label="Funding Type">
+              <SelectFrom value={v.fundingType} onChange={(x) => upd("fundingType", x)}
+                options={["Medical Aid", "Private", "Corporate", "COID", "RAF", "State"]} />
+            </Field>
+            <Field label="Admission Date"><Input value={v.admissionDate} onChange={(e) => upd("admissionDate", e.target.value)} placeholder="YYYY-MM-DD HH:mm" /></Field>
+            <Field label="Scheme"><SelectFrom value={v.scheme} onChange={(x) => upd("scheme", x)} options={SCHEMES} /></Field>
+            <Field label="Visit Type">
+              <SelectFrom value={v.visitType} onChange={(x) => upd("visitType", x)}
+                options={["In Patient", "Day Case", "Out Patient", "Emergency"]} />
+            </Field>
+            <Field label="Plan"><Input value={v.plan} onChange={(e) => upd("plan", e.target.value)} placeholder="e.g. Gold" /></Field>
+            <Field label="Care Type">
+              <SelectFrom value={v.careType} onChange={(x) => upd("careType", x)}
+                options={["Medical", "Surgical", "Maternity", "Paediatric", "ICU", "Psychiatric"]} />
+            </Field>
+            <Field label="Membership Number"><Input value={v.membershipNumber} onChange={(e) => upd("membershipNumber", e.target.value)} placeholder="e.g. 03/100300" /></Field>
+            <Field label="Admitting Doctor"><Input value={v.admittingDoctor} onChange={(e) => upd("admittingDoctor", e.target.value)} placeholder="Dr …" /></Field>
+            <Field label="Authorisation Number"><Input value={v.authNumber} onChange={(e) => upd("authNumber", e.target.value)} placeholder="e.g. 03/300200 — leave blank for No-Auth" /></Field>
+            <Field label="Primary ICD"><Input value={v.primaryIcd} onChange={(e) => upd("primaryIcd", e.target.value)} placeholder="e.g. C78.0" /></Field>
+            <Field label="Authorisation Status">
+              <SelectFrom value={v.authStatus} onChange={(x) => upd("authStatus", x)}
+                options={["Approved", "Pending", "Declined", "Not Required"]} />
+            </Field>
+            <Field label="Primary CPT"><Input value={v.primaryCpt} onChange={(e) => upd("primaryCpt", e.target.value)} /></Field>
+            <Field label="Copayment"><Input value={v.copayment} onChange={(e) => upd("copayment", e.target.value)} placeholder="R 0.00" /></Field>
+            <div className="md:col-span-2">
+              <Field label="Ward, Room, Bed"><Input value={v.wardRoomBed} onChange={(e) => upd("wardRoomBed", e.target.value)} placeholder="e.g. Trauma Stock Room · Bed 12" /></Field>
+            </div>
+            <div className="md:col-span-2">
+              <Field label="Reason / clinical notes"><Textarea rows={2} value={v.reason} onChange={(e) => upd("reason", e.target.value)} /></Field>
+            </div>
+          </div>
+        </Section>
       </div>
     </DialogShell>
   );
 }
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <div className="mb-3 border-b-2 border-primary/40 pb-1">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">{title}</h3>
+      </div>
+      {children}
+    </section>
+  );
+}
+
 
 function ConfirmDialog({
   open, onClose, title, description, confirmLabel, destructive, onConfirm,
