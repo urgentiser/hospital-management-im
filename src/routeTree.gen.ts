@@ -33,6 +33,7 @@ import { Route as AppAuditRouteImport } from './routes/_app.audit'
 import { Route as AppAdmissionsRouteImport } from './routes/_app.admissions'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppAdhocRouteImport } from './routes/_app.adhoc'
+import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -156,6 +157,11 @@ const AppAdhocRoute = AppAdhocRouteImport.update({
   path: '/adhoc',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountingRoute = AppAccountingRouteImport.update({
+  id: '/accounting',
+  path: '/accounting',
+  getParentRoute: () => AppRoute,
+} as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
   '/admin': typeof AppAdminRoute
   '/admissions': typeof AppAdmissionsRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
   '/admin': typeof AppAdminRoute
   '/admissions': typeof AppAdmissionsRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/_app/accounting': typeof AppAccountingRoute
   '/_app/adhoc': typeof AppAdhocRoute
   '/_app/admin': typeof AppAdminRoute
   '/_app/admissions': typeof AppAdmissionsRoute
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/accounting'
     | '/adhoc'
     | '/admin'
     | '/admissions'
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/accounting'
     | '/adhoc'
     | '/admin'
     | '/admissions'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/_app/accounting'
     | '/_app/adhoc'
     | '/_app/admin'
     | '/_app/admissions'
@@ -528,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdhocRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/accounting': {
+      id: '/_app/accounting'
+      path: '/accounting'
+      fullPath: '/accounting'
+      preLoaderRoute: typeof AppAccountingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
@@ -553,6 +572,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAccountingRoute: typeof AppAccountingRoute
   AppAdhocRoute: typeof AppAdhocRoute
   AppAdminRoute: typeof AppAdminRoute
   AppAdmissionsRoute: typeof AppAdmissionsRoute
@@ -577,6 +597,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountingRoute: AppAccountingRoute,
   AppAdhocRoute: AppAdhocRoute,
   AppAdminRoute: AppAdminRoute,
   AppAdmissionsRoute: AppAdmissionsRoute,
