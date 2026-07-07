@@ -102,6 +102,47 @@ type ActionKind =
   | "statement"
   | "undischarge";
 
+type AdmissionAction = {
+  kind: Exclude<ActionKind, null>;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  hint: string;
+  destructive?: boolean;
+  requiresStatus?: WorkflowItem["status"][];
+};
+
+const ADMISSION_ACTION_SECTIONS: { title: string; actions: AdmissionAction[] }[] = [
+  {
+    title: "Patient",
+    actions: [
+      { kind: "admit", label: "Admit Patient", icon: UserPlus, hint: "Capture a new admission" },
+      { kind: "view", label: "View Admission", icon: Eye, hint: "Open admission details" },
+      { kind: "location", label: "Patient Location", icon: MapPin, hint: "Current ward / bed" },
+      { kind: "move-ward", label: "Move to Ward", icon: ArrowRightLeft, hint: "Internal transfer" },
+      { kind: "discharge", label: "Discharge Patient", icon: LogOut, hint: "Complete discharge" },
+      { kind: "undischarge", label: "Undischarge (EU)", icon: Undo2, hint: "Reverse a discharge" },
+      { kind: "register-birth", label: "Register Birth", icon: Baby, hint: "Add neonate to mother" },
+    ],
+  },
+  {
+    title: "Billing",
+    actions: [
+      { kind: "finalise", label: "Finalise Bill", icon: Receipt, hint: "Close and total the bill" },
+      { kind: "invoices", label: "Invoices & Statements", icon: FileText, hint: "View invoices" },
+      { kind: "statement", label: "Statement of Account", icon: FileText, hint: "Account statement" },
+      { kind: "billing-checks", label: "Billing Checks", icon: ClipboardCheck, hint: "Manage checks" },
+      { kind: "no-auth", label: "Flag No-Auth", icon: ShieldOff, hint: "Mark as no authorisation" },
+    ],
+  },
+  {
+    title: "Closure",
+    actions: [
+      { kind: "cancel", label: "Cancel Admission", icon: Ban, hint: "Release the bed", destructive: true },
+      { kind: "discontinue", label: "Discontinue", icon: StopCircle, hint: "Stop in-progress admission", destructive: true },
+    ],
+  },
+];
+
 function AdmissionsPage() {
   const items = useWorkflow((s) => s.items.admissions);
   const create = useWorkflow((s) => s.create);
@@ -202,6 +243,71 @@ function AdmissionsPage() {
           </>
         }
       />
+
+      <div className="flex justify-end">
+        <Card className="w-full max-w-md p-0">
+          <button
+            type="button"
+            onClick={() => setActionsOpen((o) => !o)}
+            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+            aria-expanded={actionsOpen}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <Sparkles className="h-3.5 w-3.5" />
+              </div>
+              <div className="leading-tight">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Admissions</div>
+                <div className="text-sm font-medium">Quick actions</div>
+              </div>
+            </div>
+            <ChevronDown
+              className={"h-4 w-4 text-muted-foreground transition-transform " + (actionsOpen ? "rotate-180" : "")}
+            />
+          </button>
+          {actionsOpen && (
+            <div className="space-y-3 border-t border-border px-3 pb-3 pt-2">
+              {ADMISSION_ACTION_SECTIONS.map((sec) => (
+                <div key={sec.title}>
+                  <div className="mb-1.5 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    {sec.title}
+                  </div>
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {sec.actions.map((a) => {
+                      const Icon = a.icon;
+                      return (
+                        <button
+                          key={a.kind}
+                          onClick={() => {
+                            if (a.kind === "admit") {
+                              setAction("admit");
+                            } else {
+                              setPickerQuery("");
+                              setPickerFor(a.kind as Exclude<ActionKind, null | "admit">);
+                            }
+                          }}
+                          title={`${a.label} — ${a.hint}`}
+                          aria-label={a.label}
+                          className={
+                            "group flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card/60 text-muted-foreground transition-colors hover:bg-primary/10 " +
+                            (a.destructive
+                              ? "hover:border-destructive/40 hover:text-destructive"
+                              : "hover:border-primary/40 hover:text-primary")
+                          }
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+
 
       {view === "dashboard" ? (
         <div className="grid gap-4 md:grid-cols-4">
@@ -576,7 +682,86 @@ function AdmissionsPage() {
           />
         </>
       )}
+
+      {/* Picker for quick actions that need a selected admission */}
+      <Dialog open={!!pickerFor} onOpenChange={(o) => !o && setPickerFor(null)}>
+        <DialogContent className="max-h-[90vh] w-[calc(100vw-2rem)] max-w-2xl overflow-hidden p-0 sm:w-full">
+          <DialogHeader className="border-b border-border px-6 pb-4 pt-6">
+            <DialogTitle>Select an admission</DialogTitle>
+            <DialogDescription>
+              Choose the admission to {pickerFor ? pickerFor.replace(/-/g, " ") : ""}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="border-b border-border px-6 py-3">
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <input
+                autoFocus
+                value={pickerQuery}
+                onChange={(e) => setPickerQuery(e.target.value)}
+                placeholder="Patient, MRN, ward…"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/70"
+              />
+            </div>
+          </div>
+          <div className="max-h-[60vh] overflow-y-auto px-2 py-2">
+            {(() => {
+              const q = pickerQuery.trim().toLowerCase();
+              const list = items.filter((i) => {
+                if (!q) return true;
+                return [i.id, i.title, i.subtitle ?? "", ...Object.values(i.fields).map(String)]
+                  .join(" ")
+                  .toLowerCase()
+                  .includes(q);
+              });
+              if (list.length === 0) {
+                return (
+                  <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+                    No admissions match your search.
+                  </div>
+                );
+              }
+              return (
+                <ul className="divide-y divide-border">
+                  {list.slice(0, 40).map((r) => (
+                    <li key={r.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const k = pickerFor;
+                          setPickerFor(null);
+                          if (k) openAction(r.id, k);
+                        }}
+                        className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40"
+                      >
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-medium">{r.title}</div>
+                          <div className="truncate text-xs text-muted-foreground">{r.subtitle}</div>
+                          <div className="mt-1 text-[11px] text-muted-foreground">
+                            {String(r.fields.Facility ?? "—")} · {String(r.fields.Ward ?? "—")} · Bed{" "}
+                            {String(r.fields.Bed ?? "—")}
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <StatusChip status={r.status} />
+                          <span className="rounded-md border border-border bg-muted/40 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                            {r.id}
+                          </span>
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
+          </div>
+          <DialogFooter className="border-t border-border px-6 py-4">
+            <Button variant="outline" onClick={() => setPickerFor(null)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
+
   );
 }
 
