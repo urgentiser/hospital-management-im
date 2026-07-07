@@ -341,26 +341,53 @@ function AdmissionsPage() {
         onSubmit={(vals) => {
           const created = create("admissions", {
             title: vals.patient,
-            subtitle: `${vals.facility} · ${vals.ward} · Bed ${vals.bed}`,
+            subtitle: `${vals.facility} · ${vals.wardRoomBed || `${vals.ward} · Bed ${vals.bed}`}`,
             status: "admitted",
             fields: {
-              MRN: vals.mrn,
+              // Patient details
+              MRN: vals.lifeNumber || vals.mrn,
+              "Life Number": vals.lifeNumber,
+              "SA ID": vals.saId,
+              DOB: vals.dob,
+              DOD: vals.dod,
+              Gender: vals.gender,
+              // Next of kin
+              "NOK Contact": vals.nokContact,
+              "NOK Relationship": vals.nokRelationship,
+              "NOK Mobile": vals.nokMobile,
+              "NOK Work": vals.nokWork,
+              "NOK Home": vals.nokHome,
+              // Admission details
+              "Visit Number": vals.visitNumber,
+              "Visit Type": vals.visitType,
+              "Care Type": vals.careType,
+              "Admission Date": vals.admissionDate,
               Facility: vals.facility,
               Ward: vals.ward,
               Bed: vals.bed,
+              "Ward, Room, Bed": vals.wardRoomBed,
+              Practitioner: vals.admittingDoctor,
+              "Primary ICD": vals.primaryIcd,
+              "Primary CPT": vals.primaryCpt,
+              // Funding
+              "Funding Type": vals.fundingType,
               Scheme: vals.scheme,
-              Auth: vals.auth || "None",
+              Plan: vals.plan,
+              "Membership Number": vals.membershipNumber,
+              Auth: vals.authNumber || "None",
+              "Auth Status": vals.authStatus,
+              Copayment: vals.copayment,
               Reason: vals.reason,
-              Practitioner: vals.practitioner,
               Admitted: new Date().toLocaleString(),
               LOS: "0",
               "Billing Status": "open",
             },
           });
-          toast.success("Patient admitted", { description: `${created.id} · ${vals.patient}` });
+          toast.success("Admission completed", { description: `${created.id} · ${vals.patient}` });
           closeAction();
         }}
       />
+
 
       {/* Simple action dialogs */}
       {active && (
