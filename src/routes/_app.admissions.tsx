@@ -25,6 +25,8 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
