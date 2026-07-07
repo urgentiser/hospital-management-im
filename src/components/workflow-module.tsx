@@ -112,6 +112,9 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
         </div>
       )}
 
+      {config.extras && <div className="mb-6">{config.extras}</div>}
+
+
       <Card>
         <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-2">
