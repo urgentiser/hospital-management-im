@@ -35,7 +35,8 @@ export type ModuleKey =
   | "audit"
   | "admin"
   | "reports"
-  | "triangle"
+  | "triage"
+  | "preadmissions"
   | "coid"
   | "adhoc"
   | "accounting";
