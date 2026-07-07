@@ -4,9 +4,10 @@ import { toast } from "sonner";
 import {
   Pill, Repeat, PackageOpen, Copy, FlaskConical, ClipboardPlus, Building2, Tag,
   Sparkles, MinusCircle, PackageCheck, PackagePlus, Search, ShoppingBag, Siren,
-  ClipboardList, PackageMinus, ArrowRightLeft, Wallet, Store, Ban, RotateCcw,
-  Printer, Layers,
+  ClipboardList, PackageMinus, ArrowRightLeft, Wallet, Store, Ban,
+  Layers, ChevronDown,
 } from "lucide-react";
+
 import { WorkflowModule } from "@/components/workflow-module";
 import { Card } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
