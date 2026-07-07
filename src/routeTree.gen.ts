@@ -36,6 +36,7 @@ import { Route as AppAdhocRouteImport } from './routes/_app.adhoc'
 import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as AppPharmacyIndexRouteImport } from './routes/_app.pharmacy.index'
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminReferenceRouteImport } from './routes/_app.admin.reference'
@@ -181,6 +182,11 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppPharmacyIndexRoute = AppPharmacyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppPharmacyRoute,
+} as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -242,7 +248,7 @@ export interface FileRoutesByFullPath {
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
   '/patients': typeof AppPatientsRoute
-  '/pharmacy': typeof AppPharmacyRoute
+  '/pharmacy': typeof AppPharmacyRouteWithChildren
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/admin/reference': typeof AppAdminReferenceRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/admin/': typeof AppAdminIndexRoute
+  '/pharmacy/': typeof AppPharmacyIndexRoute
 }
 export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
@@ -276,7 +283,6 @@ export interface FileRoutesByTo {
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
   '/patients': typeof AppPatientsRoute
-  '/pharmacy': typeof AppPharmacyRoute
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
@@ -293,6 +299,7 @@ export interface FileRoutesByTo {
   '/admin/reference': typeof AppAdminReferenceRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/admin': typeof AppAdminIndexRoute
+  '/pharmacy': typeof AppPharmacyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -314,7 +321,7 @@ export interface FileRoutesById {
   '/_app/funding': typeof AppFundingRoute
   '/_app/integrations': typeof AppIntegrationsRoute
   '/_app/patients': typeof AppPatientsRoute
-  '/_app/pharmacy': typeof AppPharmacyRoute
+  '/_app/pharmacy': typeof AppPharmacyRouteWithChildren
   '/_app/practitioners': typeof AppPractitionersRoute
   '/_app/preadmissions': typeof AppPreadmissionsRoute
   '/_app/reports': typeof AppReportsRoute
@@ -331,6 +338,7 @@ export interface FileRoutesById {
   '/_app/admin/reference': typeof AppAdminReferenceRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/admin/': typeof AppAdminIndexRoute
+  '/_app/pharmacy/': typeof AppPharmacyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -369,6 +377,7 @@ export interface FileRouteTypes {
     | '/admin/reference'
     | '/admin/users'
     | '/admin/'
+    | '/pharmacy/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/mcp'
@@ -387,7 +396,6 @@ export interface FileRouteTypes {
     | '/funding'
     | '/integrations'
     | '/patients'
-    | '/pharmacy'
     | '/practitioners'
     | '/preadmissions'
     | '/reports'
@@ -404,6 +412,7 @@ export interface FileRouteTypes {
     | '/admin/reference'
     | '/admin/users'
     | '/admin'
+    | '/pharmacy'
   id:
     | '__root__'
     | '/_app'
@@ -441,6 +450,7 @@ export interface FileRouteTypes {
     | '/_app/admin/reference'
     | '/_app/admin/users'
     | '/_app/admin/'
+    | '/_app/pharmacy/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -643,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/pharmacy/': {
+      id: '/_app/pharmacy/'
+      path: '/'
+      fullPath: '/pharmacy/'
+      preLoaderRoute: typeof AppPharmacyIndexRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
     '/_app/admin/': {
       id: '/_app/admin/'
       path: '/'
@@ -726,6 +743,18 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
   AppAdminRouteChildren,
 )
 
+interface AppPharmacyRouteChildren {
+  AppPharmacyIndexRoute: typeof AppPharmacyIndexRoute
+}
+
+const AppPharmacyRouteChildren: AppPharmacyRouteChildren = {
+  AppPharmacyIndexRoute: AppPharmacyIndexRoute,
+}
+
+const AppPharmacyRouteWithChildren = AppPharmacyRoute._addFileChildren(
+  AppPharmacyRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAccountingRoute: typeof AppAccountingRoute
   AppAdhocRoute: typeof AppAdhocRoute
@@ -741,7 +770,7 @@ interface AppRouteChildren {
   AppFundingRoute: typeof AppFundingRoute
   AppIntegrationsRoute: typeof AppIntegrationsRoute
   AppPatientsRoute: typeof AppPatientsRoute
-  AppPharmacyRoute: typeof AppPharmacyRoute
+  AppPharmacyRoute: typeof AppPharmacyRouteWithChildren
   AppPractitionersRoute: typeof AppPractitionersRoute
   AppPreadmissionsRoute: typeof AppPreadmissionsRoute
   AppReportsRoute: typeof AppReportsRoute
@@ -766,7 +795,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFundingRoute: AppFundingRoute,
   AppIntegrationsRoute: AppIntegrationsRoute,
   AppPatientsRoute: AppPatientsRoute,
-  AppPharmacyRoute: AppPharmacyRoute,
+  AppPharmacyRoute: AppPharmacyRouteWithChildren,
   AppPractitionersRoute: AppPractitionersRoute,
   AppPreadmissionsRoute: AppPreadmissionsRoute,
   AppReportsRoute: AppReportsRoute,
