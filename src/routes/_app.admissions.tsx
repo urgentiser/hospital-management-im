@@ -25,6 +25,8 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -114,6 +116,9 @@ function AdmissionsPage() {
   const [authFilter, setAuthFilter] = useState<"all" | "no-auth">("all");
   const [action, setAction] = useState<ActionKind>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const [pickerFor, setPickerFor] = useState<Exclude<ActionKind, null | "admit"> | null>(null);
+  const [pickerQuery, setPickerQuery] = useState("");
 
   const active = items.find((i) => i.id === activeId) ?? null;
 
