@@ -86,7 +86,7 @@ function AdminIndex() {
           return (
             <Link
               key={s.key}
-              to={`/admin/${s.slug}`}
+              to={`/admin/${s.slug}` as "/admin"}
               className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-5 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow"
             >
               <div className={"pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br opacity-70 blur-2xl transition-opacity group-hover:opacity-100 " + s.accent} />
