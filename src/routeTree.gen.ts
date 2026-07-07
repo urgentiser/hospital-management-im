@@ -25,6 +25,7 @@ import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
 import { Route as AppFundingRouteImport } from './routes/_app.funding'
 import { Route as AppFacilitiesRouteImport } from './routes/_app.facilities'
 import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
+import { Route as AppCoidRouteImport } from './routes/_app.coid'
 import { Route as AppCaseManagementRouteImport } from './routes/_app.case-management'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAuthorisationsRouteImport } from './routes/_app.authorisations'
@@ -114,6 +115,11 @@ const AppDocumentsRoute = AppDocumentsRouteImport.update({
   path: '/documents',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCoidRoute = AppCoidRouteImport.update({
+  id: '/coid',
+  path: '/coid',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCaseManagementRoute = AppCaseManagementRouteImport.update({
   id: '/case-management',
   path: '/case-management',
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
   '/funding': typeof AppFundingRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
   '/funding': typeof AppFundingRoute
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/_app/authorisations': typeof AppAuthorisationsRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/case-management': typeof AppCaseManagementRoute
+  '/_app/coid': typeof AppCoidRoute
   '/_app/documents': typeof AppDocumentsRoute
   '/_app/facilities': typeof AppFacilitiesRoute
   '/_app/funding': typeof AppFundingRoute
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/coid'
     | '/documents'
     | '/facilities'
     | '/funding'
@@ -281,6 +291,7 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/coid'
     | '/documents'
     | '/facilities'
     | '/funding'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/_app/authorisations'
     | '/_app/billing'
     | '/_app/case-management'
+    | '/_app/coid'
     | '/_app/documents'
     | '/_app/facilities'
     | '/_app/funding'
@@ -448,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDocumentsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/coid': {
+      id: '/_app/coid'
+      path: '/coid'
+      fullPath: '/coid'
+      preLoaderRoute: typeof AppCoidRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/case-management': {
       id: '/_app/case-management'
       path: '/case-management'
@@ -521,6 +540,7 @@ interface AppRouteChildren {
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
   AppBillingRoute: typeof AppBillingRoute
   AppCaseManagementRoute: typeof AppCaseManagementRoute
+  AppCoidRoute: typeof AppCoidRoute
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppFacilitiesRoute: typeof AppFacilitiesRoute
   AppFundingRoute: typeof AppFundingRoute
@@ -543,6 +563,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAuthorisationsRoute: AppAuthorisationsRoute,
   AppBillingRoute: AppBillingRoute,
   AppCaseManagementRoute: AppCaseManagementRoute,
+  AppCoidRoute: AppCoidRoute,
   AppDocumentsRoute: AppDocumentsRoute,
   AppFacilitiesRoute: AppFacilitiesRoute,
   AppFundingRoute: AppFundingRoute,
