@@ -91,6 +91,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Impilo — Modern Healthcare Platform" },
+      { name: "description", content: "Unified clinical, operational, and integration workflows for modern healthcare — one platform, one experience." },
+      { property: "og:description", content: "Unified clinical, operational, and integration workflows for modern healthcare — one platform, one experience." },
+      { name: "twitter:description", content: "Unified clinical, operational, and integration workflows for modern healthcare — one platform, one experience." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/398acf2b-156c-4de3-bdb6-11098dc13574/id-preview-06f6b726--a7120129-da28-4b49-aeb8-f13f577dab6d.lovable.app-1783404302191.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/398acf2b-156c-4de3-bdb6-11098dc13574/id-preview-06f6b726--a7120129-da28-4b49-aeb8-f13f577dab6d.lovable.app-1783404302191.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
