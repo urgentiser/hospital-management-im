@@ -34,6 +34,7 @@ export type ModuleConfig = {
   subtitleFrom?: (fields: Record<string, string | number>) => string;
   idPrefix?: string;
   kpis?: (items: WorkflowItem[]) => { label: string; value: string | number }[];
+  extras?: React.ReactNode;
 };
 
 export function WorkflowModule({ config }: { config: ModuleConfig }) {
