@@ -102,6 +102,47 @@ type ActionKind =
   | "statement"
   | "undischarge";
 
+type AdmissionAction = {
+  kind: Exclude<ActionKind, null>;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  hint: string;
+  destructive?: boolean;
+  requiresStatus?: WorkflowItem["status"][];
+};
+
+const ADMISSION_ACTION_SECTIONS: { title: string; actions: AdmissionAction[] }[] = [
+  {
+    title: "Patient",
+    actions: [
+      { kind: "admit", label: "Admit Patient", icon: UserPlus, hint: "Capture a new admission" },
+      { kind: "view", label: "View Admission", icon: Eye, hint: "Open admission details" },
+      { kind: "location", label: "Patient Location", icon: MapPin, hint: "Current ward / bed" },
+      { kind: "move-ward", label: "Move to Ward", icon: ArrowRightLeft, hint: "Internal transfer" },
+      { kind: "discharge", label: "Discharge Patient", icon: LogOut, hint: "Complete discharge" },
+      { kind: "undischarge", label: "Undischarge (EU)", icon: Undo2, hint: "Reverse a discharge" },
+      { kind: "register-birth", label: "Register Birth", icon: Baby, hint: "Add neonate to mother" },
+    ],
+  },
+  {
+    title: "Billing",
+    actions: [
+      { kind: "finalise", label: "Finalise Bill", icon: Receipt, hint: "Close and total the bill" },
+      { kind: "invoices", label: "Invoices & Statements", icon: FileText, hint: "View invoices" },
+      { kind: "statement", label: "Statement of Account", icon: FileText, hint: "Account statement" },
+      { kind: "billing-checks", label: "Billing Checks", icon: ClipboardCheck, hint: "Manage checks" },
+      { kind: "no-auth", label: "Flag No-Auth", icon: ShieldOff, hint: "Mark as no authorisation" },
+    ],
+  },
+  {
+    title: "Closure",
+    actions: [
+      { kind: "cancel", label: "Cancel Admission", icon: Ban, hint: "Release the bed", destructive: true },
+      { kind: "discontinue", label: "Discontinue", icon: StopCircle, hint: "Stop in-progress admission", destructive: true },
+    ],
+  },
+];
+
 function AdmissionsPage() {
   const items = useWorkflow((s) => s.items.admissions);
   const create = useWorkflow((s) => s.create);
