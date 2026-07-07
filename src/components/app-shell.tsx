@@ -28,6 +28,10 @@ import {
   Sparkles,
   RotateCcw,
   Menu,
+  Triangle,
+  HardHat,
+  Zap,
+  Calculator,
 } from "lucide-react";
 import { CommandPalette } from "@/components/command-palette";
 import { AskImpiloAI } from "@/components/ask-impilo-ai";
@@ -55,7 +59,7 @@ const navGroups: NavGroup[] = [
       { to: "/authorisations", label: "Authorisations", icon: ShieldCheck, badge: "42" },
       { to: "/pharmacy", label: "Pharmacy", icon: Pill },
       { to: "/theatre", label: "Theatre", icon: Activity },
-      { to: "/ward", label: "Ward", icon: HeartPulse },
+      { to: "/ward", label: "Ward Management", icon: HeartPulse },
     ],
   },
   {
@@ -67,6 +71,15 @@ const navGroups: NavGroup[] = [
       { to: "/billing", label: "Billing", icon: Receipt },
       { to: "/funding", label: "Funding", icon: Wallet },
       { to: "/documents", label: "Documents", icon: FileText },
+    ],
+  },
+  {
+    title: "Financial & Ops",
+    items: [
+      { to: "/triangle", label: "Triangle", icon: Triangle },
+      { to: "/coid", label: "COID", icon: HardHat },
+      { to: "/adhoc", label: "Adhoc", icon: Zap },
+      { to: "/accounting", label: "Accounting", icon: Calculator },
     ],
   },
   {

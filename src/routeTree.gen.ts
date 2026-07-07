@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AppWardRouteImport } from './routes/_app.ward'
+import { Route as AppTriangleRouteImport } from './routes/_app.triangle'
 import { Route as AppTheatreRouteImport } from './routes/_app.theatre'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppPreadmissionsRouteImport } from './routes/_app.preadmissions'
@@ -24,12 +25,15 @@ import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
 import { Route as AppFundingRouteImport } from './routes/_app.funding'
 import { Route as AppFacilitiesRouteImport } from './routes/_app.facilities'
 import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
+import { Route as AppCoidRouteImport } from './routes/_app.coid'
 import { Route as AppCaseManagementRouteImport } from './routes/_app.case-management'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAuthorisationsRouteImport } from './routes/_app.authorisations'
 import { Route as AppAuditRouteImport } from './routes/_app.audit'
 import { Route as AppAdmissionsRouteImport } from './routes/_app.admissions'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppAdhocRouteImport } from './routes/_app.adhoc'
+import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -56,6 +60,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
 const AppWardRoute = AppWardRouteImport.update({
   id: '/ward',
   path: '/ward',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTriangleRoute = AppTriangleRouteImport.update({
+  id: '/triangle',
+  path: '/triangle',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTheatreRoute = AppTheatreRouteImport.update({
@@ -108,6 +117,11 @@ const AppDocumentsRoute = AppDocumentsRouteImport.update({
   path: '/documents',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCoidRoute = AppCoidRouteImport.update({
+  id: '/coid',
+  path: '/coid',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCaseManagementRoute = AppCaseManagementRouteImport.update({
   id: '/case-management',
   path: '/case-management',
@@ -138,6 +152,16 @@ const AppAdminRoute = AppAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdhocRoute = AppAdhocRouteImport.update({
+  id: '/adhoc',
+  path: '/adhoc',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccountingRoute = AppAccountingRouteImport.update({
+  id: '/accounting',
+  path: '/accounting',
+  getParentRoute: () => AppRoute,
+} as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -162,12 +186,15 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/accounting': typeof AppAccountingRoute
+  '/adhoc': typeof AppAdhocRoute
   '/admin': typeof AppAdminRoute
   '/admissions': typeof AppAdmissionsRoute
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
   '/funding': typeof AppFundingRoute
@@ -178,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
   '/theatre': typeof AppTheatreRoute
+  '/triangle': typeof AppTriangleRoute
   '/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -186,12 +214,15 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/accounting': typeof AppAccountingRoute
+  '/adhoc': typeof AppAdhocRoute
   '/admin': typeof AppAdminRoute
   '/admissions': typeof AppAdmissionsRoute
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
   '/funding': typeof AppFundingRoute
@@ -202,6 +233,7 @@ export interface FileRoutesByTo {
   '/preadmissions': typeof AppPreadmissionsRoute
   '/reports': typeof AppReportsRoute
   '/theatre': typeof AppTheatreRoute
+  '/triangle': typeof AppTriangleRoute
   '/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AppIndexRoute
@@ -213,12 +245,15 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/_app/accounting': typeof AppAccountingRoute
+  '/_app/adhoc': typeof AppAdhocRoute
   '/_app/admin': typeof AppAdminRoute
   '/_app/admissions': typeof AppAdmissionsRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/authorisations': typeof AppAuthorisationsRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/case-management': typeof AppCaseManagementRoute
+  '/_app/coid': typeof AppCoidRoute
   '/_app/documents': typeof AppDocumentsRoute
   '/_app/facilities': typeof AppFacilitiesRoute
   '/_app/funding': typeof AppFundingRoute
@@ -229,6 +264,7 @@ export interface FileRoutesById {
   '/_app/preadmissions': typeof AppPreadmissionsRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/theatre': typeof AppTheatreRoute
+  '/_app/triangle': typeof AppTriangleRoute
   '/_app/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/_app/': typeof AppIndexRoute
@@ -241,12 +277,15 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/accounting'
+    | '/adhoc'
     | '/admin'
     | '/admissions'
     | '/audit'
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/coid'
     | '/documents'
     | '/facilities'
     | '/funding'
@@ -257,6 +296,7 @@ export interface FileRouteTypes {
     | '/preadmissions'
     | '/reports'
     | '/theatre'
+    | '/triangle'
     | '/ward'
     | '/api/chat'
     | '/.mcp/invoke-tool/$tool'
@@ -265,12 +305,15 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/accounting'
+    | '/adhoc'
     | '/admin'
     | '/admissions'
     | '/audit'
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/coid'
     | '/documents'
     | '/facilities'
     | '/funding'
@@ -281,6 +324,7 @@ export interface FileRouteTypes {
     | '/preadmissions'
     | '/reports'
     | '/theatre'
+    | '/triangle'
     | '/ward'
     | '/api/chat'
     | '/'
@@ -291,12 +335,15 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/_app/accounting'
+    | '/_app/adhoc'
     | '/_app/admin'
     | '/_app/admissions'
     | '/_app/audit'
     | '/_app/authorisations'
     | '/_app/billing'
     | '/_app/case-management'
+    | '/_app/coid'
     | '/_app/documents'
     | '/_app/facilities'
     | '/_app/funding'
@@ -307,6 +354,7 @@ export interface FileRouteTypes {
     | '/_app/preadmissions'
     | '/_app/reports'
     | '/_app/theatre'
+    | '/_app/triangle'
     | '/_app/ward'
     | '/api/chat'
     | '/_app/'
@@ -357,6 +405,13 @@ declare module '@tanstack/react-router' {
       path: '/ward'
       fullPath: '/ward'
       preLoaderRoute: typeof AppWardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/triangle': {
+      id: '/_app/triangle'
+      path: '/triangle'
+      fullPath: '/triangle'
+      preLoaderRoute: typeof AppTriangleRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/theatre': {
@@ -429,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDocumentsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/coid': {
+      id: '/_app/coid'
+      path: '/coid'
+      fullPath: '/coid'
+      preLoaderRoute: typeof AppCoidRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/case-management': {
       id: '/_app/case-management'
       path: '/case-management'
@@ -471,6 +533,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/adhoc': {
+      id: '/_app/adhoc'
+      path: '/adhoc'
+      fullPath: '/adhoc'
+      preLoaderRoute: typeof AppAdhocRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/accounting': {
+      id: '/_app/accounting'
+      path: '/accounting'
+      fullPath: '/accounting'
+      preLoaderRoute: typeof AppAccountingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
@@ -496,12 +572,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAccountingRoute: typeof AppAccountingRoute
+  AppAdhocRoute: typeof AppAdhocRoute
   AppAdminRoute: typeof AppAdminRoute
   AppAdmissionsRoute: typeof AppAdmissionsRoute
   AppAuditRoute: typeof AppAuditRoute
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
   AppBillingRoute: typeof AppBillingRoute
   AppCaseManagementRoute: typeof AppCaseManagementRoute
+  AppCoidRoute: typeof AppCoidRoute
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppFacilitiesRoute: typeof AppFacilitiesRoute
   AppFundingRoute: typeof AppFundingRoute
@@ -512,17 +591,21 @@ interface AppRouteChildren {
   AppPreadmissionsRoute: typeof AppPreadmissionsRoute
   AppReportsRoute: typeof AppReportsRoute
   AppTheatreRoute: typeof AppTheatreRoute
+  AppTriangleRoute: typeof AppTriangleRoute
   AppWardRoute: typeof AppWardRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountingRoute: AppAccountingRoute,
+  AppAdhocRoute: AppAdhocRoute,
   AppAdminRoute: AppAdminRoute,
   AppAdmissionsRoute: AppAdmissionsRoute,
   AppAuditRoute: AppAuditRoute,
   AppAuthorisationsRoute: AppAuthorisationsRoute,
   AppBillingRoute: AppBillingRoute,
   AppCaseManagementRoute: AppCaseManagementRoute,
+  AppCoidRoute: AppCoidRoute,
   AppDocumentsRoute: AppDocumentsRoute,
   AppFacilitiesRoute: AppFacilitiesRoute,
   AppFundingRoute: AppFundingRoute,
@@ -533,6 +616,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPreadmissionsRoute: AppPreadmissionsRoute,
   AppReportsRoute: AppReportsRoute,
   AppTheatreRoute: AppTheatreRoute,
+  AppTriangleRoute: AppTriangleRoute,
   AppWardRoute: AppWardRoute,
   AppIndexRoute: AppIndexRoute,
 }

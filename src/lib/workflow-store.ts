@@ -34,7 +34,11 @@ export type ModuleKey =
   | "integrations"
   | "audit"
   | "admin"
-  | "reports";
+  | "reports"
+  | "triangle"
+  | "coid"
+  | "adhoc"
+  | "accounting";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
@@ -215,10 +219,44 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       history: [{ at: nowFmt(), action: "Shared with Ops", by: "K. Naidoo" }], createdAt: now(), updatedAt: now() },
   ];
 
+  const triangle: WorkflowItem[] = [
+    { id: "TRI-4001", title: "Discovery — variance review", subtitle: "Tariff vs claim vs remittance",
+      status: "open", fields: { Scheme: "Discovery Health", Claims: 128, Variance: "R 12,430", Period: "Week 27" },
+      history: [{ at: nowFmt(), action: "Triangle opened", by: "Reconciliation" }], createdAt: now(), updatedAt: now() },
+    { id: "TRI-4002", title: "GEMS — remittance triangulation", subtitle: "Auto-matched 96%",
+      status: "reconciled", fields: { Scheme: "GEMS", Claims: 84, Variance: "R 0", Period: "June" },
+      history: [{ at: nowFmt(), action: "Auto-reconciled", by: "System" }], createdAt: now(), updatedAt: now() },
+  ];
+  const coid: WorkflowItem[] = [
+    { id: "COID-9001", title: "Injury on duty — T. Mokoena", subtitle: "Employer: Steelworks SA",
+      status: "submitted", fields: { Employer: "Steelworks SA", "COID Ref": "W.CL-88221", Injury: "Fracture · left tibia" },
+      history: [{ at: nowFmt(), action: "COID claim submitted", by: "COID Clerk" }], createdAt: now(), updatedAt: now() },
+    { id: "COID-9002", title: "Chemical exposure — L. Ndlovu", subtitle: "Employer: Petrochem",
+      status: "approved", fields: { Employer: "Petrochem", "COID Ref": "W.CL-88240", Injury: "Chemical burn" },
+      history: [{ at: nowFmt(), action: "Approved by Compensation Commissioner", by: "COID" }], createdAt: now(), updatedAt: now() },
+  ];
+  const adhoc: WorkflowItem[] = [
+    { id: "ADH-2201", title: "Manual charge — theatre consumables", subtitle: "Nomvula Dlamini · R 2,340",
+      status: "posted", fields: { Patient: "N. Dlamini", Amount: "R 2,340", Reason: "Theatre consumables" },
+      history: [{ at: nowFmt(), action: "Adhoc charge posted", by: "Billing" }], createdAt: now(), updatedAt: now() },
+    { id: "ADH-2202", title: "Discount — hardship", subtitle: "E. Carter · -R 1,200",
+      status: "approved", fields: { Patient: "E. Carter", Amount: "-R 1,200", Reason: "Hardship discount" },
+      history: [{ at: nowFmt(), action: "Approved by CFO", by: "Finance" }], createdAt: now(), updatedAt: now() },
+  ];
+  const accounting: WorkflowItem[] = [
+    { id: "GL-77001", title: "June revenue posting", subtitle: "GL 4000 · Patient revenue",
+      status: "posted", fields: { Period: "June", Account: "4000 Revenue", Amount: "R 4,182,940", Journal: "JV-0691" },
+      history: [{ at: nowFmt(), action: "Journal posted", by: "Accounting" }], createdAt: now(), updatedAt: now() },
+    { id: "GL-77002", title: "Bad debt provision", subtitle: "Q2 provision update",
+      status: "pending", fields: { Period: "Q2", Account: "5200 Bad debt", Amount: "R 214,500", Journal: "JV-0714" },
+      history: [{ at: nowFmt(), action: "Prepared for review", by: "Financial Controller" }], createdAt: now(), updatedAt: now() },
+  ];
+
   return {
     patients, admissions, authorisations, pharmacy, theatre, ward,
     facilities, practitioners, "case-management": cases, billing, funding,
     documents, integrations, audit, admin, reports,
+    triangle, coid, adhoc, accounting,
   };
 }
 
