@@ -699,19 +699,25 @@ function DialogShell({
 }) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className={wide ? "max-w-2xl" : "max-w-lg"}>
-        <DialogHeader>
+      <DialogContent
+        className={
+          (wide ? "max-w-3xl" : "max-w-lg") +
+          " max-h-[90vh] w-[calc(100vw-2rem)] gap-0 overflow-hidden p-0 sm:w-full"
+        }
+      >
+        <DialogHeader className="border-b px-6 py-4">
           <DialogTitle className="flex items-center gap-2">
             {Icon && <Icon className="h-5 w-5 text-primary" />} {title}
           </DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <div className="py-2">{children}</div>
-        {footer && <DialogFooter>{footer}</DialogFooter>}
+        <div className="max-h-[calc(90vh-9rem)] overflow-y-auto px-6 py-4">{children}</div>
+        {footer && <DialogFooter className="border-t px-6 py-3">{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
   );
 }
+
 
 type AdmitValues = {
   // Patient details
