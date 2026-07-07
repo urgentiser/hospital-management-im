@@ -161,6 +161,8 @@ function PharmacyPage() {
   const createItem = useWorkflow((s) => s.create);
 
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
+
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [enquiryQuery, setEnquiryQuery] = useState("");
 
