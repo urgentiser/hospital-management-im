@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useWorkflow } from "@/lib/workflow-store";
 import {
   ACTIONS, ActionDialog, useSubmitAction,
-  type ActionKey, type ActionSpec, type SectionKey, SECTIONS,
+  type ActionSpec, type SectionKey, SECTIONS,
 } from "./actions";
 
 export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
