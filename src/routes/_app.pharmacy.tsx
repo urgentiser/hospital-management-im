@@ -235,45 +235,59 @@ function PharmacyPage() {
             { label: "Cancelled", value: items.filter((i) => i.status === "cancelled").length },
           ],
           extras: (
-            <Card className="p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Pharmacy actions</div>
-                  <div className="font-display text-lg">Quick actions</div>
-                </div>
-                <Printer className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="space-y-5">
-                {ACTION_SECTIONS.map((sec) => (
-                  <div key={sec.title}>
-                    <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                      {sec.title}
+            <div className="flex justify-end">
+              <Card className="w-full max-w-md p-0">
+                <button
+                  type="button"
+                  onClick={() => setActionsOpen((o) => !o)}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+                  aria-expanded={actionsOpen}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <Sparkles className="h-3.5 w-3.5" />
                     </div>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                      {sec.keys.map((k) => {
-                        const a = ACTIONS.find((x) => x.key === k)!;
-                        const Icon = a.icon;
-                        return (
-                          <button
-                            key={a.key}
-                            onClick={() => handlePick(a)}
-                            title={a.hint}
-                            className="group flex flex-col items-start gap-2 rounded-xl border border-border bg-card/60 p-3 text-left transition-colors hover:border-primary/40 hover:bg-primary/5"
-                          >
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
-                              <Icon className="h-4 w-4" />
-                            </div>
-                            <div className="text-xs font-medium leading-tight text-foreground">{a.label}</div>
-                            <div className="line-clamp-2 text-[10px] leading-snug text-muted-foreground">{a.hint}</div>
-                          </button>
-                        );
-                      })}
+                    <div className="leading-tight">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Pharmacy</div>
+                      <div className="text-sm font-medium">Quick actions</div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </Card>
+                  <ChevronDown
+                    className={"h-4 w-4 text-muted-foreground transition-transform " + (actionsOpen ? "rotate-180" : "")}
+                  />
+                </button>
+                {actionsOpen && (
+                  <div className="space-y-3 border-t border-border px-3 pb-3 pt-2">
+                    {ACTION_SECTIONS.map((sec) => (
+                      <div key={sec.title}>
+                        <div className="mb-1.5 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                          {sec.title}
+                        </div>
+                        <div className="grid grid-cols-6 gap-1.5">
+                          {sec.keys.map((k) => {
+                            const a = ACTIONS.find((x) => x.key === k)!;
+                            const Icon = a.icon;
+                            return (
+                              <button
+                                key={a.key}
+                                onClick={() => handlePick(a)}
+                                title={`${a.label} — ${a.hint}`}
+                                aria-label={a.label}
+                                className="group flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card/60 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+                              >
+                                <Icon className="h-3.5 w-3.5" />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </div>
           ),
+
         }}
       />
 
