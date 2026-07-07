@@ -37,6 +37,12 @@ import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
+import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
+import { Route as AppAdminReferenceRouteImport } from './routes/_app.admin.reference'
+import { Route as AppAdminPrintingRouteImport } from './routes/_app.admin.printing'
+import { Route as AppAdminMonitoringRouteImport } from './routes/_app.admin.monitoring'
+import { Route as AppAdminFacilitiesRouteImport } from './routes/_app.admin.facilities'
+import { Route as AppAdminBillingRouteImport } from './routes/_app.admin.billing'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const McpRoute = McpRouteImport.update({
@@ -180,6 +186,36 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminReferenceRoute = AppAdminReferenceRouteImport.update({
+  id: '/reference',
+  path: '/reference',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPrintingRoute = AppAdminPrintingRouteImport.update({
+  id: '/printing',
+  path: '/printing',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMonitoringRoute = AppAdminMonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminFacilitiesRoute = AppAdminFacilitiesRouteImport.update({
+  id: '/facilities',
+  path: '/facilities',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminBillingRoute = AppAdminBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -215,6 +251,12 @@ export interface FileRoutesByFullPath {
   '/ward': typeof AppWardRoute
   '/api/chat': typeof ApiChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin/billing': typeof AppAdminBillingRoute
+  '/admin/facilities': typeof AppAdminFacilitiesRoute
+  '/admin/monitoring': typeof AppAdminMonitoringRoute
+  '/admin/printing': typeof AppAdminPrintingRoute
+  '/admin/reference': typeof AppAdminReferenceRoute
+  '/admin/users': typeof AppAdminUsersRoute
   '/admin/': typeof AppAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -244,6 +286,12 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/': typeof AppIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin/billing': typeof AppAdminBillingRoute
+  '/admin/facilities': typeof AppAdminFacilitiesRoute
+  '/admin/monitoring': typeof AppAdminMonitoringRoute
+  '/admin/printing': typeof AppAdminPrintingRoute
+  '/admin/reference': typeof AppAdminReferenceRoute
+  '/admin/users': typeof AppAdminUsersRoute
   '/admin': typeof AppAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -276,6 +324,12 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/_app/': typeof AppIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/_app/admin/billing': typeof AppAdminBillingRoute
+  '/_app/admin/facilities': typeof AppAdminFacilitiesRoute
+  '/_app/admin/monitoring': typeof AppAdminMonitoringRoute
+  '/_app/admin/printing': typeof AppAdminPrintingRoute
+  '/_app/admin/reference': typeof AppAdminReferenceRoute
+  '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/admin/': typeof AppAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -308,6 +362,12 @@ export interface FileRouteTypes {
     | '/ward'
     | '/api/chat'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin/billing'
+    | '/admin/facilities'
+    | '/admin/monitoring'
+    | '/admin/printing'
+    | '/admin/reference'
+    | '/admin/users'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -337,6 +397,12 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin/billing'
+    | '/admin/facilities'
+    | '/admin/monitoring'
+    | '/admin/printing'
+    | '/admin/reference'
+    | '/admin/users'
     | '/admin'
   id:
     | '__root__'
@@ -368,6 +434,12 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/_app/'
     | '/.mcp/invoke-tool/$tool'
+    | '/_app/admin/billing'
+    | '/_app/admin/facilities'
+    | '/_app/admin/monitoring'
+    | '/_app/admin/printing'
+    | '/_app/admin/reference'
+    | '/_app/admin/users'
     | '/_app/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -578,6 +650,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/_app/admin/users': {
+      id: '/_app/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AppAdminUsersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/reference': {
+      id: '/_app/admin/reference'
+      path: '/reference'
+      fullPath: '/admin/reference'
+      preLoaderRoute: typeof AppAdminReferenceRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/printing': {
+      id: '/_app/admin/printing'
+      path: '/printing'
+      fullPath: '/admin/printing'
+      preLoaderRoute: typeof AppAdminPrintingRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/monitoring': {
+      id: '/_app/admin/monitoring'
+      path: '/monitoring'
+      fullPath: '/admin/monitoring'
+      preLoaderRoute: typeof AppAdminMonitoringRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/facilities': {
+      id: '/_app/admin/facilities'
+      path: '/facilities'
+      fullPath: '/admin/facilities'
+      preLoaderRoute: typeof AppAdminFacilitiesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/billing': {
+      id: '/_app/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AppAdminBillingRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
       path: '/.mcp/invoke-tool/$tool'
@@ -589,10 +703,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppAdminRouteChildren {
+  AppAdminBillingRoute: typeof AppAdminBillingRoute
+  AppAdminFacilitiesRoute: typeof AppAdminFacilitiesRoute
+  AppAdminMonitoringRoute: typeof AppAdminMonitoringRoute
+  AppAdminPrintingRoute: typeof AppAdminPrintingRoute
+  AppAdminReferenceRoute: typeof AppAdminReferenceRoute
+  AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminBillingRoute: AppAdminBillingRoute,
+  AppAdminFacilitiesRoute: AppAdminFacilitiesRoute,
+  AppAdminMonitoringRoute: AppAdminMonitoringRoute,
+  AppAdminPrintingRoute: AppAdminPrintingRoute,
+  AppAdminReferenceRoute: AppAdminReferenceRoute,
+  AppAdminUsersRoute: AppAdminUsersRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
