@@ -34,7 +34,11 @@ export type ModuleKey =
   | "integrations"
   | "audit"
   | "admin"
-  | "reports";
+  | "reports"
+  | "triangle"
+  | "coid"
+  | "adhoc"
+  | "accounting";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
