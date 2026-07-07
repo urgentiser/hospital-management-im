@@ -203,6 +203,71 @@ function AdmissionsPage() {
         }
       />
 
+      <div className="flex justify-end">
+        <Card className="w-full max-w-md p-0">
+          <button
+            type="button"
+            onClick={() => setActionsOpen((o) => !o)}
+            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+            aria-expanded={actionsOpen}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <Sparkles className="h-3.5 w-3.5" />
+              </div>
+              <div className="leading-tight">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Admissions</div>
+                <div className="text-sm font-medium">Quick actions</div>
+              </div>
+            </div>
+            <ChevronDown
+              className={"h-4 w-4 text-muted-foreground transition-transform " + (actionsOpen ? "rotate-180" : "")}
+            />
+          </button>
+          {actionsOpen && (
+            <div className="space-y-3 border-t border-border px-3 pb-3 pt-2">
+              {ADMISSION_ACTION_SECTIONS.map((sec) => (
+                <div key={sec.title}>
+                  <div className="mb-1.5 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    {sec.title}
+                  </div>
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {sec.actions.map((a) => {
+                      const Icon = a.icon;
+                      return (
+                        <button
+                          key={a.kind}
+                          onClick={() => {
+                            if (a.kind === "admit") {
+                              setAction("admit");
+                            } else {
+                              setPickerQuery("");
+                              setPickerFor(a.kind as Exclude<ActionKind, null | "admit">);
+                            }
+                          }}
+                          title={`${a.label} — ${a.hint}`}
+                          aria-label={a.label}
+                          className={
+                            "group flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card/60 text-muted-foreground transition-colors hover:bg-primary/10 " +
+                            (a.destructive
+                              ? "hover:border-destructive/40 hover:text-destructive"
+                              : "hover:border-primary/40 hover:text-primary")
+                          }
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+
+
       {view === "dashboard" ? (
         <div className="grid gap-4 md:grid-cols-4">
           {[
