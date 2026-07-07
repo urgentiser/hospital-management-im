@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  BedDouble, Sparkles, Broom, Wrench, HeartPulse, Users, ClipboardCheck,
+  BedDouble, Sparkles, Brush, Wrench, HeartPulse, Users, ClipboardCheck,
   Printer, Receipt, ClipboardList, Stethoscope, Building2, Activity,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
@@ -25,7 +25,7 @@ const config: ModuleConsoleConfig = {
     return [
       { label: "Occupied", value: occupied, icon: BedDouble, accent: "from-emerald-500/30 to-transparent", tone: "success" },
       { label: "Available", value: available, icon: Sparkles, accent: "from-primary/30 to-transparent" },
-      { label: "Cleaning", value: cleaning, icon: Broom, accent: "from-amber-500/30 to-transparent", tone: "warning" },
+      { label: "Cleaning", value: cleaning, icon: Brush, accent: "from-amber-500/30 to-transparent", tone: "warning" },
       { label: "Total beds", value: items.length, icon: Building2, accent: "from-slate-500/30 to-transparent", tone: "muted" },
     ];
   },
