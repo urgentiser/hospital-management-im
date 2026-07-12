@@ -179,7 +179,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   );
 }
 
-function TabPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function TabPill({ label, active, onClick }: { label: React.ReactNode; active: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
