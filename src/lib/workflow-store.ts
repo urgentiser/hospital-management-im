@@ -39,7 +39,10 @@ export type ModuleKey =
   | "preadmissions"
   | "coid"
   | "adhoc"
-  | "accounting";
+  | "accounting"
+  | "clinical-assessments"
+  | "medical-events"
+  | "clinical-coding";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
