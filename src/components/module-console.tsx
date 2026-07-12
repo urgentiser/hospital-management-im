@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowRight, ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronRight, Search, Sparkles, Workflow } from "lucide-react";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { useWorkflow, type ModuleKey, type WorkflowItem } from "@/lib/workflow-store";
+import { BusinessFlowWizard, type BusinessFlow } from "@/components/business-flow";
 
 // ---------------- Types ----------------
 
@@ -64,6 +65,7 @@ export type ModuleConsoleConfig = {
   overviewKpis: (items: WorkflowItem[]) => KpiCard[];
   sectionKpis?: (section: SectionSpec, items: WorkflowItem[]) => KpiCard[];
   sections: SectionSpec[];
+  businessFlow?: BusinessFlow;
 };
 
 // ---------------- Console ----------------
@@ -71,7 +73,8 @@ export type ModuleConsoleConfig = {
 export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const items = useWorkflow((s) => s.items[config.moduleKey]);
   const createItem = useWorkflow((s) => s.create);
-  const [activeTab, setActiveTab] = useState<string>("overview");
+  const hasFlow = !!config.businessFlow;
+  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : "overview");
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
   const [feedQuery, setFeedQuery] = useState("");
 
@@ -105,12 +108,14 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
     setActiveAction(null);
   };
 
+  const isFlow = hasFlow && activeTab === "flow";
+
   return (
     <>
       <PageHeader
-        eyebrow={activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
-        title={activeSection ? activeSection.title : config.title}
-        description={activeSection ? activeSection.description : config.description}
+        eyebrow={isFlow ? `${config.eyebrow} · Business flow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
+        title={isFlow ? `${config.businessFlow!.title} — Guided flow` : activeSection ? activeSection.title : config.title}
+        description={isFlow ? config.businessFlow!.purpose : activeSection ? activeSection.description : config.description}
         actions={
           <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
             <Sparkles className="h-3.5 w-3.5" /> Command centre
@@ -120,6 +125,17 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
 
       {/* Tab bar */}
       <nav className="mb-6 -mx-1 flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hidden">
+        {hasFlow && (
+          <TabPill
+            label={
+              <span className="inline-flex items-center gap-1.5">
+                <Workflow className="h-3.5 w-3.5" /> Business flow
+              </span>
+            }
+            active={activeTab === "flow"}
+            onClick={() => setActiveTab("flow")}
+          />
+        )}
         <TabPill label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
         {config.sections.map((s) => (
           <TabPill key={s.key} label={s.title} active={activeTab === s.key} onClick={() => setActiveTab(s.key)} />
@@ -136,7 +152,9 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
         </div>
       )}
 
-      {!activeSection ? (
+      {isFlow ? (
+        <BusinessFlowWizard flow={config.businessFlow!} />
+      ) : !activeSection ? (
         <OverviewPane
           config={config}
           items={items}
@@ -161,7 +179,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   );
 }
 
-function TabPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function TabPill({ label, active, onClick }: { label: React.ReactNode; active: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
