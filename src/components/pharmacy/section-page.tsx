@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronRight, Search } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
 import { useWorkflow } from "@/lib/workflow-store";
