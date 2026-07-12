@@ -1,13 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ModuleStub } from "@/components/module-stub";
+import { AdminSectionPage, sectionHead } from "@/components/admin/section-page";
+import { SECTIONS } from "@/components/admin/actions";
+
+const section = SECTIONS.find((s) => s.key === "support")!;
 
 export const Route = createFileRoute("/_app/admin/support")({
-  head: () => ({ meta: [{ title: "Support Tools — Impilo" }] }),
-  component: () => (
-    <ModuleStub
-      eyebrow="Administration · Support"
-      title="Support Tools"
-      description="Impersonation, diagnostics and support utilities for operators."
-    />
-  ),
+  head: () => sectionHead(section),
+  component: () => <AdminSectionPage sectionKey="support" />,
 });
