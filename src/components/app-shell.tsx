@@ -446,30 +446,72 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
+export type Crumb = { label: string; to?: string };
+
+export function Breadcrumbs({ items }: { items: Crumb[] }) {
+  if (!items.length) return null;
+  return (
+    <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+      {items.map((c, i) => {
+        const last = i === items.length - 1;
+        return (
+          <span key={i} className="inline-flex items-center gap-1.5">
+            {c.to && !last ? (
+              <Link to={c.to as never} className="hover:text-foreground">
+                {c.label}
+              </Link>
+            ) : (
+              <span className={last ? "text-foreground" : undefined}>{c.label}</span>
+            )}
+            {!last && <ChevronRight className="h-3 w-3" />}
+          </span>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function PageHeader({
   title,
   description,
   actions,
   eyebrow,
+  breadcrumbs,
 }: {
   title: string;
   description?: string;
   actions?: ReactNode;
   eyebrow?: string;
+  breadcrumbs?: Crumb[];
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0">
-        {eyebrow && (
-          <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-primary">{eyebrow}</div>
-        )}
-        <h1 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">{title}</h1>
-        {description && <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>}
+    <div className="mb-6">
+      {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          {eyebrow && (
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-primary">
+              {eyebrow}
+            </div>
+          )}
+          <h1 className="font-display text-3xl tracking-tight text-foreground sm:text-[2.25rem] sm:leading-tight">
+            {title}
+          </h1>
+          {description && (
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }
+
+const STATUS_LABEL: Record<string, string> = {
+  deadletter: "Dead letter",
+  in_progress: "In progress",
+  submitted: "Submitted",
+};
 
 export function StatusChip({ status }: { status: string }) {
   const map: Record<string, string> = {
@@ -477,21 +519,36 @@ export function StatusChip({ status }: { status: string }) {
     admitted: "bg-success/15 text-success border-success/30",
     delivered: "bg-success/15 text-success border-success/30",
     approved: "bg-success/15 text-success border-success/30",
+    completed: "bg-success/15 text-success border-success/30",
+    dispensed: "bg-success/15 text-success border-success/30",
     pending: "bg-warning/15 text-warning border-warning/30",
+    queued: "bg-warning/15 text-warning border-warning/30",
+    submitted: "bg-info/15 text-info border-info/30",
+    in_progress: "bg-info/15 text-info border-info/30",
     review: "bg-info/15 text-info border-info/30",
     retry: "bg-warning/15 text-warning border-warning/30",
     transferred: "bg-info/15 text-info border-info/30",
+    draft: "bg-muted text-muted-foreground border-border",
     discharged: "bg-muted text-muted-foreground border-border",
     closed: "bg-muted text-muted-foreground border-border",
+    cancelled: "bg-muted text-muted-foreground border-border",
     declined: "bg-destructive/15 text-destructive border-destructive/30",
     failed: "bg-destructive/15 text-destructive border-destructive/30",
     deadletter: "bg-destructive/15 text-destructive border-destructive/30",
+    suppressed: "bg-destructive/15 text-destructive border-destructive/30",
   };
-  const cls = map[status] ?? "bg-muted text-muted-foreground border-border";
+  const key = status?.toLowerCase?.() ?? "";
+  const cls = map[key] ?? "bg-muted text-muted-foreground border-border";
+  const label = STATUS_LABEL[key] ?? status;
   return (
-    <span className={"inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize " + cls}>
+    <span
+      className={
+        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize " +
+        cls
+      }
+    >
       <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
-      {status}
+      {label}
     </span>
   );
 }
