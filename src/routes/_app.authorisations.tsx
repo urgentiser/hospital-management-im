@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ShieldCheck, Send, Search, ClipboardCheck, XCircle, RotateCcw,
-  FileSignature, AlertTriangle, Wallet,
+  FileSignature, AlertTriangle, ArrowRightLeft, RefreshCcw, CheckCircle2, Wrench, HelpCircle,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
 
@@ -59,14 +59,37 @@ const config: ModuleConsoleConfig = {
       accent: "from-emerald-500/25 via-teal-500/15 to-transparent",
       ring: "ring-emerald-400/30",
       actions: [
-        { key: "search", label: "Search Auths", icon: Search, hint: "Filter by patient / scheme / status", kind: "Search", startStatus: "active",
+        { key: "search", label: "Authorisation Enquiry", icon: Search, hint: "Look up an authorisation and its history", kind: "Enquiry", startStatus: "active",
           fields: [{ name: "query", label: "Search", required: true, placeholder: "Auth ref / patient / scheme" }] },
+        { key: "confirm", label: "Confirm Authorisation", icon: CheckCircle2, hint: "Confirm a pending authorisation before use", kind: "Confirm", startStatus: "approved",
+          fields: [
+            { name: "reference", label: "Auth reference", required: true },
+            { name: "authorisedBy", label: "Confirmed by", required: true },
+          ]},
         { key: "record-response", label: "Record Scheme Response", icon: FileSignature, hint: "Log the scheme decision", kind: "Response", startStatus: "approved",
           fields: [
             { name: "reference", label: "Auth reference", required: true },
             { name: "decision", label: "Decision", required: true, placeholder: "Approved / Declined / More info" },
             { name: "amount", label: "Approved amount (R)", type: "number" },
             { name: "notes", label: "Notes", type: "textarea" },
+          ]},
+        { key: "transfer", label: "Transfer Authorisation", icon: ArrowRightLeft, hint: "Transfer an active auth to a new episode or facility", kind: "Transfer", startStatus: "review",
+          fields: [
+            { name: "reference", label: "Auth reference", required: true },
+            { name: "toEpisode", label: "New episode / admission", required: true },
+            { name: "reason", label: "Reason", type: "textarea", required: true },
+          ]},
+        { key: "reauth", label: "Capture Reauthorisation", icon: RefreshCcw, hint: "Extend or renew an authorisation (references prior auth)", kind: "Reauthorisation", startStatus: "pending",
+          fields: [
+            { name: "priorReference", label: "Prior auth reference", required: true },
+            { name: "extendDays", label: "Extend by (days)", type: "number" },
+            { name: "clinicalUpdate", label: "Clinical update", type: "textarea", required: true },
+          ]},
+        { key: "resolve-issues", label: "Resolve Issues", icon: Wrench, hint: "Clear auth queries raised by the scheme (missing info, coding)", kind: "Resolve Issues", startStatus: "review",
+          fields: [
+            { name: "reference", label: "Auth reference", required: true },
+            { name: "issue", label: "Issue raised", required: true },
+            { name: "resolution", label: "Resolution", required: true, type: "textarea" },
           ]},
       ],
     },

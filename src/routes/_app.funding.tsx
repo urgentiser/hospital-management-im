@@ -68,6 +68,11 @@ const config: ModuleConsoleConfig = {
             { name: "plan", label: "Plan / Option" },
             { name: "reference", label: "Reference", placeholder: "e.g. member no." },
           ]},
+        { key: "funder-search", label: "Funder Search", icon: Search, hint: "Look up a funder directory entry", kind: "Funder", startStatus: "active",
+          fields: [
+            { name: "funder", label: "Funder", required: true },
+            { name: "reference", label: "Funder code / reference" },
+          ]},
         { key: "maintain-mcos", label: "Maintain MCOs", icon: Network, hint: "Managed care organisations", kind: "MCO", startStatus: "active",
           fields: [
             { name: "name", label: "MCO name", required: true },

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Code2, FileSignature, ListChecks, Search, ShieldAlert, PenLine,
-  Sparkles, RotateCcw,
+  Sparkles, RotateCcw, Database, MessageCircleQuestion,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
 
@@ -85,11 +85,57 @@ const config: ModuleConsoleConfig = {
             { name: "reference", label: "Coding ref", required: true },
             { name: "reason", label: "Reason", required: true, type: "textarea" },
           ], destructive: true },
-        { key: "recode", label: "Recode", icon: RotateCcw, hint: "Recode under audit", kind: "Recode", startStatus: "in-review",
+        { key: "coding-query", label: "Coding Query", icon: MessageCircleQuestion, hint: "Raise a clarification question to the clinician", kind: "Coding Query", startStatus: "in-review",
+          fields: [
+            { name: "reference", label: "Coding ref", required: true },
+            { name: "clinician", label: "Clinician", required: true },
+            { name: "question", label: "Question", required: true, type: "textarea" },
+          ]},
+        { key: "recode", label: "Recode", icon: RotateCcw, hint: "Recode under audit (requires reopen if bill finalised)", kind: "Recode", startStatus: "in-review",
           fields: [
             { name: "reference", label: "Coding ref", required: true },
             { name: "newCodes", label: "New codes", required: true },
+            { name: "billFinalised", label: "Bill already finalised? (yes/no)", placeholder: "no" },
+            { name: "reopenAuthorisedBy", label: "Reopen authorised by (if bill finalised)" },
             { name: "reason", label: "Reason for recode", required: true, type: "textarea" },
+          ]},
+      ],
+    },
+    {
+      key: "reference",
+      title: "Reference Data",
+      tagline: "ICD · CPT · NHRPL",
+      description: "Maintain the coding reference sets used by the coder desk — subsets, crossmaps and predictables.",
+      icon: Database,
+      accent: "from-violet-500/25 via-fuchsia-500/15 to-transparent",
+      ring: "ring-violet-400/30",
+      actions: [
+        { key: "maintain-icd", label: "Maintain ICD Subset", icon: Database, hint: "Curate the ICD-10 subset used by coders", kind: "ICD Subset", startStatus: "active",
+          fields: [
+            { name: "code", label: "ICD-10 code", required: true, placeholder: "e.g. K80.20" },
+            { name: "description", label: "Description", required: true },
+            { name: "category", label: "Category" },
+          ]},
+        { key: "maintain-cpt", label: "Maintain CPT Subset / Crossmap", icon: Database, hint: "CPT subset and CPT↔NHRPL crossmap", kind: "CPT Subset", startStatus: "active",
+          fields: [
+            { name: "cpt", label: "CPT code", required: true, placeholder: "e.g. 47562" },
+            { name: "nhrpl", label: "NHRPL crossmap" },
+            { name: "description", label: "Description" },
+          ]},
+        { key: "maintain-nhrpl", label: "Maintain SADANRPL", icon: Database, hint: "Local NHRPL / SADANRPL tariff codes", kind: "SADANRPL", startStatus: "active",
+          fields: [
+            { name: "code", label: "SADANRPL code", required: true },
+            { name: "description", label: "Description", required: true },
+          ]},
+        { key: "maintain-predictables", label: "Maintain Predictables", icon: Sparkles, hint: "Predictable code sets used by auto-suggest", kind: "Predictables", startStatus: "active",
+          fields: [
+            { name: "scenario", label: "Clinical scenario", required: true },
+            { name: "codes", label: "Suggested codes", required: true, type: "textarea" },
+          ]},
+        { key: "maintain-lists", label: "Maintain Coding Lists", icon: ListChecks, hint: "Coder work lists and queue definitions", kind: "Coding List", startStatus: "active",
+          fields: [
+            { name: "list", label: "List name", required: true },
+            { name: "scope", label: "Scope", placeholder: "Facility / Coder / Payer" },
           ]},
       ],
     },
