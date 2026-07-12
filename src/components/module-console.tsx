@@ -64,6 +64,7 @@ export type ModuleConsoleConfig = {
   heroCtas?: { label: string; sectionKey: string; primary?: boolean }[];
   overviewKpis: (items: WorkflowItem[]) => KpiCard[];
   sectionKpis?: (section: SectionSpec, items: WorkflowItem[]) => KpiCard[];
+  overviewExtras?: (items: WorkflowItem[]) => React.ReactNode;
   sections: SectionSpec[];
   businessFlow?: BusinessFlow;
 };
@@ -342,6 +343,9 @@ function OverviewPane({
             </div>
           ))}
         </Card>
+        {config.overviewExtras && (
+          <div className="mt-6">{config.overviewExtras(items)}</div>
+        )}
       </div>
     </>
   );
