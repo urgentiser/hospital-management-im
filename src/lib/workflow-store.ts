@@ -322,6 +322,47 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       history: [{ at: nowFmt(), action: "In progress", by: "Accounts" }], createdAt: now(), updatedAt: now() },
   ];
 
+  const serviceBus: WorkflowItem[] = [
+    { id: "SB-1001", title: "orders.created / T-1", subtitle: "sub-billing · active", status: "healthy",
+      fields: { Kind: "Subscription", Topic: "orders.created", Subscription: "sub-billing", Messages: 128, DLQ: 0 },
+      history: [{ at: nowFmt(), action: "Subscription healthy", by: "Service Bus" }], createdAt: now(), updatedAt: now() },
+    { id: "SB-1002", title: "patient.admitted / T-2", subtitle: "sub-ward · lag", status: "degraded",
+      fields: { Kind: "Subscription", Topic: "patient.admitted", Subscription: "sub-ward", Messages: 42, DLQ: 3 },
+      history: [{ at: nowFmt(), action: "Consumer lag detected", by: "Monitor" }], createdAt: now(), updatedAt: now() },
+  ];
+  const failedMessages: WorkflowItem[] = [
+    { id: "DLQ-4401", title: "claim.submitted · schema mismatch", subtitle: "sub-billing · 3 attempts", status: "dead-lettered",
+      fields: { Kind: "Dead-letter", Topic: "claim.submitted", Attempts: 3, Reason: "Schema mismatch" },
+      history: [{ at: nowFmt(), action: "Moved to DLQ", by: "Service Bus" }], createdAt: now(), updatedAt: now() },
+    { id: "DLQ-4402", title: "auth.approved · downstream 500", subtitle: "sub-auth · 5 attempts", status: "dead-lettered",
+      fields: { Kind: "Dead-letter", Topic: "auth.approved", Attempts: 5, Reason: "Downstream 500" },
+      history: [{ at: nowFmt(), action: "Moved to DLQ", by: "Service Bus" }], createdAt: now(), updatedAt: now() },
+  ];
+  const notifications: WorkflowItem[] = [
+    { id: "NT-9001", title: "SMS · Auth AUTH-40921 approved", subtitle: "+27 82 xxx 1234 · delivered", status: "delivered",
+      fields: { Kind: "SMS", Channel: "SMS", Recipient: "+27 82 xxx 1234", Template: "auth.approved" },
+      history: [{ at: nowFmt(), action: "Delivered", by: "SMS Gateway" }], createdAt: now(), updatedAt: now() },
+    { id: "NT-9002", title: "Email · Statement — E. Carter", subtitle: "e.carter@example.com · queued", status: "queued",
+      fields: { Kind: "Email", Channel: "Email", Recipient: "e.carter@example.com", Template: "statement.monthly" },
+      history: [{ at: nowFmt(), action: "Queued for send", by: "Notify" }], createdAt: now(), updatedAt: now() },
+  ];
+  const systemHealth: WorkflowItem[] = [
+    { id: "SVC-API", title: "API Gateway", subtitle: "99.98% · 42ms p95", status: "healthy",
+      fields: { Kind: "Service", Uptime: "99.98%", Latency: "42ms", Errors: 0 },
+      history: [{ at: nowFmt(), action: "Healthy", by: "Health probe" }], createdAt: now(), updatedAt: now() },
+    { id: "SVC-DB", title: "Primary Database", subtitle: "replica lag 120ms", status: "degraded",
+      fields: { Kind: "Service", Uptime: "99.9%", Latency: "120ms", Errors: 2 },
+      history: [{ at: nowFmt(), action: "Replica lag alert", by: "Health probe" }], createdAt: now(), updatedAt: now() },
+  ];
+  const workflowInbox: WorkflowItem[] = [
+    { id: "WI-2201", title: "Approve auth · AUTH-40921", subtitle: "Discovery · N. Dlamini", status: "assigned",
+      fields: { Kind: "Task", Assignee: "Case Mgr J. Adams", Origin: "Authorisations", DueIn: "2h" },
+      history: [{ at: nowFmt(), action: "Task created", by: "Workflow" }], createdAt: now(), updatedAt: now() },
+    { id: "WI-2202", title: "Review discharge summary · E. Carter", subtitle: "Ward 3B", status: "in-progress",
+      fields: { Kind: "Task", Assignee: "Dr. L. Pillay", Origin: "Ward", DueIn: "6h" },
+      history: [{ at: nowFmt(), action: "Assigned", by: "Workflow" }], createdAt: now(), updatedAt: now() },
+  ];
+
   return {
     patients, admissions, authorisations, pharmacy, theatre, ward,
     facilities, practitioners, "case-management": cases, billing, funding,
@@ -333,6 +374,11 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
     reimbursements,
     "supplier-invoices": supplierInvoices,
     "account-enquiries": accountEnquiries,
+    "service-bus": serviceBus,
+    "failed-messages": failedMessages,
+    notifications,
+    "system-health": systemHealth,
+    "workflow-inbox": workflowInbox,
   };
 }
 
