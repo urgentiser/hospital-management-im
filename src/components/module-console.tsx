@@ -65,6 +65,7 @@ export type ModuleConsoleConfig = {
   overviewKpis: (items: WorkflowItem[]) => KpiCard[];
   sectionKpis?: (section: SectionSpec, items: WorkflowItem[]) => KpiCard[];
   sections: SectionSpec[];
+  businessFlow?: BusinessFlow;
 };
 
 // ---------------- Console ----------------
