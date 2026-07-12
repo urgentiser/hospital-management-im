@@ -113,7 +113,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   return (
     <>
       <PageHeader
-        eyebrow={isFlow ? `${config.eyebrow} · Business flow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
+        eyebrow={isFlow ? `${config.eyebrow} · Guided workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
         title={isFlow ? `${config.businessFlow!.title} — Guided flow` : activeSection ? activeSection.title : config.title}
         description={isFlow ? config.businessFlow!.purpose : activeSection ? activeSection.description : config.description}
         actions={
