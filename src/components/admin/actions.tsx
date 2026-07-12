@@ -5,7 +5,7 @@ import {
   FileBarChart, AlertTriangle, Receipt, Hospital, Server, Printer, LayoutTemplate,
   UserCog, UserCheck, ShieldAlert, Workflow, Radio, MapPinned, RefreshCw,
   Ban, FileCheck2, LockOpen, KeyRound, Eraser, Search, Users, Building, Database,
-  Wallet, PrinterCheck, LineChart,
+  Wallet, PrinterCheck, LineChart, ShieldQuestion, FileCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,7 @@ export type ActionKey =
   | "maintainTemplates" | "maintainUser" | "manageApprovers" | "manageCoid"
   | "manageWorkflow" | "pingFacility" | "provincialStatements" | "replayBillJob"
   | "sanctionPractitioner" | "submitCaseOwners" | "unlockMe" | "unlockResources"
-  | "userLogsClear" | "userLogsQuery";
+  | "userLogsClear" | "userLogsQuery" | "userRightsQuery" | "viewAuthMessage";
 
 export type ActionSpec = {
   key: ActionKey;
@@ -163,6 +163,8 @@ export const ACTIONS: Record<ActionKey, ActionSpec> = {
   unlockResources: { key: "unlockResources", label: "Unlock Resources", icon: KeyRound, kind: "Unlock Resources", startStatus: "active", hint: "Force-release locked records", fields: UNLOCK_FIELDS, destructive: true },
   userLogsClear: { key: "userLogsClear", label: "User Logs — Clear", icon: Eraser, kind: "Logs Clear", startStatus: "active", hint: "Clear a user's log entries", fields: [{ name: "user", label: "User", required: true }, { name: "reason", label: "Reason", required: true }], destructive: true },
   userLogsQuery: { key: "userLogsQuery", label: "User Logs — Query", icon: Search, kind: "Logs Query", startStatus: "active", hint: "Query user activity logs", fields: LOG_FIELDS },
+  userRightsQuery: { key: "userRightsQuery", label: "User Rights Query", icon: ShieldQuestion, kind: "User Rights", startStatus: "active", hint: "Inspect a user's effective permissions", fields: [{ name: "user", label: "User", required: true }, { name: "facility", label: "Facility scope" }] },
+  viewAuthMessage: { key: "viewAuthMessage", label: "View Auth Message (XML)", icon: FileCode, kind: "Auth Message", startStatus: "active", hint: "View the raw authorisation message payload", fields: [{ name: "reference", label: "Auth reference", required: true }] },
 };
 
 export type SectionKey =
@@ -187,7 +189,7 @@ export const SECTIONS: {
     icon: Users,
     accent: "from-indigo-500/25 via-primary/20 to-transparent",
     ring: "ring-indigo-400/30",
-    actions: ["maintainUser", "manageApprovers", "sanctionPractitioner", "unlockMe", "unlockResources"],
+    actions: ["maintainUser", "manageApprovers", "sanctionPractitioner", "userRightsQuery", "unlockMe", "unlockResources"],
   },
   {
     key: "facilities", slug: "facilities", title: "Facilities",
@@ -268,7 +270,7 @@ export const SECTIONS: {
     icon: KeyRound,
     accent: "from-rose-500/25 via-orange-500/15 to-transparent",
     ring: "ring-rose-400/30",
-    actions: ["unlockMe", "unlockResources", "replayBillJob", "pingFacility", "integrationErrors", "userLogsQuery", "userLogsClear"],
+    actions: ["unlockMe", "unlockResources", "replayBillJob", "pingFacility", "viewAuthMessage", "integrationErrors", "userLogsQuery", "userLogsClear"],
   },
 ];
 
