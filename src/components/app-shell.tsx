@@ -50,6 +50,8 @@ import {
   FileSearch,
   FileStack,
   ActivitySquare,
+  UserRound,
+  X,
 } from "lucide-react";
 import { CommandPalette } from "@/components/command-palette";
 import { AskImpiloAI } from "@/components/ask-impilo-ai";
