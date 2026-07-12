@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useWorkflow, type ModuleKey } from "@/lib/workflow-store";
 import { usePatientContext, availablePatients } from "@/lib/patient-context";
+import { useFacilityContext } from "@/lib/facility-context";
 
 // ---------- Types ----------
 
@@ -158,6 +159,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
   const create = useWorkflow((s) => s.create);
   const currentPatientId = usePatientContext((s) => s.currentPatientId);
   const setPatient = usePatientContext((s) => s.setPatient);
+  const globalFacility = useFacilityContext((s) => s.facility);
   const [index, setIndex] = useState(0);
   const [values, setValues] = useState<Record<string, string>>({});
   const [completed, setCompleted] = useState<Set<number>>(new Set());
@@ -181,6 +183,13 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
       }
     }
   }, [currentPatientId]);
+
+  // Inherit global facility into any workflow that has a `facility` field
+  useEffect(() => {
+    if (globalFacility && globalFacility !== "All facilities") {
+      setValues((s) => (s.facility ? s : { ...s, facility: globalFacility }));
+    }
+  }, [globalFacility]);
 
   // Keep active step in view on stepper scroll
   useEffect(() => {

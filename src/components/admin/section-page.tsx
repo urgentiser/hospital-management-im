@@ -47,7 +47,7 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
               <h2 className="mt-1 font-display text-xl tracking-tight">Actions</h2>
             </div>
             <span className="rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-[11px] text-muted-foreground">
-              {section.actions.length} actions
+              {section.actions.length === 1 ? "1 action" : `${section.actions.length} actions`}
             </span>
           </div>
 

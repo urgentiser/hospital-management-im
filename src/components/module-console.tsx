@@ -274,7 +274,7 @@ function OverviewPane({
                   <Icon className="h-5 w-5" />
                 </div>
                 <span className="rounded-full border border-border bg-background/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                  {s.actions.length} actions
+                  {s.actions.length === 1 ? "1 action" : `${s.actions.length} actions`}
                 </span>
               </div>
               <div className="relative mt-4">
@@ -407,7 +407,7 @@ function SectionPane({
               <h2 className="mt-1 font-display text-xl tracking-tight">Actions</h2>
             </div>
             <span className="rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-[11px] text-muted-foreground">
-              {section.actions.length} actions
+              {section.actions.length === 1 ? "1 action" : `${section.actions.length} actions`}
             </span>
           </div>
 
