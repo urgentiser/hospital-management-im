@@ -13,19 +13,30 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AppWorkflowInboxRouteImport } from './routes/_app.workflow-inbox'
 import { Route as AppWardRouteImport } from './routes/_app.ward'
 import { Route as AppTriageRouteImport } from './routes/_app.triage'
 import { Route as AppTheatreRouteImport } from './routes/_app.theatre'
+import { Route as AppSystemHealthRouteImport } from './routes/_app.system-health'
+import { Route as AppSupplierInvoicesRouteImport } from './routes/_app.supplier-invoices'
+import { Route as AppServiceBusRouteImport } from './routes/_app.service-bus'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppReimbursementsRouteImport } from './routes/_app.reimbursements'
 import { Route as AppPreadmissionsRouteImport } from './routes/_app.preadmissions'
 import { Route as AppPractitionersRouteImport } from './routes/_app.practitioners'
 import { Route as AppPharmacyRouteImport } from './routes/_app.pharmacy'
 import { Route as AppPatientsRouteImport } from './routes/_app.patients'
+import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
+import { Route as AppMylifePortalRouteImport } from './routes/_app.mylife-portal'
+import { Route as AppMedicalEventsRouteImport } from './routes/_app.medical-events'
 import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
 import { Route as AppFundingRouteImport } from './routes/_app.funding'
+import { Route as AppFailedMessagesRouteImport } from './routes/_app.failed-messages'
 import { Route as AppFacilitiesRouteImport } from './routes/_app.facilities'
 import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
 import { Route as AppCoidRouteImport } from './routes/_app.coid'
+import { Route as AppClinicalCodingRouteImport } from './routes/_app.clinical-coding'
+import { Route as AppClinicalAssessmentsRouteImport } from './routes/_app.clinical-assessments'
 import { Route as AppCaseManagementRouteImport } from './routes/_app.case-management'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAuthorisationsRouteImport } from './routes/_app.authorisations'
@@ -34,6 +45,7 @@ import { Route as AppAdmissionsRouteImport } from './routes/_app.admissions'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppAdhocRouteImport } from './routes/_app.adhoc'
 import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
+import { Route as AppAccountEnquiriesRouteImport } from './routes/_app.account-enquiries'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AppPharmacyIndexRouteImport } from './routes/_app.pharmacy.index'
@@ -44,11 +56,15 @@ import { Route as AppPharmacyLabelsStockRouteImport } from './routes/_app.pharma
 import { Route as AppPharmacyEnquiryRouteImport } from './routes/_app.pharmacy.enquiry'
 import { Route as AppPharmacyDispensingRouteImport } from './routes/_app.pharmacy.dispensing'
 import { Route as AppPharmacyCompoundingRouteImport } from './routes/_app.pharmacy.compounding'
+import { Route as AppAdminWorkflowRouteImport } from './routes/_app.admin.workflow'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
+import { Route as AppAdminSupportRouteImport } from './routes/_app.admin.support'
 import { Route as AppAdminReferenceRouteImport } from './routes/_app.admin.reference'
 import { Route as AppAdminPrintingRouteImport } from './routes/_app.admin.printing'
 import { Route as AppAdminMonitoringRouteImport } from './routes/_app.admin.monitoring'
+import { Route as AppAdminFeatureFlagsRouteImport } from './routes/_app.admin.feature-flags'
 import { Route as AppAdminFacilitiesRouteImport } from './routes/_app.admin.facilities'
+import { Route as AppAdminDocumentsRouteImport } from './routes/_app.admin.documents'
 import { Route as AppAdminBillingRouteImport } from './routes/_app.admin.billing'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
@@ -71,6 +87,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWorkflowInboxRoute = AppWorkflowInboxRouteImport.update({
+  id: '/workflow-inbox',
+  path: '/workflow-inbox',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppWardRoute = AppWardRouteImport.update({
   id: '/ward',
   path: '/ward',
@@ -86,9 +107,29 @@ const AppTheatreRoute = AppTheatreRouteImport.update({
   path: '/theatre',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSystemHealthRoute = AppSystemHealthRouteImport.update({
+  id: '/system-health',
+  path: '/system-health',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSupplierInvoicesRoute = AppSupplierInvoicesRouteImport.update({
+  id: '/supplier-invoices',
+  path: '/supplier-invoices',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppServiceBusRoute = AppServiceBusRouteImport.update({
+  id: '/service-bus',
+  path: '/service-bus',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReimbursementsRoute = AppReimbursementsRouteImport.update({
+  id: '/reimbursements',
+  path: '/reimbursements',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPreadmissionsRoute = AppPreadmissionsRouteImport.update({
@@ -111,6 +152,21 @@ const AppPatientsRoute = AppPatientsRouteImport.update({
   path: '/patients',
   getParentRoute: () => AppRoute,
 } as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMylifePortalRoute = AppMylifePortalRouteImport.update({
+  id: '/mylife-portal',
+  path: '/mylife-portal',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMedicalEventsRoute = AppMedicalEventsRouteImport.update({
+  id: '/medical-events',
+  path: '/medical-events',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
   id: '/integrations',
   path: '/integrations',
@@ -119,6 +175,11 @@ const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
 const AppFundingRoute = AppFundingRouteImport.update({
   id: '/funding',
   path: '/funding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFailedMessagesRoute = AppFailedMessagesRouteImport.update({
+  id: '/failed-messages',
+  path: '/failed-messages',
   getParentRoute: () => AppRoute,
 } as any)
 const AppFacilitiesRoute = AppFacilitiesRouteImport.update({
@@ -134,6 +195,16 @@ const AppDocumentsRoute = AppDocumentsRouteImport.update({
 const AppCoidRoute = AppCoidRouteImport.update({
   id: '/coid',
   path: '/coid',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClinicalCodingRoute = AppClinicalCodingRouteImport.update({
+  id: '/clinical-coding',
+  path: '/clinical-coding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClinicalAssessmentsRoute = AppClinicalAssessmentsRouteImport.update({
+  id: '/clinical-assessments',
+  path: '/clinical-assessments',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCaseManagementRoute = AppCaseManagementRouteImport.update({
@@ -174,6 +245,11 @@ const AppAdhocRoute = AppAdhocRouteImport.update({
 const AppAccountingRoute = AppAccountingRouteImport.update({
   id: '/accounting',
   path: '/accounting',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccountEnquiriesRoute = AppAccountEnquiriesRouteImport.update({
+  id: '/account-enquiries',
+  path: '/account-enquiries',
   getParentRoute: () => AppRoute,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -229,9 +305,19 @@ const AppPharmacyCompoundingRoute = AppPharmacyCompoundingRouteImport.update({
   path: '/compounding',
   getParentRoute: () => AppPharmacyRoute,
 } as any)
+const AppAdminWorkflowRoute = AppAdminWorkflowRouteImport.update({
+  id: '/workflow',
+  path: '/workflow',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminSupportRoute = AppAdminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => AppAdminRoute,
 } as any)
 const AppAdminReferenceRoute = AppAdminReferenceRouteImport.update({
@@ -249,9 +335,19 @@ const AppAdminMonitoringRoute = AppAdminMonitoringRouteImport.update({
   path: '/monitoring',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminFeatureFlagsRoute = AppAdminFeatureFlagsRouteImport.update({
+  id: '/feature-flags',
+  path: '/feature-flags',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminFacilitiesRoute = AppAdminFacilitiesRouteImport.update({
   id: '/facilities',
   path: '/facilities',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminDocumentsRoute = AppAdminDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
   getParentRoute: () => AppAdminRoute,
 } as any)
 const AppAdminBillingRoute = AppAdminBillingRouteImport.update({
@@ -271,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/account-enquiries': typeof AppAccountEnquiriesRoute
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
   '/admin': typeof AppAdminRouteWithChildren
@@ -279,27 +376,42 @@ export interface FileRoutesByFullPath {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/clinical-assessments': typeof AppClinicalAssessmentsRoute
+  '/clinical-coding': typeof AppClinicalCodingRoute
   '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
+  '/failed-messages': typeof AppFailedMessagesRoute
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
+  '/medical-events': typeof AppMedicalEventsRoute
+  '/mylife-portal': typeof AppMylifePortalRoute
+  '/notifications': typeof AppNotificationsRoute
   '/patients': typeof AppPatientsRoute
   '/pharmacy': typeof AppPharmacyRouteWithChildren
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
+  '/reimbursements': typeof AppReimbursementsRoute
   '/reports': typeof AppReportsRoute
+  '/service-bus': typeof AppServiceBusRoute
+  '/supplier-invoices': typeof AppSupplierInvoicesRoute
+  '/system-health': typeof AppSystemHealthRoute
   '/theatre': typeof AppTheatreRoute
   '/triage': typeof AppTriageRoute
   '/ward': typeof AppWardRoute
+  '/workflow-inbox': typeof AppWorkflowInboxRoute
   '/api/chat': typeof ApiChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/billing': typeof AppAdminBillingRoute
+  '/admin/documents': typeof AppAdminDocumentsRoute
   '/admin/facilities': typeof AppAdminFacilitiesRoute
+  '/admin/feature-flags': typeof AppAdminFeatureFlagsRoute
   '/admin/monitoring': typeof AppAdminMonitoringRoute
   '/admin/printing': typeof AppAdminPrintingRoute
   '/admin/reference': typeof AppAdminReferenceRoute
+  '/admin/support': typeof AppAdminSupportRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/admin/workflow': typeof AppAdminWorkflowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -313,6 +425,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/account-enquiries': typeof AppAccountEnquiriesRoute
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
   '/admissions': typeof AppAdmissionsRoute
@@ -320,27 +433,42 @@ export interface FileRoutesByTo {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/clinical-assessments': typeof AppClinicalAssessmentsRoute
+  '/clinical-coding': typeof AppClinicalCodingRoute
   '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
+  '/failed-messages': typeof AppFailedMessagesRoute
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
+  '/medical-events': typeof AppMedicalEventsRoute
+  '/mylife-portal': typeof AppMylifePortalRoute
+  '/notifications': typeof AppNotificationsRoute
   '/patients': typeof AppPatientsRoute
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
+  '/reimbursements': typeof AppReimbursementsRoute
   '/reports': typeof AppReportsRoute
+  '/service-bus': typeof AppServiceBusRoute
+  '/supplier-invoices': typeof AppSupplierInvoicesRoute
+  '/system-health': typeof AppSystemHealthRoute
   '/theatre': typeof AppTheatreRoute
   '/triage': typeof AppTriageRoute
   '/ward': typeof AppWardRoute
+  '/workflow-inbox': typeof AppWorkflowInboxRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AppIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/billing': typeof AppAdminBillingRoute
+  '/admin/documents': typeof AppAdminDocumentsRoute
   '/admin/facilities': typeof AppAdminFacilitiesRoute
+  '/admin/feature-flags': typeof AppAdminFeatureFlagsRoute
   '/admin/monitoring': typeof AppAdminMonitoringRoute
   '/admin/printing': typeof AppAdminPrintingRoute
   '/admin/reference': typeof AppAdminReferenceRoute
+  '/admin/support': typeof AppAdminSupportRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/admin/workflow': typeof AppAdminWorkflowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -356,6 +484,7 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/_app/account-enquiries': typeof AppAccountEnquiriesRoute
   '/_app/accounting': typeof AppAccountingRoute
   '/_app/adhoc': typeof AppAdhocRoute
   '/_app/admin': typeof AppAdminRouteWithChildren
@@ -364,28 +493,43 @@ export interface FileRoutesById {
   '/_app/authorisations': typeof AppAuthorisationsRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/case-management': typeof AppCaseManagementRoute
+  '/_app/clinical-assessments': typeof AppClinicalAssessmentsRoute
+  '/_app/clinical-coding': typeof AppClinicalCodingRoute
   '/_app/coid': typeof AppCoidRoute
   '/_app/documents': typeof AppDocumentsRoute
   '/_app/facilities': typeof AppFacilitiesRoute
+  '/_app/failed-messages': typeof AppFailedMessagesRoute
   '/_app/funding': typeof AppFundingRoute
   '/_app/integrations': typeof AppIntegrationsRoute
+  '/_app/medical-events': typeof AppMedicalEventsRoute
+  '/_app/mylife-portal': typeof AppMylifePortalRoute
+  '/_app/notifications': typeof AppNotificationsRoute
   '/_app/patients': typeof AppPatientsRoute
   '/_app/pharmacy': typeof AppPharmacyRouteWithChildren
   '/_app/practitioners': typeof AppPractitionersRoute
   '/_app/preadmissions': typeof AppPreadmissionsRoute
+  '/_app/reimbursements': typeof AppReimbursementsRoute
   '/_app/reports': typeof AppReportsRoute
+  '/_app/service-bus': typeof AppServiceBusRoute
+  '/_app/supplier-invoices': typeof AppSupplierInvoicesRoute
+  '/_app/system-health': typeof AppSystemHealthRoute
   '/_app/theatre': typeof AppTheatreRoute
   '/_app/triage': typeof AppTriageRoute
   '/_app/ward': typeof AppWardRoute
+  '/_app/workflow-inbox': typeof AppWorkflowInboxRoute
   '/api/chat': typeof ApiChatRoute
   '/_app/': typeof AppIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_app/admin/billing': typeof AppAdminBillingRoute
+  '/_app/admin/documents': typeof AppAdminDocumentsRoute
   '/_app/admin/facilities': typeof AppAdminFacilitiesRoute
+  '/_app/admin/feature-flags': typeof AppAdminFeatureFlagsRoute
   '/_app/admin/monitoring': typeof AppAdminMonitoringRoute
   '/_app/admin/printing': typeof AppAdminPrintingRoute
   '/_app/admin/reference': typeof AppAdminReferenceRoute
+  '/_app/admin/support': typeof AppAdminSupportRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
+  '/_app/admin/workflow': typeof AppAdminWorkflowRoute
   '/_app/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/_app/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/_app/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -402,6 +546,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/account-enquiries'
     | '/accounting'
     | '/adhoc'
     | '/admin'
@@ -410,27 +555,42 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/clinical-assessments'
+    | '/clinical-coding'
     | '/coid'
     | '/documents'
     | '/facilities'
+    | '/failed-messages'
     | '/funding'
     | '/integrations'
+    | '/medical-events'
+    | '/mylife-portal'
+    | '/notifications'
     | '/patients'
     | '/pharmacy'
     | '/practitioners'
     | '/preadmissions'
+    | '/reimbursements'
     | '/reports'
+    | '/service-bus'
+    | '/supplier-invoices'
+    | '/system-health'
     | '/theatre'
     | '/triage'
     | '/ward'
+    | '/workflow-inbox'
     | '/api/chat'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/billing'
+    | '/admin/documents'
     | '/admin/facilities'
+    | '/admin/feature-flags'
     | '/admin/monitoring'
     | '/admin/printing'
     | '/admin/reference'
+    | '/admin/support'
     | '/admin/users'
+    | '/admin/workflow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
     | '/pharmacy/enquiry'
@@ -444,6 +604,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/account-enquiries'
     | '/accounting'
     | '/adhoc'
     | '/admissions'
@@ -451,27 +612,42 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/clinical-assessments'
+    | '/clinical-coding'
     | '/coid'
     | '/documents'
     | '/facilities'
+    | '/failed-messages'
     | '/funding'
     | '/integrations'
+    | '/medical-events'
+    | '/mylife-portal'
+    | '/notifications'
     | '/patients'
     | '/practitioners'
     | '/preadmissions'
+    | '/reimbursements'
     | '/reports'
+    | '/service-bus'
+    | '/supplier-invoices'
+    | '/system-health'
     | '/theatre'
     | '/triage'
     | '/ward'
+    | '/workflow-inbox'
     | '/api/chat'
     | '/'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/billing'
+    | '/admin/documents'
     | '/admin/facilities'
+    | '/admin/feature-flags'
     | '/admin/monitoring'
     | '/admin/printing'
     | '/admin/reference'
+    | '/admin/support'
     | '/admin/users'
+    | '/admin/workflow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
     | '/pharmacy/enquiry'
@@ -486,6 +662,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/_app/account-enquiries'
     | '/_app/accounting'
     | '/_app/adhoc'
     | '/_app/admin'
@@ -494,28 +671,43 @@ export interface FileRouteTypes {
     | '/_app/authorisations'
     | '/_app/billing'
     | '/_app/case-management'
+    | '/_app/clinical-assessments'
+    | '/_app/clinical-coding'
     | '/_app/coid'
     | '/_app/documents'
     | '/_app/facilities'
+    | '/_app/failed-messages'
     | '/_app/funding'
     | '/_app/integrations'
+    | '/_app/medical-events'
+    | '/_app/mylife-portal'
+    | '/_app/notifications'
     | '/_app/patients'
     | '/_app/pharmacy'
     | '/_app/practitioners'
     | '/_app/preadmissions'
+    | '/_app/reimbursements'
     | '/_app/reports'
+    | '/_app/service-bus'
+    | '/_app/supplier-invoices'
+    | '/_app/system-health'
     | '/_app/theatre'
     | '/_app/triage'
     | '/_app/ward'
+    | '/_app/workflow-inbox'
     | '/api/chat'
     | '/_app/'
     | '/.mcp/invoke-tool/$tool'
     | '/_app/admin/billing'
+    | '/_app/admin/documents'
     | '/_app/admin/facilities'
+    | '/_app/admin/feature-flags'
     | '/_app/admin/monitoring'
     | '/_app/admin/printing'
     | '/_app/admin/reference'
+    | '/_app/admin/support'
     | '/_app/admin/users'
+    | '/_app/admin/workflow'
     | '/_app/pharmacy/compounding'
     | '/_app/pharmacy/dispensing'
     | '/_app/pharmacy/enquiry'
@@ -565,6 +757,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/workflow-inbox': {
+      id: '/_app/workflow-inbox'
+      path: '/workflow-inbox'
+      fullPath: '/workflow-inbox'
+      preLoaderRoute: typeof AppWorkflowInboxRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/ward': {
       id: '/_app/ward'
       path: '/ward'
@@ -586,11 +785,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTheatreRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/system-health': {
+      id: '/_app/system-health'
+      path: '/system-health'
+      fullPath: '/system-health'
+      preLoaderRoute: typeof AppSystemHealthRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/supplier-invoices': {
+      id: '/_app/supplier-invoices'
+      path: '/supplier-invoices'
+      fullPath: '/supplier-invoices'
+      preLoaderRoute: typeof AppSupplierInvoicesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/service-bus': {
+      id: '/_app/service-bus'
+      path: '/service-bus'
+      fullPath: '/service-bus'
+      preLoaderRoute: typeof AppServiceBusRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/reports': {
       id: '/_app/reports'
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reimbursements': {
+      id: '/_app/reimbursements'
+      path: '/reimbursements'
+      fullPath: '/reimbursements'
+      preLoaderRoute: typeof AppReimbursementsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/preadmissions': {
@@ -621,6 +848,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPatientsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/notifications': {
+      id: '/_app/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mylife-portal': {
+      id: '/_app/mylife-portal'
+      path: '/mylife-portal'
+      fullPath: '/mylife-portal'
+      preLoaderRoute: typeof AppMylifePortalRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/medical-events': {
+      id: '/_app/medical-events'
+      path: '/medical-events'
+      fullPath: '/medical-events'
+      preLoaderRoute: typeof AppMedicalEventsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/integrations': {
       id: '/_app/integrations'
       path: '/integrations'
@@ -633,6 +881,13 @@ declare module '@tanstack/react-router' {
       path: '/funding'
       fullPath: '/funding'
       preLoaderRoute: typeof AppFundingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/failed-messages': {
+      id: '/_app/failed-messages'
+      path: '/failed-messages'
+      fullPath: '/failed-messages'
+      preLoaderRoute: typeof AppFailedMessagesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/facilities': {
@@ -654,6 +909,20 @@ declare module '@tanstack/react-router' {
       path: '/coid'
       fullPath: '/coid'
       preLoaderRoute: typeof AppCoidRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/clinical-coding': {
+      id: '/_app/clinical-coding'
+      path: '/clinical-coding'
+      fullPath: '/clinical-coding'
+      preLoaderRoute: typeof AppClinicalCodingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/clinical-assessments': {
+      id: '/_app/clinical-assessments'
+      path: '/clinical-assessments'
+      fullPath: '/clinical-assessments'
+      preLoaderRoute: typeof AppClinicalAssessmentsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/case-management': {
@@ -710,6 +979,13 @@ declare module '@tanstack/react-router' {
       path: '/accounting'
       fullPath: '/accounting'
       preLoaderRoute: typeof AppAccountingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/account-enquiries': {
+      id: '/_app/account-enquiries'
+      path: '/account-enquiries'
+      fullPath: '/account-enquiries'
+      preLoaderRoute: typeof AppAccountEnquiriesRouteImport
       parentRoute: typeof AppRoute
     }
     '/.well-known/oauth-protected-resource': {
@@ -782,11 +1058,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPharmacyCompoundingRouteImport
       parentRoute: typeof AppPharmacyRoute
     }
+    '/_app/admin/workflow': {
+      id: '/_app/admin/workflow'
+      path: '/workflow'
+      fullPath: '/admin/workflow'
+      preLoaderRoute: typeof AppAdminWorkflowRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/_app/admin/users': {
       id: '/_app/admin/users'
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AppAdminUsersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/support': {
+      id: '/_app/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AppAdminSupportRouteImport
       parentRoute: typeof AppAdminRoute
     }
     '/_app/admin/reference': {
@@ -810,11 +1100,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminMonitoringRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/_app/admin/feature-flags': {
+      id: '/_app/admin/feature-flags'
+      path: '/feature-flags'
+      fullPath: '/admin/feature-flags'
+      preLoaderRoute: typeof AppAdminFeatureFlagsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/_app/admin/facilities': {
       id: '/_app/admin/facilities'
       path: '/facilities'
       fullPath: '/admin/facilities'
       preLoaderRoute: typeof AppAdminFacilitiesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/documents': {
+      id: '/_app/admin/documents'
+      path: '/documents'
+      fullPath: '/admin/documents'
+      preLoaderRoute: typeof AppAdminDocumentsRouteImport
       parentRoute: typeof AppAdminRoute
     }
     '/_app/admin/billing': {
@@ -836,21 +1140,29 @@ declare module '@tanstack/react-router' {
 
 interface AppAdminRouteChildren {
   AppAdminBillingRoute: typeof AppAdminBillingRoute
+  AppAdminDocumentsRoute: typeof AppAdminDocumentsRoute
   AppAdminFacilitiesRoute: typeof AppAdminFacilitiesRoute
+  AppAdminFeatureFlagsRoute: typeof AppAdminFeatureFlagsRoute
   AppAdminMonitoringRoute: typeof AppAdminMonitoringRoute
   AppAdminPrintingRoute: typeof AppAdminPrintingRoute
   AppAdminReferenceRoute: typeof AppAdminReferenceRoute
+  AppAdminSupportRoute: typeof AppAdminSupportRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
+  AppAdminWorkflowRoute: typeof AppAdminWorkflowRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminBillingRoute: AppAdminBillingRoute,
+  AppAdminDocumentsRoute: AppAdminDocumentsRoute,
   AppAdminFacilitiesRoute: AppAdminFacilitiesRoute,
+  AppAdminFeatureFlagsRoute: AppAdminFeatureFlagsRoute,
   AppAdminMonitoringRoute: AppAdminMonitoringRoute,
   AppAdminPrintingRoute: AppAdminPrintingRoute,
   AppAdminReferenceRoute: AppAdminReferenceRoute,
+  AppAdminSupportRoute: AppAdminSupportRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
+  AppAdminWorkflowRoute: AppAdminWorkflowRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
@@ -883,6 +1195,7 @@ const AppPharmacyRouteWithChildren = AppPharmacyRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppAccountEnquiriesRoute: typeof AppAccountEnquiriesRoute
   AppAccountingRoute: typeof AppAccountingRoute
   AppAdhocRoute: typeof AppAdhocRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
@@ -891,23 +1204,35 @@ interface AppRouteChildren {
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
   AppBillingRoute: typeof AppBillingRoute
   AppCaseManagementRoute: typeof AppCaseManagementRoute
+  AppClinicalAssessmentsRoute: typeof AppClinicalAssessmentsRoute
+  AppClinicalCodingRoute: typeof AppClinicalCodingRoute
   AppCoidRoute: typeof AppCoidRoute
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppFacilitiesRoute: typeof AppFacilitiesRoute
+  AppFailedMessagesRoute: typeof AppFailedMessagesRoute
   AppFundingRoute: typeof AppFundingRoute
   AppIntegrationsRoute: typeof AppIntegrationsRoute
+  AppMedicalEventsRoute: typeof AppMedicalEventsRoute
+  AppMylifePortalRoute: typeof AppMylifePortalRoute
+  AppNotificationsRoute: typeof AppNotificationsRoute
   AppPatientsRoute: typeof AppPatientsRoute
   AppPharmacyRoute: typeof AppPharmacyRouteWithChildren
   AppPractitionersRoute: typeof AppPractitionersRoute
   AppPreadmissionsRoute: typeof AppPreadmissionsRoute
+  AppReimbursementsRoute: typeof AppReimbursementsRoute
   AppReportsRoute: typeof AppReportsRoute
+  AppServiceBusRoute: typeof AppServiceBusRoute
+  AppSupplierInvoicesRoute: typeof AppSupplierInvoicesRoute
+  AppSystemHealthRoute: typeof AppSystemHealthRoute
   AppTheatreRoute: typeof AppTheatreRoute
   AppTriageRoute: typeof AppTriageRoute
   AppWardRoute: typeof AppWardRoute
+  AppWorkflowInboxRoute: typeof AppWorkflowInboxRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountEnquiriesRoute: AppAccountEnquiriesRoute,
   AppAccountingRoute: AppAccountingRoute,
   AppAdhocRoute: AppAdhocRoute,
   AppAdminRoute: AppAdminRouteWithChildren,
@@ -916,19 +1241,30 @@ const AppRouteChildren: AppRouteChildren = {
   AppAuthorisationsRoute: AppAuthorisationsRoute,
   AppBillingRoute: AppBillingRoute,
   AppCaseManagementRoute: AppCaseManagementRoute,
+  AppClinicalAssessmentsRoute: AppClinicalAssessmentsRoute,
+  AppClinicalCodingRoute: AppClinicalCodingRoute,
   AppCoidRoute: AppCoidRoute,
   AppDocumentsRoute: AppDocumentsRoute,
   AppFacilitiesRoute: AppFacilitiesRoute,
+  AppFailedMessagesRoute: AppFailedMessagesRoute,
   AppFundingRoute: AppFundingRoute,
   AppIntegrationsRoute: AppIntegrationsRoute,
+  AppMedicalEventsRoute: AppMedicalEventsRoute,
+  AppMylifePortalRoute: AppMylifePortalRoute,
+  AppNotificationsRoute: AppNotificationsRoute,
   AppPatientsRoute: AppPatientsRoute,
   AppPharmacyRoute: AppPharmacyRouteWithChildren,
   AppPractitionersRoute: AppPractitionersRoute,
   AppPreadmissionsRoute: AppPreadmissionsRoute,
+  AppReimbursementsRoute: AppReimbursementsRoute,
   AppReportsRoute: AppReportsRoute,
+  AppServiceBusRoute: AppServiceBusRoute,
+  AppSupplierInvoicesRoute: AppSupplierInvoicesRoute,
+  AppSystemHealthRoute: AppSystemHealthRoute,
   AppTheatreRoute: AppTheatreRoute,
   AppTriageRoute: AppTriageRoute,
   AppWardRoute: AppWardRoute,
+  AppWorkflowInboxRoute: AppWorkflowInboxRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
