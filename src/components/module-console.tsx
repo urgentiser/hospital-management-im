@@ -314,7 +314,15 @@ function OverviewPane({
         </div>
         <Card className="divide-y divide-border">
           {recent.length === 0 && (
-            <div className="p-8 text-center text-sm text-muted-foreground">No activity yet.</div>
+            <div className="p-10 text-center">
+              <div className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-muted text-muted-foreground">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div className="mt-3 text-sm font-medium text-foreground">No activity yet</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Trigger an action from any section to populate the feed.
+              </div>
+            </div>
           )}
           {recent.map((r) => (
             <div key={r.id} className="flex items-center justify-between gap-3 px-5 py-3">
@@ -465,8 +473,8 @@ function SectionPane({
               />
             </div>
             {recent.length === 0 && (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-                No activity yet. Trigger an action to see it here.
+              <div className="rounded-lg border border-dashed border-border/80 bg-muted/20 p-6 text-center text-xs text-muted-foreground">
+                No activity yet. Trigger an action from the panel on the left to see it appear here.
               </div>
             )}
             <ul className="space-y-1.5">
