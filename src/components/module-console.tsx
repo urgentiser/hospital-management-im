@@ -73,7 +73,8 @@ export type ModuleConsoleConfig = {
 export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const items = useWorkflow((s) => s.items[config.moduleKey]);
   const createItem = useWorkflow((s) => s.create);
-  const [activeTab, setActiveTab] = useState<string>("overview");
+  const hasFlow = !!config.businessFlow;
+  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : "overview");
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
   const [feedQuery, setFeedQuery] = useState("");
 
