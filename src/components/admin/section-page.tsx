@@ -119,8 +119,12 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
               />
             </div>
             {recent.length === 0 && (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-                No activity yet. Trigger an action to see it here.
+              <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border p-6 text-center">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="text-xs font-medium">No activity yet</div>
+                <div className="text-[11px] text-muted-foreground">Trigger an action to see it here.</div>
               </div>
             )}
             <ul className="space-y-1.5">
