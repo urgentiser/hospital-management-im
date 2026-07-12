@@ -142,16 +142,6 @@ const config: ModuleConsoleConfig = {
       ],
     },
     {
-      key: "dashboard-placeholder",
-      title: "_removed_billing",
-      tagline: "",
-      description: "",
-      icon: MapPin,
-      accent: "",
-      ring: "",
-      actions: [],
-    },
-    {
       key: "dashboard",
       title: "Dashboard",
       tagline: "Ops overview",
