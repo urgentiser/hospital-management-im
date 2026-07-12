@@ -56,6 +56,7 @@ import { Route as AppPharmacyLabelsStockRouteImport } from './routes/_app.pharma
 import { Route as AppPharmacyEnquiryRouteImport } from './routes/_app.pharmacy.enquiry'
 import { Route as AppPharmacyDispensingRouteImport } from './routes/_app.pharmacy.dispensing'
 import { Route as AppPharmacyCompoundingRouteImport } from './routes/_app.pharmacy.compounding'
+import { Route as AppPharmacyBusinessFlowRouteImport } from './routes/_app.pharmacy.business-flow'
 import { Route as AppAdminWorkflowRouteImport } from './routes/_app.admin.workflow'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminSupportRouteImport } from './routes/_app.admin.support'
@@ -305,6 +306,11 @@ const AppPharmacyCompoundingRoute = AppPharmacyCompoundingRouteImport.update({
   path: '/compounding',
   getParentRoute: () => AppPharmacyRoute,
 } as any)
+const AppPharmacyBusinessFlowRoute = AppPharmacyBusinessFlowRouteImport.update({
+  id: '/business-flow',
+  path: '/business-flow',
+  getParentRoute: () => AppPharmacyRoute,
+} as any)
 const AppAdminWorkflowRoute = AppAdminWorkflowRouteImport.update({
   id: '/workflow',
   path: '/workflow',
@@ -412,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/admin/support': typeof AppAdminSupportRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/admin/workflow': typeof AppAdminWorkflowRoute
+  '/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/admin/support': typeof AppAdminSupportRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/admin/workflow': typeof AppAdminWorkflowRoute
+  '/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -530,6 +538,7 @@ export interface FileRoutesById {
   '/_app/admin/support': typeof AppAdminSupportRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/admin/workflow': typeof AppAdminWorkflowRoute
+  '/_app/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/_app/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/_app/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/_app/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -591,6 +600,7 @@ export interface FileRouteTypes {
     | '/admin/support'
     | '/admin/users'
     | '/admin/workflow'
+    | '/pharmacy/business-flow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
     | '/pharmacy/enquiry'
@@ -648,6 +658,7 @@ export interface FileRouteTypes {
     | '/admin/support'
     | '/admin/users'
     | '/admin/workflow'
+    | '/pharmacy/business-flow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
     | '/pharmacy/enquiry'
@@ -708,6 +719,7 @@ export interface FileRouteTypes {
     | '/_app/admin/support'
     | '/_app/admin/users'
     | '/_app/admin/workflow'
+    | '/_app/pharmacy/business-flow'
     | '/_app/pharmacy/compounding'
     | '/_app/pharmacy/dispensing'
     | '/_app/pharmacy/enquiry'
@@ -1058,6 +1070,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPharmacyCompoundingRouteImport
       parentRoute: typeof AppPharmacyRoute
     }
+    '/_app/pharmacy/business-flow': {
+      id: '/_app/pharmacy/business-flow'
+      path: '/business-flow'
+      fullPath: '/pharmacy/business-flow'
+      preLoaderRoute: typeof AppPharmacyBusinessFlowRouteImport
+      parentRoute: typeof AppPharmacyRoute
+    }
     '/_app/admin/workflow': {
       id: '/_app/admin/workflow'
       path: '/workflow'
@@ -1171,6 +1190,7 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 )
 
 interface AppPharmacyRouteChildren {
+  AppPharmacyBusinessFlowRoute: typeof AppPharmacyBusinessFlowRoute
   AppPharmacyCompoundingRoute: typeof AppPharmacyCompoundingRoute
   AppPharmacyDispensingRoute: typeof AppPharmacyDispensingRoute
   AppPharmacyEnquiryRoute: typeof AppPharmacyEnquiryRoute
@@ -1181,6 +1201,7 @@ interface AppPharmacyRouteChildren {
 }
 
 const AppPharmacyRouteChildren: AppPharmacyRouteChildren = {
+  AppPharmacyBusinessFlowRoute: AppPharmacyBusinessFlowRoute,
   AppPharmacyCompoundingRoute: AppPharmacyCompoundingRoute,
   AppPharmacyDispensingRoute: AppPharmacyDispensingRoute,
   AppPharmacyEnquiryRoute: AppPharmacyEnquiryRoute,
