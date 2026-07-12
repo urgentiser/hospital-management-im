@@ -241,19 +241,14 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
   );
 }
 
-const FACILITIES = [
-  "Life Fourways",
-  "Life Groenkloof",
-  "Life Kingsbury",
-  "Life Vincent Pallotti",
-  "All facilities",
-];
+import { useFacilityContext, FACILITIES } from "@/lib/facility-context";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [facility, setFacility] = useState<string>(FACILITIES[0]);
+  const facility = useFacilityContext((s) => s.facility);
+  const setFacility = useFacilityContext((s) => s.setFacility);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -491,23 +486,23 @@ export function PageHeader({
   breadcrumbs?: Crumb[];
 }) {
   return (
-    <div className="mb-5">
+    <div className="mb-4">
       {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
           {eyebrow && (
-            <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
+            <div className="mb-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
               {eyebrow}
             </div>
           )}
-          <h1 className="truncate font-display text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px] sm:leading-[1.15]">
+          <h1 className="truncate font-display text-[20px] font-semibold tracking-tight text-foreground sm:text-[22px] sm:leading-[1.2]">
             {title}
           </h1>
           {description && (
-            <p className="mt-1 max-w-3xl text-sm leading-snug text-muted-foreground">{description}</p>
+            <p className="mt-0.5 max-w-3xl truncate text-[12.5px] leading-snug text-muted-foreground">{description}</p>
           )}
         </div>
-        {actions && <div className="flex flex-wrap items-center justify-end gap-2">{actions}</div>}
+        {actions && <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">{actions}</div>}
       </div>
     </div>
   );

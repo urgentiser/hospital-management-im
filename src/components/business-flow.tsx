@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useWorkflow, type ModuleKey } from "@/lib/workflow-store";
 import { usePatientContext, availablePatients } from "@/lib/patient-context";
+import { useFacilityContext } from "@/lib/facility-context";
 
 // ---------- Types ----------
 
