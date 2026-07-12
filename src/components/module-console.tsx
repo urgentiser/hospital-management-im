@@ -129,7 +129,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
           <TabPill
             label={
               <span className="inline-flex items-center gap-1.5">
-                <Workflow className="h-3.5 w-3.5" /> Business flow
+                <Workflow className="h-3.5 w-3.5" /> Guided workflow
               </span>
             }
             active={activeTab === "flow"}
