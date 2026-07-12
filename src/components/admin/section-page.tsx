@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronRight, Search } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
 import { useWorkflow } from "@/lib/workflow-store";
@@ -59,9 +59,10 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
                 <button
                   key={a.key}
                   onClick={() => setActive(a)}
+                  aria-label={a.label}
                   className={
-                    "group relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-4 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow " +
-                    (a.destructive ? "hover:border-destructive/50" : "")
+                    "group relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-4 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 " +
+                    (a.destructive ? "hover:border-destructive/50 focus-visible:ring-destructive/40" : "")
                   }
                 >
                   <div className={"pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br opacity-60 blur-2xl transition-opacity group-hover:opacity-100 " + section.accent} />
@@ -118,8 +119,12 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
               />
             </div>
             {recent.length === 0 && (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-                No activity yet. Trigger an action to see it here.
+              <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border p-6 text-center">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="text-xs font-medium">No activity yet</div>
+                <div className="text-[11px] text-muted-foreground">Trigger an action to see it here.</div>
               </div>
             )}
             <ul className="space-y-1.5">
