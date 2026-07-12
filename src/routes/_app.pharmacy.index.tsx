@@ -83,7 +83,8 @@ function PharmacyIndex() {
             <Link
               key={s.key}
               to={`/pharmacy/${s.slug}` as "/pharmacy"}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-5 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow"
+              aria-label={`Open ${s.title}`}
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-5 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               <div className={"pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br opacity-70 blur-2xl transition-opacity group-hover:opacity-100 " + s.accent} />
               <div className="relative flex items-start justify-between">
@@ -131,8 +132,12 @@ function PharmacyIndex() {
         </div>
         <Card className="divide-y divide-border">
           {recent.length === 0 && (
-            <div className="p-8 text-center text-sm text-muted-foreground">
-              No pharmacy activity yet.
+            <div className="flex flex-col items-center gap-2 p-8 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
+                <Activity className="h-4 w-4" />
+              </div>
+              <div className="text-sm font-medium">No pharmacy activity yet</div>
+              <div className="text-xs text-muted-foreground">Recent orders, dispenses and returns will appear here.</div>
             </div>
           )}
           {recent.map((r) => (
