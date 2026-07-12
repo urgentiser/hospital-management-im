@@ -17,13 +17,20 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AppWardRouteImport } from './routes/_app.ward'
 import { Route as AppTriageRouteImport } from './routes/_app.triage'
 import { Route as AppTheatreRouteImport } from './routes/_app.theatre'
+import { Route as AppSystemHealthRouteImport } from './routes/_app.system-health'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppPreadmissionsRouteImport } from './routes/_app.preadmissions'
 import { Route as AppPractitionersRouteImport } from './routes/_app.practitioners'
 import { Route as AppPharmacyRouteImport } from './routes/_app.pharmacy'
+import { Route as AppPcmsRouteImport } from './routes/_app.pcms'
 import { Route as AppPatientsRouteImport } from './routes/_app.patients'
+import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
+import { Route as AppMyWorkRouteImport } from './routes/_app.my-work'
+import { Route as AppMedicalEventsRouteImport } from './routes/_app.medical-events'
 import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
 import { Route as AppFundingRouteImport } from './routes/_app.funding'
+import { Route as AppFailedMessagesRouteImport } from './routes/_app.failed-messages'
 import { Route as AppFacilitiesRouteImport } from './routes/_app.facilities'
 import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
 import { Route as AppCoidRouteImport } from './routes/_app.coid'
@@ -45,6 +52,9 @@ import { Route as AppPharmacyLabelsStockRouteImport } from './routes/_app.pharma
 import { Route as AppPharmacyEnquiryRouteImport } from './routes/_app.pharmacy.enquiry'
 import { Route as AppPharmacyDispensingRouteImport } from './routes/_app.pharmacy.dispensing'
 import { Route as AppPharmacyCompoundingRouteImport } from './routes/_app.pharmacy.compounding'
+import { Route as AppPatientsIdRouteImport } from './routes/_app.patients.$id'
+import { Route as AppAdmissionsNewRouteImport } from './routes/_app.admissions.new'
+import { Route as AppAdmissionsIdRouteImport } from './routes/_app.admissions.$id'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminReferenceRouteImport } from './routes/_app.admin.reference'
 import { Route as AppAdminPrintingRouteImport } from './routes/_app.admin.printing'
@@ -92,9 +102,19 @@ const AppTheatreRoute = AppTheatreRouteImport.update({
   path: '/theatre',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSystemHealthRoute = AppSystemHealthRouteImport.update({
+  id: '/system-health',
+  path: '/system-health',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPreadmissionsRoute = AppPreadmissionsRouteImport.update({
@@ -112,9 +132,29 @@ const AppPharmacyRoute = AppPharmacyRouteImport.update({
   path: '/pharmacy',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPcmsRoute = AppPcmsRouteImport.update({
+  id: '/pcms',
+  path: '/pcms',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPatientsRoute = AppPatientsRouteImport.update({
   id: '/patients',
   path: '/patients',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyWorkRoute = AppMyWorkRouteImport.update({
+  id: '/my-work',
+  path: '/my-work',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMedicalEventsRoute = AppMedicalEventsRouteImport.update({
+  id: '/medical-events',
+  path: '/medical-events',
   getParentRoute: () => AppRoute,
 } as any)
 const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
@@ -125,6 +165,11 @@ const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
 const AppFundingRoute = AppFundingRouteImport.update({
   id: '/funding',
   path: '/funding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFailedMessagesRoute = AppFailedMessagesRouteImport.update({
+  id: '/failed-messages',
+  path: '/failed-messages',
   getParentRoute: () => AppRoute,
 } as any)
 const AppFacilitiesRoute = AppFacilitiesRouteImport.update({
@@ -235,6 +280,21 @@ const AppPharmacyCompoundingRoute = AppPharmacyCompoundingRouteImport.update({
   path: '/compounding',
   getParentRoute: () => AppPharmacyRoute,
 } as any)
+const AppPatientsIdRoute = AppPatientsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppPatientsRoute,
+} as any)
+const AppAdmissionsNewRoute = AppAdmissionsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppAdmissionsRoute,
+} as any)
+const AppAdmissionsIdRoute = AppAdmissionsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAdmissionsRoute,
+} as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -281,7 +341,7 @@ export interface FileRoutesByFullPath {
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
   '/admin': typeof AppAdminRouteWithChildren
-  '/admissions': typeof AppAdmissionsRoute
+  '/admissions': typeof AppAdmissionsRouteWithChildren
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
@@ -289,13 +349,20 @@ export interface FileRoutesByFullPath {
   '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
+  '/failed-messages': typeof AppFailedMessagesRoute
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
-  '/patients': typeof AppPatientsRoute
+  '/medical-events': typeof AppMedicalEventsRoute
+  '/my-work': typeof AppMyWorkRoute
+  '/notifications': typeof AppNotificationsRoute
+  '/patients': typeof AppPatientsRouteWithChildren
+  '/pcms': typeof AppPcmsRoute
   '/pharmacy': typeof AppPharmacyRouteWithChildren
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
+  '/profile': typeof AppProfileRoute
   '/reports': typeof AppReportsRoute
+  '/system-health': typeof AppSystemHealthRoute
   '/theatre': typeof AppTheatreRoute
   '/triage': typeof AppTriageRoute
   '/ward': typeof AppWardRoute
@@ -307,6 +374,9 @@ export interface FileRoutesByFullPath {
   '/admin/printing': typeof AppAdminPrintingRoute
   '/admin/reference': typeof AppAdminReferenceRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/admissions/$id': typeof AppAdmissionsIdRoute
+  '/admissions/new': typeof AppAdmissionsNewRoute
+  '/patients/$id': typeof AppPatientsIdRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -323,7 +393,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
-  '/admissions': typeof AppAdmissionsRoute
+  '/admissions': typeof AppAdmissionsRouteWithChildren
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
@@ -331,12 +401,19 @@ export interface FileRoutesByTo {
   '/coid': typeof AppCoidRoute
   '/documents': typeof AppDocumentsRoute
   '/facilities': typeof AppFacilitiesRoute
+  '/failed-messages': typeof AppFailedMessagesRoute
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
-  '/patients': typeof AppPatientsRoute
+  '/medical-events': typeof AppMedicalEventsRoute
+  '/my-work': typeof AppMyWorkRoute
+  '/notifications': typeof AppNotificationsRoute
+  '/patients': typeof AppPatientsRouteWithChildren
+  '/pcms': typeof AppPcmsRoute
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
+  '/profile': typeof AppProfileRoute
   '/reports': typeof AppReportsRoute
+  '/system-health': typeof AppSystemHealthRoute
   '/theatre': typeof AppTheatreRoute
   '/triage': typeof AppTriageRoute
   '/ward': typeof AppWardRoute
@@ -349,6 +426,9 @@ export interface FileRoutesByTo {
   '/admin/printing': typeof AppAdminPrintingRoute
   '/admin/reference': typeof AppAdminReferenceRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/admissions/$id': typeof AppAdmissionsIdRoute
+  '/admissions/new': typeof AppAdmissionsNewRoute
+  '/patients/$id': typeof AppPatientsIdRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -368,7 +448,7 @@ export interface FileRoutesById {
   '/_app/accounting': typeof AppAccountingRoute
   '/_app/adhoc': typeof AppAdhocRoute
   '/_app/admin': typeof AppAdminRouteWithChildren
-  '/_app/admissions': typeof AppAdmissionsRoute
+  '/_app/admissions': typeof AppAdmissionsRouteWithChildren
   '/_app/audit': typeof AppAuditRoute
   '/_app/authorisations': typeof AppAuthorisationsRoute
   '/_app/billing': typeof AppBillingRoute
@@ -376,13 +456,20 @@ export interface FileRoutesById {
   '/_app/coid': typeof AppCoidRoute
   '/_app/documents': typeof AppDocumentsRoute
   '/_app/facilities': typeof AppFacilitiesRoute
+  '/_app/failed-messages': typeof AppFailedMessagesRoute
   '/_app/funding': typeof AppFundingRoute
   '/_app/integrations': typeof AppIntegrationsRoute
-  '/_app/patients': typeof AppPatientsRoute
+  '/_app/medical-events': typeof AppMedicalEventsRoute
+  '/_app/my-work': typeof AppMyWorkRoute
+  '/_app/notifications': typeof AppNotificationsRoute
+  '/_app/patients': typeof AppPatientsRouteWithChildren
+  '/_app/pcms': typeof AppPcmsRoute
   '/_app/pharmacy': typeof AppPharmacyRouteWithChildren
   '/_app/practitioners': typeof AppPractitionersRoute
   '/_app/preadmissions': typeof AppPreadmissionsRoute
+  '/_app/profile': typeof AppProfileRoute
   '/_app/reports': typeof AppReportsRoute
+  '/_app/system-health': typeof AppSystemHealthRoute
   '/_app/theatre': typeof AppTheatreRoute
   '/_app/triage': typeof AppTriageRoute
   '/_app/ward': typeof AppWardRoute
@@ -395,6 +482,9 @@ export interface FileRoutesById {
   '/_app/admin/printing': typeof AppAdminPrintingRoute
   '/_app/admin/reference': typeof AppAdminReferenceRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
+  '/_app/admissions/$id': typeof AppAdmissionsIdRoute
+  '/_app/admissions/new': typeof AppAdmissionsNewRoute
+  '/_app/patients/$id': typeof AppPatientsIdRoute
   '/_app/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/_app/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
   '/_app/pharmacy/enquiry': typeof AppPharmacyEnquiryRoute
@@ -423,13 +513,20 @@ export interface FileRouteTypes {
     | '/coid'
     | '/documents'
     | '/facilities'
+    | '/failed-messages'
     | '/funding'
     | '/integrations'
+    | '/medical-events'
+    | '/my-work'
+    | '/notifications'
     | '/patients'
+    | '/pcms'
     | '/pharmacy'
     | '/practitioners'
     | '/preadmissions'
+    | '/profile'
     | '/reports'
+    | '/system-health'
     | '/theatre'
     | '/triage'
     | '/ward'
@@ -441,6 +538,9 @@ export interface FileRouteTypes {
     | '/admin/printing'
     | '/admin/reference'
     | '/admin/users'
+    | '/admissions/$id'
+    | '/admissions/new'
+    | '/patients/$id'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
     | '/pharmacy/enquiry'
@@ -465,12 +565,19 @@ export interface FileRouteTypes {
     | '/coid'
     | '/documents'
     | '/facilities'
+    | '/failed-messages'
     | '/funding'
     | '/integrations'
+    | '/medical-events'
+    | '/my-work'
+    | '/notifications'
     | '/patients'
+    | '/pcms'
     | '/practitioners'
     | '/preadmissions'
+    | '/profile'
     | '/reports'
+    | '/system-health'
     | '/theatre'
     | '/triage'
     | '/ward'
@@ -483,6 +590,9 @@ export interface FileRouteTypes {
     | '/admin/printing'
     | '/admin/reference'
     | '/admin/users'
+    | '/admissions/$id'
+    | '/admissions/new'
+    | '/patients/$id'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
     | '/pharmacy/enquiry'
@@ -509,13 +619,20 @@ export interface FileRouteTypes {
     | '/_app/coid'
     | '/_app/documents'
     | '/_app/facilities'
+    | '/_app/failed-messages'
     | '/_app/funding'
     | '/_app/integrations'
+    | '/_app/medical-events'
+    | '/_app/my-work'
+    | '/_app/notifications'
     | '/_app/patients'
+    | '/_app/pcms'
     | '/_app/pharmacy'
     | '/_app/practitioners'
     | '/_app/preadmissions'
+    | '/_app/profile'
     | '/_app/reports'
+    | '/_app/system-health'
     | '/_app/theatre'
     | '/_app/triage'
     | '/_app/ward'
@@ -528,6 +645,9 @@ export interface FileRouteTypes {
     | '/_app/admin/printing'
     | '/_app/admin/reference'
     | '/_app/admin/users'
+    | '/_app/admissions/$id'
+    | '/_app/admissions/new'
+    | '/_app/patients/$id'
     | '/_app/pharmacy/compounding'
     | '/_app/pharmacy/dispensing'
     | '/_app/pharmacy/enquiry'
@@ -606,11 +726,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTheatreRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/system-health': {
+      id: '/_app/system-health'
+      path: '/system-health'
+      fullPath: '/system-health'
+      preLoaderRoute: typeof AppSystemHealthRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/reports': {
       id: '/_app/reports'
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/preadmissions': {
@@ -634,11 +768,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPharmacyRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/pcms': {
+      id: '/_app/pcms'
+      path: '/pcms'
+      fullPath: '/pcms'
+      preLoaderRoute: typeof AppPcmsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/patients': {
       id: '/_app/patients'
       path: '/patients'
       fullPath: '/patients'
       preLoaderRoute: typeof AppPatientsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notifications': {
+      id: '/_app/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-work': {
+      id: '/_app/my-work'
+      path: '/my-work'
+      fullPath: '/my-work'
+      preLoaderRoute: typeof AppMyWorkRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/medical-events': {
+      id: '/_app/medical-events'
+      path: '/medical-events'
+      fullPath: '/medical-events'
+      preLoaderRoute: typeof AppMedicalEventsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/integrations': {
@@ -653,6 +815,13 @@ declare module '@tanstack/react-router' {
       path: '/funding'
       fullPath: '/funding'
       preLoaderRoute: typeof AppFundingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/failed-messages': {
+      id: '/_app/failed-messages'
+      path: '/failed-messages'
+      fullPath: '/failed-messages'
+      preLoaderRoute: typeof AppFailedMessagesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/facilities': {
@@ -802,6 +971,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPharmacyCompoundingRouteImport
       parentRoute: typeof AppPharmacyRoute
     }
+    '/_app/patients/$id': {
+      id: '/_app/patients/$id'
+      path: '/$id'
+      fullPath: '/patients/$id'
+      preLoaderRoute: typeof AppPatientsIdRouteImport
+      parentRoute: typeof AppPatientsRoute
+    }
+    '/_app/admissions/new': {
+      id: '/_app/admissions/new'
+      path: '/new'
+      fullPath: '/admissions/new'
+      preLoaderRoute: typeof AppAdmissionsNewRouteImport
+      parentRoute: typeof AppAdmissionsRoute
+    }
+    '/_app/admissions/$id': {
+      id: '/_app/admissions/$id'
+      path: '/$id'
+      fullPath: '/admissions/$id'
+      preLoaderRoute: typeof AppAdmissionsIdRouteImport
+      parentRoute: typeof AppAdmissionsRoute
+    }
     '/_app/admin/users': {
       id: '/_app/admin/users'
       path: '/users'
@@ -878,6 +1068,32 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
   AppAdminRouteChildren,
 )
 
+interface AppAdmissionsRouteChildren {
+  AppAdmissionsIdRoute: typeof AppAdmissionsIdRoute
+  AppAdmissionsNewRoute: typeof AppAdmissionsNewRoute
+}
+
+const AppAdmissionsRouteChildren: AppAdmissionsRouteChildren = {
+  AppAdmissionsIdRoute: AppAdmissionsIdRoute,
+  AppAdmissionsNewRoute: AppAdmissionsNewRoute,
+}
+
+const AppAdmissionsRouteWithChildren = AppAdmissionsRoute._addFileChildren(
+  AppAdmissionsRouteChildren,
+)
+
+interface AppPatientsRouteChildren {
+  AppPatientsIdRoute: typeof AppPatientsIdRoute
+}
+
+const AppPatientsRouteChildren: AppPatientsRouteChildren = {
+  AppPatientsIdRoute: AppPatientsIdRoute,
+}
+
+const AppPatientsRouteWithChildren = AppPatientsRoute._addFileChildren(
+  AppPatientsRouteChildren,
+)
+
 interface AppPharmacyRouteChildren {
   AppPharmacyCompoundingRoute: typeof AppPharmacyCompoundingRoute
   AppPharmacyDispensingRoute: typeof AppPharmacyDispensingRoute
@@ -906,7 +1122,7 @@ interface AppRouteChildren {
   AppAccountingRoute: typeof AppAccountingRoute
   AppAdhocRoute: typeof AppAdhocRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
-  AppAdmissionsRoute: typeof AppAdmissionsRoute
+  AppAdmissionsRoute: typeof AppAdmissionsRouteWithChildren
   AppAuditRoute: typeof AppAuditRoute
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
   AppBillingRoute: typeof AppBillingRoute
@@ -914,13 +1130,20 @@ interface AppRouteChildren {
   AppCoidRoute: typeof AppCoidRoute
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppFacilitiesRoute: typeof AppFacilitiesRoute
+  AppFailedMessagesRoute: typeof AppFailedMessagesRoute
   AppFundingRoute: typeof AppFundingRoute
   AppIntegrationsRoute: typeof AppIntegrationsRoute
-  AppPatientsRoute: typeof AppPatientsRoute
+  AppMedicalEventsRoute: typeof AppMedicalEventsRoute
+  AppMyWorkRoute: typeof AppMyWorkRoute
+  AppNotificationsRoute: typeof AppNotificationsRoute
+  AppPatientsRoute: typeof AppPatientsRouteWithChildren
+  AppPcmsRoute: typeof AppPcmsRoute
   AppPharmacyRoute: typeof AppPharmacyRouteWithChildren
   AppPractitionersRoute: typeof AppPractitionersRoute
   AppPreadmissionsRoute: typeof AppPreadmissionsRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppReportsRoute: typeof AppReportsRoute
+  AppSystemHealthRoute: typeof AppSystemHealthRoute
   AppTheatreRoute: typeof AppTheatreRoute
   AppTriageRoute: typeof AppTriageRoute
   AppWardRoute: typeof AppWardRoute
@@ -931,7 +1154,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAccountingRoute: AppAccountingRoute,
   AppAdhocRoute: AppAdhocRoute,
   AppAdminRoute: AppAdminRouteWithChildren,
-  AppAdmissionsRoute: AppAdmissionsRoute,
+  AppAdmissionsRoute: AppAdmissionsRouteWithChildren,
   AppAuditRoute: AppAuditRoute,
   AppAuthorisationsRoute: AppAuthorisationsRoute,
   AppBillingRoute: AppBillingRoute,
@@ -939,13 +1162,20 @@ const AppRouteChildren: AppRouteChildren = {
   AppCoidRoute: AppCoidRoute,
   AppDocumentsRoute: AppDocumentsRoute,
   AppFacilitiesRoute: AppFacilitiesRoute,
+  AppFailedMessagesRoute: AppFailedMessagesRoute,
   AppFundingRoute: AppFundingRoute,
   AppIntegrationsRoute: AppIntegrationsRoute,
-  AppPatientsRoute: AppPatientsRoute,
+  AppMedicalEventsRoute: AppMedicalEventsRoute,
+  AppMyWorkRoute: AppMyWorkRoute,
+  AppNotificationsRoute: AppNotificationsRoute,
+  AppPatientsRoute: AppPatientsRouteWithChildren,
+  AppPcmsRoute: AppPcmsRoute,
   AppPharmacyRoute: AppPharmacyRouteWithChildren,
   AppPractitionersRoute: AppPractitionersRoute,
   AppPreadmissionsRoute: AppPreadmissionsRoute,
+  AppProfileRoute: AppProfileRoute,
   AppReportsRoute: AppReportsRoute,
+  AppSystemHealthRoute: AppSystemHealthRoute,
   AppTheatreRoute: AppTheatreRoute,
   AppTriageRoute: AppTriageRoute,
   AppWardRoute: AppWardRoute,
