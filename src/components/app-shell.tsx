@@ -65,6 +65,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronRight, LogOut, UserCog } from "lucide-react";
+import { usePatientContext, availablePatients } from "@/lib/patient-context";
 
 
 
