@@ -104,9 +104,10 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
       {config.kpis && (
         <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
           {config.kpis(items).map((k) => (
-            <Card key={k.label} className="p-5">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">{k.label}</div>
-              <div className="mt-2 font-display text-3xl tracking-tight">{k.value}</div>
+            <Card key={k.label} className="relative overflow-hidden p-5">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br from-primary/25 to-transparent opacity-70 blur-2xl" />
+              <div className="relative text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{k.label}</div>
+              <div className="relative mt-2 font-display text-3xl tracking-tight">{k.value}</div>
             </Card>
           ))}
         </div>
@@ -153,16 +154,26 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
             <tbody className="divide-y divide-border">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={config.columns.length + 3} className="px-5 py-10 text-center text-sm text-muted-foreground">
-                    No records match your filters.
+                  <td colSpan={config.columns.length + 3} className="px-5 py-12">
+                    <div className="flex flex-col items-center gap-2 text-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
+                        <Search className="h-4 w-4" />
+                      </div>
+                      <div className="text-sm font-medium">No records match your filters</div>
+                      <div className="text-xs text-muted-foreground">Try clearing the search or status filter, or create a new record.</div>
+                    </div>
                   </td>
                 </tr>
               )}
               {filtered.map((it) => (
                 <tr
                   key={it.id}
-                  className="cursor-pointer hover:bg-muted/30"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Open ${it.title}`}
+                  className="cursor-pointer transition-colors hover:bg-muted/30 focus-visible:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40 motion-reduce:transition-none"
                   onClick={() => setDetailId(it.id)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetailId(it.id); } }}
                 >
                   <td className="px-5 py-3 font-mono text-xs">{it.id}</td>
                   {config.columns.map((c) => {
