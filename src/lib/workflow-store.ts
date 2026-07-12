@@ -441,6 +441,20 @@ export const useWorkflow = create<State>()(
           },
         })),
     }),
-    { name: "impilo-workflow-v2" },
+    {
+      name: "impilo-workflow-v2",
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<State>;
+        const seeded = seed();
+        const mergedItems = { ...seeded } as Record<ModuleKey, WorkflowItem[]>;
+        if (p.items) {
+          for (const k of Object.keys(p.items) as ModuleKey[]) {
+            const val = (p.items as Record<string, WorkflowItem[] | undefined>)[k];
+            if (Array.isArray(val)) mergedItems[k] = val;
+          }
+        }
+        return { ...current, ...p, items: mergedItems };
+      },
+    },
   ),
 );
