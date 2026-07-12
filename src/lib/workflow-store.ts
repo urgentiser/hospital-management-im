@@ -558,7 +558,7 @@ export const useWorkflow = create<State>()(
         })),
     }),
     {
-      name: "impilo-workflow-v2",
+      name: "impilo-workflow-v3",
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<State>;
         const seeded = seed();
