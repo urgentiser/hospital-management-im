@@ -104,9 +104,10 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
       {config.kpis && (
         <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
           {config.kpis(items).map((k) => (
-            <Card key={k.label} className="p-5">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">{k.label}</div>
-              <div className="mt-2 font-display text-3xl tracking-tight">{k.value}</div>
+            <Card key={k.label} className="relative overflow-hidden p-5">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br from-primary/25 to-transparent opacity-70 blur-2xl" />
+              <div className="relative text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{k.label}</div>
+              <div className="relative mt-2 font-display text-3xl tracking-tight">{k.value}</div>
             </Card>
           ))}
         </div>
