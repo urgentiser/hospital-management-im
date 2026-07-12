@@ -39,7 +39,10 @@ export type ModuleKey =
   | "preadmissions"
   | "coid"
   | "adhoc"
-  | "accounting";
+  | "accounting"
+  | "clinical-assessments"
+  | "medical-events"
+  | "clinical-coding";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
@@ -261,11 +264,39 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       history: [{ at: nowFmt(), action: "Prepared for review", by: "Financial Controller" }], createdAt: now(), updatedAt: now() },
   ];
 
+  const clinicalAssessments: WorkflowItem[] = [
+    { id: "CA-6001", title: "Cardiac risk assessment · N. Dlamini", subtitle: "Pre-op · Life Fourways",
+      status: "completed", fields: { Kind: "Assessment", Patient: "N. Dlamini", Type: "Cardiac risk", Score: "Low" },
+      history: [{ at: nowFmt(), action: "Assessment signed", by: "Dr. S. Naidoo" }], createdAt: now(), updatedAt: now() },
+    { id: "CA-6002", title: "MEWS · T. Mokoena", subtitle: "ICU · Kingsbury",
+      status: "in-progress", fields: { Kind: "MEWS", Patient: "T. Mokoena", Score: "4" },
+      history: [{ at: nowFmt(), action: "Scoring started", by: "Sr. J. Adams" }], createdAt: now(), updatedAt: now() },
+  ];
+  const medicalEvents: WorkflowItem[] = [
+    { id: "ME-8801", title: "Vitals recorded · N. Dlamini", subtitle: "Ward 3B · 08:15",
+      status: "logged", fields: { Kind: "Vitals", Patient: "N. Dlamini", BP: "128/82", HR: "76" },
+      history: [{ at: nowFmt(), action: "Recorded", by: "Sr. M. Zulu" }], createdAt: now(), updatedAt: now() },
+    { id: "ME-8802", title: "Adverse drug reaction · T. Mokoena", subtitle: "ICU · flagged",
+      status: "escalated", fields: { Kind: "ADR", Patient: "T. Mokoena", Drug: "Ceftriaxone" },
+      history: [{ at: nowFmt(), action: "Flagged to pharmacovigilance", by: "Dr. R. Botha" }], createdAt: now(), updatedAt: now() },
+  ];
+  const clinicalCoding: WorkflowItem[] = [
+    { id: "CC-5501", title: "ICD-10 · Cholelithiasis", subtitle: "Case CASE-8801 · Coder queue",
+      status: "in-review", fields: { Kind: "ICD-10", Patient: "N. Dlamini", Code: "K80.20", Reviewer: "Coder A. Khan" },
+      history: [{ at: nowFmt(), action: "Auto-coded", by: "Coding Engine" }], createdAt: now(), updatedAt: now() },
+    { id: "CC-5502", title: "CPT · Laparoscopic cholecystectomy", subtitle: "Case CASE-8801",
+      status: "signed", fields: { Kind: "CPT", Patient: "N. Dlamini", Code: "47562", Reviewer: "Coder A. Khan" },
+      history: [{ at: nowFmt(), action: "Signed by coder", by: "A. Khan" }], createdAt: now(), updatedAt: now() },
+  ];
+
   return {
     patients, admissions, authorisations, pharmacy, theatre, ward,
     facilities, practitioners, "case-management": cases, billing, funding,
     documents, integrations, audit, admin, reports,
     triage, preadmissions, coid, adhoc, accounting,
+    "clinical-assessments": clinicalAssessments,
+    "medical-events": medicalEvents,
+    "clinical-coding": clinicalCoding,
   };
 }
 
