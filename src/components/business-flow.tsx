@@ -311,75 +311,8 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
             </div>
           </div>
         </Card>
-
-        {/* Right rail */}
-        <div className="space-y-4">
-          <Card className="p-4">
-            <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-primary">Purpose</div>
-            <p className="mt-1.5 text-xs text-muted-foreground">{flow.purpose}</p>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              <Radio className="h-3.5 w-3.5" /> Events published
-            </div>
-            <ul className="mt-2 space-y-1">
-              {flow.events.map((e) => (
-                <li key={e} className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                  <span className="font-mono text-[11px] text-muted-foreground">{e}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          {flow.handoffs && flow.handoffs.length > 0 && (
-            <Card className="p-4">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                <ArrowRight className="h-3.5 w-3.5" /> Hand-offs
-              </div>
-              <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                {flow.handoffs.map((h) => <li key={h}>→ {h}</li>)}
-              </ul>
-            </Card>
-          )}
-
-          <Card className="p-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              <ShieldAlert className="h-3.5 w-3.5" /> Business rules
-            </div>
-            <ul className="mt-2 space-y-1.5">
-              {flow.globalRules.map((r) => (
-                <li key={r} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                  <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
-                  <span>{r}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              <ScrollText className="h-3.5 w-3.5" /> Acceptance scenarios
-            </div>
-            <ol className="mt-2 space-y-1.5">
-              {flow.acceptance.map((a, i) => (
-                <li key={a} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[10px] font-medium text-primary">
-                    {i + 1}
-                  </span>
-                  <span>{a}</span>
-                </li>
-              ))}
-            </ol>
-          </Card>
-
-          <div className="rounded-2xl border border-dashed border-border p-3 text-[11px] text-muted-foreground">
-            <StatusChip status={flow.completionStatus} />
-            <span className="ml-1">on flow completion</span>
-          </div>
-        </div>
       </div>
     </>
   );
 }
+
