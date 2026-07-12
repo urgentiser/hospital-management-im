@@ -313,6 +313,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </button>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+          {/* Patient context chip */}
+          <PatientContextChip />
           {/* Facility selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
