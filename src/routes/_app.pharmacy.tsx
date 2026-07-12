@@ -37,7 +37,7 @@ function PharmacyLayout() {
 
       <nav className="mb-6 -mx-1 flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hidden">
         <TabLink to="/pharmacy" exact label="Overview" />
-        <TabLink to={"/pharmacy/business-flow" as "/pharmacy"} label="Business Flow" />
+        <TabLink to={"/pharmacy/business-flow" as "/pharmacy"} label="Guided Workflow" />
         {SECTIONS.map((s) => (
           <TabLink key={s.key} to={`/pharmacy/${s.slug}` as "/pharmacy"} label={s.title} />
         ))}
