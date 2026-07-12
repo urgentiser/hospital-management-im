@@ -1,41 +1,186 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { WorkflowModule } from "@/components/workflow-module";
+import {
+  ShieldCheck, Send, Search, ClipboardCheck, XCircle, RotateCcw,
+  FileSignature, AlertTriangle, Wallet,
+} from "lucide-react";
+import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+
+const config: ModuleConsoleConfig = {
+  moduleKey: "authorisations",
+  eyebrow: "Funding · Authorisations",
+  title: "Authorisations",
+  description: "Submit, track and appeal scheme authorisations for planned and unplanned admissions.",
+  heroHeadline: "Every authorisation, from request to appeal, on one desk.",
+  heroBlurb: "Submit clinical motivation, receive scheme responses, and appeal declines — all with a defensible audit trail.",
+  heroBadge: "Live · Auth desk",
+  heroCtas: [
+    { label: "Submit an authorisation", sectionKey: "submission", primary: true },
+    { label: "Open auth board", sectionKey: "board" },
+    { label: "Appeal a decline", sectionKey: "appeals" },
+  ],
+  overviewKpis: (items) => [
+    { label: "Pending", value: items.filter((i) => i.status === "pending").length, icon: ClipboardCheck, accent: "from-amber-500/30 to-transparent", tone: "warning" },
+    { label: "In review", value: items.filter((i) => i.status === "review").length, icon: Search, accent: "from-sky-500/30 to-transparent" },
+    { label: "Approved", value: items.filter((i) => i.status === "approved").length, icon: ShieldCheck, accent: "from-emerald-500/30 to-transparent", tone: "success" },
+    { label: "Declined", value: items.filter((i) => i.status === "declined").length, icon: XCircle, accent: "from-rose-500/30 to-transparent", tone: "destructive" },
+  ],
+  sections: [
+    {
+      key: "submission",
+      title: "Submission",
+      tagline: "Request · resubmit",
+      description: "Submit new authorisations and resubmit with corrected motivation.",
+      icon: Send,
+      accent: "from-primary/25 via-sky-500/15 to-transparent",
+      ring: "ring-primary/30",
+      actions: [
+        { key: "submit", label: "Submit Authorisation", icon: Send, hint: "Submit a new auth request", kind: "Authorisation", startStatus: "pending",
+          fields: [
+            { name: "patient", label: "Patient", required: true },
+            { name: "scheme", label: "Scheme", required: true },
+            { name: "procedure", label: "Procedure", required: true },
+            { name: "icd10", label: "ICD-10" },
+            { name: "amount", label: "Amount (R)", type: "number" },
+            { name: "motivation", label: "Clinical motivation", type: "textarea", required: true },
+          ]},
+        { key: "resubmit", label: "Resubmit", icon: RotateCcw, hint: "Resubmit with corrections", kind: "Resubmit", startStatus: "pending",
+          fields: [
+            { name: "reference", label: "Auth reference", required: true },
+            { name: "changes", label: "What changed", required: true, type: "textarea" },
+          ]},
+      ],
+    },
+    {
+      key: "board",
+      title: "Auth Board",
+      tagline: "Track · sign",
+      description: "Live view of all authorisations with quick status transitions.",
+      icon: ClipboardCheck,
+      accent: "from-emerald-500/25 via-teal-500/15 to-transparent",
+      ring: "ring-emerald-400/30",
+      actions: [
+        { key: "search", label: "Search Auths", icon: Search, hint: "Filter by patient / scheme / status", kind: "Search", startStatus: "active",
+          fields: [{ name: "query", label: "Search", required: true, placeholder: "Auth ref / patient / scheme" }] },
+        { key: "record-response", label: "Record Scheme Response", icon: FileSignature, hint: "Log the scheme decision", kind: "Response", startStatus: "approved",
+          fields: [
+            { name: "reference", label: "Auth reference", required: true },
+            { name: "decision", label: "Decision", required: true, placeholder: "Approved / Declined / More info" },
+            { name: "amount", label: "Approved amount (R)", type: "number" },
+            { name: "notes", label: "Notes", type: "textarea" },
+          ]},
+      ],
+    },
+    {
+      key: "appeals",
+      title: "Appeals",
+      tagline: "Escalate · dispute",
+      description: "Appeal declined authorisations with supplementary clinical evidence.",
+      icon: AlertTriangle,
+      accent: "from-rose-500/25 via-pink-500/15 to-transparent",
+      ring: "ring-rose-400/30",
+      actions: [
+        { key: "appeal", label: "Appeal Decline", icon: AlertTriangle, hint: "Lodge a formal appeal", kind: "Appeal", startStatus: "review",
+          fields: [
+            { name: "reference", label: "Auth reference", required: true },
+            { name: "grounds", label: "Grounds for appeal", required: true, type: "textarea" },
+            { name: "evidence", label: "Supporting evidence", type: "textarea" },
+          ], destructive: true },
+      ],
+    },
+  ],
+  businessFlow: {
+    moduleKey: "authorisations",
+    title: "Authorisation",
+    purpose: "Obtain scheme authorisation for a planned or unplanned admission, procedure or treatment — with defensible clinical motivation.",
+    legacySource: "Rich/Funding/Authorisation.Implet; funding.authorisation.menu.xml",
+    routeFamily: ["/authorisations", "/authorisations/new", "/authorisations/{id}", "/authorisations/{id}/appeal"],
+    patientRequired: true,
+    completionKind: "Authorisation",
+    completionStatus: "pending",
+    completionLabel: "Authorisation submitted",
+    titleFrom: (v) => `${v.procedure ?? "Auth"} · ${v.patient ?? "Patient"}`,
+    subtitleFrom: (v) => [v.scheme, v.amount && `R ${v.amount}`].filter(Boolean).join(" · "),
+    events: [
+      "AuthorisationDrafted", "AuthorisationSubmitted", "AuthorisationResponseReceived",
+      "AuthorisationApproved", "AuthorisationDeclined", "AuthorisationAppealed",
+    ],
+    handoffs: ["Admissions", "Billing", "Case Management", "Funding"],
+    globalRules: [
+      "Every submission must include ICD-10 diagnosis and CPT procedure codes.",
+      "PMB conditions are auto-flagged and cannot be declined without motivation.",
+      "Emergency authorisations may be captured retrospectively within 48h.",
+      "Declines can be appealed once at scheme level, then escalated to CMS.",
+      "Every event publishes to the service bus and writes an audit record.",
+    ],
+    acceptance: [
+      "Submit an elective auth and receive an approval with a benefit reference.",
+      "Submit an emergency auth retrospectively within 48h and it accepts.",
+      "Appeal a decline with additional evidence and observe status change.",
+    ],
+    steps: [
+      { key: "patient", title: "Select patient & scheme", description: "Confirm patient, active scheme, plan and membership.",
+        fields: [
+          { name: "patient", label: "Patient", required: true },
+          { name: "mrn", label: "MRN" },
+          { name: "scheme", label: "Scheme", type: "select", required: true, options: ["Discovery Health", "Bonitas", "GEMS", "Momentum Health", "Polmed", "Medscheme", "Fedhealth"] },
+          { name: "plan", label: "Plan / Option" },
+          { name: "membership", label: "Membership no.", required: true },
+        ]},
+      { key: "clinical", title: "Clinical detail", description: "Capture diagnosis, procedure, laterality and clinical urgency.",
+        fields: [
+          { name: "icd10", label: "ICD-10 principal", required: true, placeholder: "e.g. K80.20" },
+          { name: "cpt", label: "CPT procedure", required: true, placeholder: "e.g. 47562" },
+          { name: "urgency", label: "Urgency", type: "select", options: ["Elective", "Urgent (< 7d)", "Emergency"] },
+          { name: "laterality", label: "Laterality", type: "select", options: ["N/A", "Left", "Right", "Bilateral"] },
+        ],
+        rules: ["Emergency + retrospective is allowed up to 48h post-admission."] },
+      { key: "provider", title: "Provider & facility", description: "Confirm treating practitioner, facility and estimated LOS.",
+        fields: [
+          { name: "practitioner", label: "Treating practitioner", required: true },
+          { name: "hpcsa", label: "HPCSA / Practice no." },
+          { name: "facility", label: "Facility", type: "select", required: true, options: ["Life Fourways", "Life Groenkloof", "Life Kingsbury", "Life Vincent Pallotti", "Life The Glynnwood", "Life East London", "Life Westville", "Life Entabeni"] },
+          { name: "los", label: "Estimated LOS (days)", type: "number" },
+        ] },
+      { key: "cost", title: "Estimated cost & funding", description: "Estimate cost per line and identify funding rules.",
+        fields: [
+          { name: "amount", label: "Total estimated (R)", type: "number", required: true },
+          { name: "hospitalCost", label: "Hospital cost (R)", type: "number" },
+          { name: "professionalCost", label: "Professional cost (R)", type: "number" },
+          { name: "coPayment", label: "Expected co-payment (R)", type: "number" },
+        ] },
+      { key: "motivation", title: "Clinical motivation", description: "Write the motivation and attach supporting evidence (reports, imaging).",
+        fields: [{ name: "motivation", label: "Motivation", required: true, type: "textarea", placeholder: "Why this treatment, why now, evidence-based rationale" }],
+        checklist: ["ICD-10 justified by clinical findings", "Alternative treatments considered", "Guideline / PMB reference included"] },
+      { key: "pmb", title: "PMB / benefit check", description: "Check PMB status and benefit balance for the plan.",
+        checklist: ["PMB status determined", "Benefit balance sufficient", "Sub-limit not exhausted"] },
+      { key: "submit", title: "Submit to scheme", description: "Submit authorisation payload to the scheme (Claim XML or portal).",
+        events: ["AuthorisationSubmitted"] },
+      { key: "response", title: "Await & record response", description: "Record the scheme's response — approved, declined, or more information requested.",
+        fields: [
+          { name: "authRef", label: "Scheme auth reference" },
+          { name: "decision", label: "Decision", type: "select", options: ["Approved", "Declined", "More info requested", "Pending"] },
+          { name: "approvedAmount", label: "Approved amount (R)", type: "number" },
+          { name: "conditions", label: "Conditions / limits", type: "textarea" },
+        ],
+        events: ["AuthorisationResponseReceived"] },
+      { key: "appeal", title: "Appeal (if declined)", description: "Optional: lodge an appeal with additional evidence and clinical rationale.",
+        fields: [
+          { name: "appealGrounds", label: "Grounds for appeal", type: "textarea" },
+          { name: "appealEvidence", label: "New evidence attached" },
+        ],
+        events: ["AuthorisationAppealed"] },
+      { key: "publish", title: "Publish & hand off", description: "Publish AuthorisationApproved / Declined to the service bus. Downstream: Admissions, Billing, Case.",
+        events: ["AuthorisationApproved", "AuthorisationDeclined"] },
+    ],
+  },
+};
 
 export const Route = createFileRoute("/_app/authorisations")({
-  head: () => ({ meta: [{ title: "Authorisations — Impilo" }] }),
-  component: () => (
-    <WorkflowModule
-      config={{
-        moduleKey: "authorisations",
-        eyebrow: "Clinical · Funding & Authorisation",
-        title: "Authorisations",
-        description: "Submit and track scheme authorisations from request through approval or appeal.",
-        workflow: ["pending", "review", "approved"],
-        outcomes: ["declined"],
-        columns: [
-          { key: "title", label: "Procedure" },
-          { key: "Patient", label: "Patient" },
-          { key: "Scheme", label: "Scheme" },
-          { key: "Amount", label: "Amount" },
-          { key: "Submitted", label: "Submitted" },
-        ],
-        fields: [
-          { key: "procedure", label: "Procedure", required: true },
-          { key: "patient", label: "Patient", required: true },
-          { key: "scheme", label: "Scheme", type: "select", required: true, options: ["Discovery Health", "Bonitas", "GEMS", "Momentum Health", "Polmed"] },
-          { key: "amount", label: "Amount (ZAR)", type: "number", required: true },
-          { key: "submittedAt", label: "Submitted", placeholder: "YYYY-MM-DD" },
-          { key: "clinical", label: "Clinical motivation", type: "textarea" },
-        ],
-        titleFrom: (f) => String(f["Procedure"] || "New authorisation"),
-        subtitleFrom: (f) => `${f["Patient"]} · ${f["Scheme"]}`,
-        kpis: (items) => [
-          { label: "Pending", value: items.filter((i) => i.status === "pending").length },
-          { label: "Review", value: items.filter((i) => i.status === "review").length },
-          { label: "Approved", value: items.filter((i) => i.status === "approved").length },
-          { label: "Declined", value: items.filter((i) => i.status === "declined").length },
-        ],
-      }}
-    />
-  ),
+  head: () => ({
+    meta: [
+      { title: "Authorisations — Impilo" },
+      { name: "description", content: config.description },
+    ],
+  }),
+  component: () => <ModuleConsole config={config} />,
 });
