@@ -569,3 +569,62 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
     </div>
   );
 }
+
+function PatientContextChip() {
+  const currentId = usePatientContext((s) => s.currentPatientId);
+  const setPatient = usePatientContext((s) => s.setPatient);
+  const current = currentId ? availablePatients.find((p) => p.id === currentId) ?? null : null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          aria-label={current ? `Patient context: ${current.name}` : "Select patient context"}
+          className={
+            "hidden items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 md:inline-flex " +
+            (current
+              ? "border-primary/40 bg-primary/10 text-foreground hover:border-primary/60"
+              : "border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground")
+          }
+        >
+          <UserRound className={"h-3.5 w-3.5 " + (current ? "text-primary" : "text-muted-foreground")} />
+          {current ? (
+            <>
+              <span className="max-w-[9rem] truncate">{current.name}</span>
+              <span className="hidden font-mono text-[10px] text-muted-foreground lg:inline">{current.mrn}</span>
+            </>
+          ) : (
+            <span>No patient</span>
+          )}
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-72">
+        <DropdownMenuLabel className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+          Patient context
+        </DropdownMenuLabel>
+        {current && (
+          <>
+            <DropdownMenuItem onClick={() => setPatient(null)} className="text-destructive focus:text-destructive">
+              <X className="h-3.5 w-3.5" />
+              <span>Clear current patient</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        {availablePatients.map((p) => (
+          <DropdownMenuItem key={p.id} onClick={() => setPatient(p.id)}>
+            <UserRound className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className="flex min-w-0 flex-col leading-tight">
+              <span className="truncate text-xs font-medium">{p.name}</span>
+              <span className="truncate text-[10px] text-muted-foreground">
+                <span className="font-mono">{p.mrn}</span> · {p.scheme}
+              </span>
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
