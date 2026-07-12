@@ -96,16 +96,82 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
     createdAt: now(),
     updatedAt: now(),
   }));
-  const integrations: WorkflowItem[] = seedEvents.map((e) => ({
-    id: e.id,
-    title: e.topic,
-    subtitle: e.correlationId,
-    status: e.status,
-    fields: { Attempts: e.attempts, "Latency (ms)": e.latencyMs, Created: e.createdAt },
-    history: [{ at: nowFmt(), action: "Event received", by: "Service Bus" }],
-    createdAt: now(),
-    updatedAt: now(),
-  }));
+  const integrationsMeta: Array<{
+    queue: string; subscription: string; source: string; target: string;
+    messageType: string; entity: string; entityId: string; enqueuedAt: string; processedAt: string;
+    errorCode?: string; errorMessage?: string;
+    retryLog: { attempt: number; at: string; result: string; note?: string }[];
+    timeline: { at: string; hop: string; outcome: string }[];
+  }> = [
+    { queue: "topics/patient", subscription: "sub-patient-core", source: "Admissions API", target: "PatientCore", messageType: "PatientAdmitted", entity: "Patient", entityId: "P-10241", enqueuedAt: "2026-07-12 08:14:22", processedAt: "2026-07-12 08:14:22",
+      retryLog: [{ attempt: 1, at: "08:14:22", result: "delivered" }],
+      timeline: [{ at: "08:14:22", hop: "publish", outcome: "accepted" }, { at: "08:14:22", hop: "deliver", outcome: "acked" }] },
+    { queue: "topics/authorisation", subscription: "sub-auth-medscheme", source: "AuthGateway", target: "MedScheme Adapter", messageType: "AuthorisationRequested", entity: "Authorisation", entityId: "AUTH-40922", enqueuedAt: "2026-07-12 08:13:00", processedAt: "—",
+      errorCode: "HTTP_504", errorMessage: "Upstream MedScheme gateway timeout after 30s",
+      retryLog: [
+        { attempt: 1, at: "08:13:00", result: "failed", note: "504 Gateway Timeout" },
+        { attempt: 2, at: "08:13:15", result: "failed", note: "504 Gateway Timeout" },
+        { attempt: 3, at: "08:13:45", result: "retry-scheduled", note: "backoff 60s" },
+      ],
+      timeline: [
+        { at: "08:13:00", hop: "publish", outcome: "accepted" },
+        { at: "08:13:00", hop: "deliver", outcome: "504" },
+        { at: "08:13:15", hop: "retry-1", outcome: "504" },
+        { at: "08:13:45", hop: "retry-2", outcome: "504" },
+      ] },
+    { queue: "topics/pharmacy", subscription: "sub-pharmacy-billing", source: "PharmacyCore", target: "Billing", messageType: "DispenseCompleted", entity: "Dispense", entityId: "RX-70012", enqueuedAt: "2026-07-12 08:11:30", processedAt: "2026-07-12 08:11:30",
+      retryLog: [{ attempt: 1, at: "08:11:30", result: "delivered" }],
+      timeline: [{ at: "08:11:30", hop: "publish", outcome: "accepted" }, { at: "08:11:30", hop: "deliver", outcome: "acked" }] },
+    { queue: "topics/billing", subscription: "sub-billing-scheme-out", source: "BillingCore", target: "SchemeSubmitter", messageType: "ClaimSubmitted", entity: "Claim", entityId: "CLM-77812", enqueuedAt: "2026-07-12 08:09:10", processedAt: "—",
+      errorCode: "SCHEMA_MISMATCH", errorMessage: "Field 'benefit_code' expected string, received null",
+      retryLog: [
+        { attempt: 1, at: "08:09:10", result: "failed", note: "schema mismatch" },
+        { attempt: 2, at: "08:09:25", result: "failed", note: "schema mismatch" },
+        { attempt: 3, at: "08:09:55", result: "failed", note: "schema mismatch" },
+        { attempt: 4, at: "08:10:55", result: "failed", note: "schema mismatch" },
+        { attempt: 5, at: "08:12:55", result: "failed", note: "schema mismatch" },
+        { attempt: 6, at: "08:16:55", result: "dead-lettered", note: "max attempts exceeded" },
+      ],
+      timeline: [
+        { at: "08:09:10", hop: "publish", outcome: "accepted" },
+        { at: "08:09:10", hop: "validate", outcome: "SCHEMA_MISMATCH" },
+        { at: "08:16:55", hop: "dead-letter", outcome: "moved to DLQ" },
+      ] },
+    { queue: "topics/theatre", subscription: "sub-theatre-scheduler", source: "TheatreBooking", target: "SchedulerCore", messageType: "SlotBooked", entity: "TheatreSlot", entityId: "TH-30021", enqueuedAt: "2026-07-12 08:16:00", processedAt: "—",
+      retryLog: [],
+      timeline: [{ at: "08:16:00", hop: "publish", outcome: "accepted" }, { at: "08:16:00", hop: "deliver", outcome: "pending" }] },
+  ];
+  const integrations: WorkflowItem[] = seedEvents.map((e, i) => {
+    const m = integrationsMeta[i] ?? integrationsMeta[0];
+    return {
+      id: e.id,
+      title: e.topic,
+      subtitle: e.correlationId,
+      status: e.status,
+      fields: {
+        Kind: "Event",
+        Queue: m.queue,
+        Subscription: m.subscription,
+        Source: m.source,
+        Target: m.target,
+        "Message type": m.messageType,
+        Entity: m.entity,
+        "Entity ID": m.entityId,
+        Attempts: e.attempts,
+        "Latency (ms)": e.latencyMs,
+        Enqueued: m.enqueuedAt,
+        Processed: m.processedAt,
+        "Error code": m.errorCode ?? "",
+        "Error message": m.errorMessage ?? "",
+        "Retry log": JSON.stringify(m.retryLog),
+        Timeline: JSON.stringify(m.timeline),
+        Correlation: e.correlationId,
+      },
+      history: [{ at: nowFmt(), action: "Event received", by: "Service Bus" }],
+      createdAt: now(),
+      updatedAt: now(),
+    };
+  });
 
   const pharmacy: WorkflowItem[] = [
     { id: "RX-70011", title: "Amoxicillin 500mg × 21", subtitle: "Nomvula Dlamini · Life Fourways",
@@ -205,10 +271,60 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
   ];
   const audit: WorkflowItem[] = [
     { id: "AUD-1001", title: "Auth AUTH-40921 approved", subtitle: "Discovery Health · Dr. S. Naidoo",
-      status: "logged", fields: { Actor: "Dr. S. Naidoo", Correlation: "c-4f2a…9b", Module: "Authorisations" },
+      status: "logged",
+      fields: {
+        Kind: "Audit",
+        Actor: "Dr. S. Naidoo", "Actor role": "Clinical Lead",
+        Facility: "Life Fourways", "Source app": "Impilo Web · v2.14.3",
+        Module: "Authorisations", Event: "authorisation.approved",
+        "Entity type": "Authorisation", "Entity ID": "AUTH-40921",
+        Correlation: "c-4f2a…9b", "Request ID": "req-88a2-14b7",
+        "IP address": "10.42.11.19", At: "2026-07-12 08:14:22.812",
+        Before: JSON.stringify({ status: "pending", amount: 48200, note: null }),
+        After: JSON.stringify({ status: "approved", amount: 48200, note: "Prima facie authorisation" }),
+      },
       history: [{ at: nowFmt(), action: "Recorded", by: "Audit trail" }], createdAt: now(), updatedAt: now() },
-    { id: "AUD-1002", title: "Bed BED-3B-12 assigned", subtitle: "Ward Manager",
-      status: "logged", fields: { Actor: "Ward Mgr", Correlation: "c-71a3…4e", Module: "Ward" },
+    { id: "AUD-1002", title: "Bed BED-3B-12 assigned", subtitle: "Ward Manager · Life Fourways",
+      status: "logged",
+      fields: {
+        Kind: "Audit",
+        Actor: "J. Adams", "Actor role": "Ward Manager",
+        Facility: "Life Fourways", "Source app": "Impilo Web · v2.14.3",
+        Module: "Ward", Event: "bed.assigned",
+        "Entity type": "Bed", "Entity ID": "BED-3B-12",
+        Correlation: "c-71a3…4e", "Request ID": "req-91cd-72fa",
+        "IP address": "10.42.11.22", At: "2026-07-12 08:16:00.104",
+        Before: JSON.stringify({ occupant: null, status: "clean" }),
+        After: JSON.stringify({ occupant: "P-10241", status: "occupied" }),
+      },
+      history: [{ at: nowFmt(), action: "Recorded", by: "Audit trail" }], createdAt: now(), updatedAt: now() },
+    { id: "AUD-1003", title: "Claim CLM-77812 dead-lettered", subtitle: "Service Bus · schema mismatch",
+      status: "reviewed",
+      fields: {
+        Kind: "Audit",
+        Actor: "system", "Actor role": "Service Bus",
+        Facility: "All facilities", "Source app": "Impilo Integrations · v1.9.0",
+        Module: "Integrations", Event: "integration.deadletter",
+        "Entity type": "Claim", "Entity ID": "CLM-77812",
+        Correlation: "c-2c40…8f", "Request ID": "req-77a1-2210",
+        "IP address": "10.20.4.7", At: "2026-07-12 08:16:55.221",
+        Before: JSON.stringify({ status: "retrying", attempts: 5 }),
+        After: JSON.stringify({ status: "dead-lettered", attempts: 6, errorCode: "SCHEMA_MISMATCH" }),
+      },
+      history: [{ at: nowFmt(), action: "Recorded", by: "Audit trail" }, { at: nowFmt(), action: "Reviewed", by: "Compliance" }], createdAt: now(), updatedAt: now() },
+    { id: "AUD-1004", title: "Period 2026-06 sealed", subtitle: "Compliance Officer",
+      status: "sealed",
+      fields: {
+        Kind: "Audit",
+        Actor: "P. van Wyk", "Actor role": "Compliance Officer",
+        Facility: "All facilities", "Source app": "Impilo Web · v2.14.3",
+        Module: "Audit", Event: "audit.period.sealed",
+        "Entity type": "AuditPeriod", "Entity ID": "2026-06",
+        Correlation: "c-88f1…22", "Request ID": "req-55bb-a13c",
+        "IP address": "10.42.11.9", At: "2026-07-01 09:00:00.000",
+        Before: JSON.stringify({ sealed: false }),
+        After: JSON.stringify({ sealed: true, sealHash: "sha256:9f2c…c1a0", chainPrev: "sha256:1e77…4b21" }),
+      },
       history: [{ at: nowFmt(), action: "Recorded", by: "Audit trail" }], createdAt: now(), updatedAt: now() },
   ];
   const admin: WorkflowItem[] = [
@@ -442,7 +558,7 @@ export const useWorkflow = create<State>()(
         })),
     }),
     {
-      name: "impilo-workflow-v2",
+      name: "impilo-workflow-v3",
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<State>;
         const seeded = seed();
