@@ -145,7 +145,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
     const fields: Record<string, string | number> = { Kind: flow.completionKind };
     for (const s of flow.steps) for (const f of s.fields ?? []) if (values[f.name]) fields[f.label] = f.type === "number" ? Number(values[f.name]) : values[f.name];
     const rec = create(flow.moduleKey, { title, subtitle, status: flow.completionStatus, fields });
-    toast.success(`${flow.completionLabel ?? flow.title} completed`, { description: `${rec.id} · Events published: ${flow.events.length}` });
+    toast.success(`${flow.completionLabel ?? flow.title} completed`, { description: rec.id });
     setValues({});
     setCompleted(new Set());
     setIndex(0);
@@ -157,17 +157,10 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
     <>
       {flow.patientRequired && <PatientBanner values={values} />}
 
-      {/* Meta strip */}
+      {/* Progress strip */}
       <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px]">
         <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 font-medium text-primary">
-          <Sparkles className="mr-1 inline h-3 w-3" /> Business flow
-        </span>
-        <span className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-muted-foreground">
-          Legacy: <span className="font-mono">{flow.legacySource}</span>
-        </span>
-        <span className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-muted-foreground">
-          Routes: {flow.routeFamily.slice(0, 2).join(" · ")}
-          {flow.routeFamily.length > 2 && ` +${flow.routeFamily.length - 2}`}
+          {flow.title}
         </span>
         <span className="ml-auto rounded-full border border-border bg-background/60 px-2.5 py-1 font-medium text-muted-foreground">
           Step {index + 1} of {total} · {progress}%
