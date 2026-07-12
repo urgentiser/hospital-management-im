@@ -183,10 +183,11 @@ function TabPill({ label, active, onClick }: { label: React.ReactNode; active: b
   return (
     <button
       onClick={onClick}
+      aria-current={active ? "page" : undefined}
       className={
-        "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors " +
+        "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background " +
         (active
-          ? "border-primary/40 bg-primary/10 text-primary"
+          ? "border-primary/40 bg-primary/10 text-primary shadow-[inset_0_-2px_0_0_theme(colors.primary.DEFAULT)/60]"
           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground")
       }
     >
@@ -507,21 +508,44 @@ function defaultSectionKpis(section: SectionSpec, scoped: WorkflowItem[]): KpiCa
 
 function StatCard({ kpi }: { kpi: KpiCard }) {
   const Icon = kpi.icon;
-  const toneClass =
-    kpi.tone === "destructive" ? "text-destructive" :
-    kpi.tone === "success" ? "text-success" :
-    kpi.tone === "warning" ? "text-warning" :
-    kpi.tone === "muted" ? "text-muted-foreground" : "text-primary";
+  const tone = kpi.tone ?? "primary";
+  const railCls: Record<string, string> = {
+    primary: "before:bg-primary/70",
+    destructive: "before:bg-destructive/70",
+    success: "before:bg-success/70",
+    warning: "before:bg-warning/70",
+    muted: "before:bg-muted-foreground/50",
+  };
+  const iconCls: Record<string, string> = {
+    primary: "bg-primary/10 text-primary",
+    destructive: "bg-destructive/10 text-destructive",
+    success: "bg-success/10 text-success",
+    warning: "bg-warning/10 text-warning",
+    muted: "bg-muted text-muted-foreground",
+  };
   return (
-    <Card className="relative overflow-hidden p-4">
-      <div className={"pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br opacity-70 blur-2xl " + kpi.accent} />
-      <div className="relative flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
-        <Icon className={"h-3.5 w-3.5 " + toneClass} />
-        {kpi.label}
+    <div
+      className={
+        "relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-5 shadow-soft backdrop-blur-sm " +
+        "before:absolute before:inset-y-4 before:left-0 before:w-[3px] before:rounded-r-full " +
+        railCls[tone]
+      }
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            {kpi.label}
+          </div>
+          <div className="mt-3 font-display text-3xl leading-none tracking-tight text-foreground sm:text-[2rem]">
+            {kpi.value}
+          </div>
+          {kpi.hint && <div className="mt-2 truncate text-xs text-muted-foreground">{kpi.hint}</div>}
+        </div>
+        <div className={"grid h-9 w-9 shrink-0 place-items-center rounded-xl " + iconCls[tone]}>
+          <Icon className="h-4 w-4" />
+        </div>
       </div>
-      <div className="relative mt-2 font-display text-3xl tracking-tight">{kpi.value}</div>
-      {kpi.hint && <div className="relative mt-1 text-[11px] text-muted-foreground">{kpi.hint}</div>}
-    </Card>
+    </div>
   );
 }
 
