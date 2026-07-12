@@ -45,7 +45,12 @@ export type ModuleKey =
   | "clinical-coding"
   | "reimbursements"
   | "supplier-invoices"
-  | "account-enquiries";
+  | "account-enquiries"
+  | "service-bus"
+  | "failed-messages"
+  | "notifications"
+  | "system-health"
+  | "workflow-inbox";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
