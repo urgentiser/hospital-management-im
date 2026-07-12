@@ -1,118 +1,109 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Users, UserPlus, Filter } from "lucide-react";
-import { PageHeader, StatusChip } from "@/components/app-shell";
-import { DataTable, type DataTableColumn } from "@/components/data-table";
-import { PermissionGate } from "@/components/permission-gate";
-import { MOCK_PATIENTS, type MockPatient } from "@/lib/mock/patients";
-import { useAuth } from "@/lib/auth/auth-context";
-import { ALL_FACILITIES } from "@/rules/facilities";
-import { formatSADate, formatRelative } from "@/rules/formatting";
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  UserPlus, Printer, PhoneCall, IdCard, Search, Users,
+  FileText, UserCheck, ShieldAlert,
+} from "lucide-react";
+import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+
+const config: ModuleConsoleConfig = {
+  moduleKey: "patients",
+  eyebrow: "Front Office · Patient Maintenance",
+  title: "Patient Maintenance",
+  description: "Register patients, keep demographics and contact details current and reprint prior documents.",
+  heroHeadline: "One place to keep every patient record clean, current and complete.",
+  heroBlurb: "Register new patients, update contact details and reprint historic documents — with a scoped feed of every change.",
+  heroBadge: "Live · Patient index",
+  heroCtas: [
+    { label: "Register a patient", sectionKey: "registration", primary: true },
+    { label: "Update contact details", sectionKey: "maintenance" },
+    { label: "Print past documents", sectionKey: "documents" },
+  ],
+  overviewKpis: (items) => {
+    const active = items.filter((i) => i.status === "active").length;
+    const pending = items.filter((i) => i.status === "pending" || i.status === "invited").length;
+    return [
+      { label: "Patients on file", value: items.length, icon: Users, accent: "from-primary/30 to-transparent" },
+      { label: "Active", value: active, icon: UserCheck, accent: "from-emerald-500/30 to-transparent", tone: "success" },
+      { label: "Pending verification", value: pending, icon: ShieldAlert, accent: "from-amber-500/30 to-transparent", tone: "warning" },
+      { label: "Documents on file", value: items.length * 3, icon: FileText, accent: "from-sky-500/30 to-transparent" },
+    ];
+  },
+  sections: [
+    {
+      key: "registration",
+      title: "Registration",
+      tagline: "Create · verify",
+      description: "Register a new patient and capture core demographic and scheme data.",
+      icon: UserPlus,
+      accent: "from-primary/25 via-accent/15 to-transparent",
+      ring: "ring-primary/30",
+      actions: [
+        { key: "register-patient", label: "Register Patient", icon: UserPlus, hint: "Create a new patient record", kind: "Register Patient", startStatus: "active",
+          fields: [
+            { name: "patient", label: "Full name", required: true },
+            { name: "idNumber", label: "ID / Passport", required: true },
+            { name: "dob", label: "Date of birth", placeholder: "YYYY-MM-DD" },
+            { name: "gender", label: "Gender" },
+            { name: "scheme", label: "Scheme" },
+            { name: "facility", label: "Facility" },
+          ]},
+        { key: "search-patient", label: "Search Patient", icon: Search, hint: "Find a patient record", kind: "Search Patient", startStatus: "active",
+          fields: [
+            { name: "query", label: "Search term", required: true, placeholder: "Name / ID / MRN" },
+          ]},
+      ],
+    },
+    {
+      key: "maintenance",
+      title: "Maintenance",
+      tagline: "Demographics · contacts",
+      description: "Keep patient contact details and identity data current.",
+      icon: IdCard,
+      accent: "from-emerald-500/25 via-teal-500/15 to-transparent",
+      ring: "ring-emerald-400/30",
+      actions: [
+        { key: "update-contact-details", label: "Update Contact Details", icon: PhoneCall, hint: "Change phone, email or address", kind: "Update Contact Details", startStatus: "active",
+          fields: [
+            { name: "patient", label: "Patient", required: true },
+            { name: "phone", label: "Phone" },
+            { name: "email", label: "Email" },
+            { name: "address", label: "Address", type: "textarea" },
+          ]},
+        { key: "update-identity", label: "Update Identity", icon: IdCard, hint: "Correct ID / scheme details", kind: "Update Identity", startStatus: "active",
+          fields: [
+            { name: "patient", label: "Patient", required: true },
+            { name: "idNumber", label: "ID / Passport" },
+            { name: "scheme", label: "Scheme" },
+            { name: "membership", label: "Membership no." },
+          ]},
+      ],
+    },
+    {
+      key: "documents",
+      title: "Documents",
+      tagline: "Reprint · reissue",
+      description: "Reprint historic documents (discharge summaries, consent forms, invoices).",
+      icon: Printer,
+      accent: "from-sky-500/25 via-primary/15 to-transparent",
+      ring: "ring-sky-400/30",
+      actions: [
+        { key: "print-past-documents", label: "Print Past Documents", icon: Printer, hint: "Reprint any historic document", kind: "Print Past Documents", startStatus: "active",
+          fields: [
+            { name: "patient", label: "Patient", required: true },
+            { name: "documents", label: "Documents", placeholder: "e.g. Discharge summary, Consent" },
+            { name: "period", label: "Period", placeholder: "YYYY-MM" },
+          ]},
+      ],
+    },
+  ],
+};
 
 export const Route = createFileRoute("/_app/patients")({
   head: () => ({
     meta: [
-      { title: "Patients — Impilo" },
-      { name: "description", content: "Searchable and filterable list of patients across facilities." },
+      { title: "Patient Maintenance — Impilo" },
+      { name: "description", content: config.description },
     ],
   }),
-  component: PatientsList,
+  component: () => <ModuleConsole config={config} />,
 });
-
-function PatientsList() {
-  const { activeFacility } = useAuth();
-  const [scheme, setScheme] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [ageBand, setAgeBand] = useState<string>("");
-
-  const schemes = useMemo(() => Array.from(new Set(MOCK_PATIENTS.map((p) => p.scheme))).sort(), []);
-
-  const scoped = useMemo(() => {
-    return MOCK_PATIENTS.filter((p) => {
-      if (activeFacility !== ALL_FACILITIES) {
-        const idOrName = activeFacility;
-        if (p.facility !== idOrName) {
-          // scope by facility ID also
-          const match = MOCK_PATIENTS.some((x) => x.facility === p.facility);
-          if (!match) return false;
-        }
-      }
-      if (scheme && p.scheme !== scheme) return false;
-      if (status && p.status !== status) return false;
-      if (ageBand === "u30" && p.age >= 30) return false;
-      if (ageBand === "30-60" && (p.age < 30 || p.age > 60)) return false;
-      if (ageBand === "60+" && p.age <= 60) return false;
-      return true;
-    });
-  }, [activeFacility, scheme, status, ageBand]);
-
-  const columns: DataTableColumn<MockPatient>[] = [
-    {
-      key: "name", header: "Patient",
-      sortValue: (r) => r.lastName + r.firstName,
-      filterValue: (r) => `${r.fullName} ${r.mrn} ${r.id}`,
-      render: (r) => (
-        <Link to="/patients/$id" params={{ id: r.id }} className="group block">
-          <div className="font-medium text-foreground group-hover:text-primary">{r.fullName}</div>
-          <div className="text-[11px] text-muted-foreground">{r.mrn} · {r.id}</div>
-        </Link>
-      ),
-    },
-    { key: "dob", header: "DOB", sortValue: (r) => r.dob, render: (r) => <span className="text-xs">{formatSADate(r.dob)} <span className="text-muted-foreground">({r.age})</span></span> },
-    { key: "gender", header: "Sex", sortValue: (r) => r.gender, render: (r) => <span className="text-xs">{r.gender}</span> },
-    { key: "scheme", header: "Scheme", sortValue: (r) => r.scheme, filterValue: (r) => r.scheme, render: (r) => <span className="text-xs">{r.scheme}</span> },
-    { key: "facility", header: "Facility", sortValue: (r) => r.facility, filterValue: (r) => r.facility, render: (r) => <span className="text-xs text-muted-foreground">{r.facility}</span> },
-    { key: "practitioner", header: "Practitioner", sortValue: (r) => r.practitioner, render: (r) => <span className="text-xs">{r.practitioner}</span>, hidden: true },
-    { key: "status", header: "Status", sortValue: (r) => r.status, render: (r) => <StatusChip status={r.status} /> },
-    { key: "updatedAt", header: "Updated", sortValue: (r) => r.updatedAt, render: (r) => <span className="text-xs text-muted-foreground">{formatRelative(r.updatedAt)}</span> },
-  ];
-
-  return (
-    <>
-      <PageHeader
-        eyebrow="Clinical · Patients"
-        title="Patients"
-        description="Search, filter and register patients across facilities. Facility scope applies to this list."
-        actions={
-          <PermissionGate permission="patients:create">
-            <button className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-3.5 py-2 text-sm font-medium text-primary-foreground shadow-glow">
-              <UserPlus className="h-4 w-4" /> Register patient
-            </button>
-          </PermissionGate>
-        }
-      />
-
-      <div className="mb-4 flex items-center gap-2 rounded-2xl border border-border bg-card/50 p-3 text-xs text-muted-foreground">
-        <Users className="h-4 w-4 text-primary" />
-        <span>{scoped.length} patient{scoped.length === 1 ? "" : "s"} in current scope</span>
-      </div>
-
-      <DataTable
-        id="patients"
-        columns={columns}
-        rows={scoped}
-        rowKey={(p) => p.id}
-        searchPlaceholder="Search by name, MRN or patient ID…"
-        toolbarFilters={
-          <div className="flex flex-wrap items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-            <select value={scheme} onChange={(e) => setScheme(e.target.value)} className="rounded-lg border border-border bg-background/60 px-2 py-1.5 text-xs">
-              <option value="">All schemes</option>
-              {schemes.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-lg border border-border bg-background/60 px-2 py-1.5 text-xs">
-              <option value="">All statuses</option>
-              {["active", "pending", "review", "closed", "failed", "discharged"].map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <select value={ageBand} onChange={(e) => setAgeBand(e.target.value)} className="rounded-lg border border-border bg-background/60 px-2 py-1.5 text-xs">
-              <option value="">Any age</option>
-              <option value="u30">Under 30</option>
-              <option value="30-60">30–60</option>
-              <option value="60+">60+</option>
-            </select>
-          </div>
-        }
-      />
-    </>
-  );
-}
