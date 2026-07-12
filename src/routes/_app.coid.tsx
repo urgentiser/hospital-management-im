@@ -1,218 +1,204 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Printer, Send, Paperclip, AlertTriangle } from "lucide-react";
-import { Card } from "@/components/app-shell";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { WorkflowModule } from "@/components/workflow-module";
-import { useWorkflow } from "@/lib/workflow-store";
+import {
+  HardHat, Send, ClipboardList, ShieldCheck, XCircle, Coins,
+  FileText, Search, AlertTriangle,
+} from "lucide-react";
+import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+
+const config: ModuleConsoleConfig = {
+  moduleKey: "coid",
+  eyebrow: "Statutory · COID",
+  title: "COID",
+  description: "Compensation for Occupational Injuries and Diseases — register cases, submit to the Compensation Commissioner and track through payment.",
+  heroHeadline: "Every injury on duty, on one statutory desk.",
+  heroBlurb: "Capture the incident, submit W.CL forms to the Commissioner, and reconcile the payment — with employer, patient and treating clinician in one view.",
+  heroBadge: "Live · COID desk",
+  heroCtas: [
+    { label: "Register an IOD", sectionKey: "intake", primary: true },
+    { label: "Submit to Commissioner", sectionKey: "submit" },
+    { label: "Reconcile payment", sectionKey: "reconcile" },
+  ],
+  overviewKpis: (items) => [
+    { label: "Open cases", value: items.filter((i) => ["intake", "submitted", "assessment"].includes(i.status)).length, icon: HardHat, accent: "from-amber-500/30 to-transparent", tone: "warning" },
+    { label: "Approved", value: items.filter((i) => i.status === "approved").length, icon: ShieldCheck, accent: "from-emerald-500/30 to-transparent", tone: "success" },
+    { label: "Paid", value: items.filter((i) => i.status === "paid").length, icon: Coins, accent: "from-primary/30 to-transparent" },
+    { label: "Rejected", value: items.filter((i) => i.status === "rejected").length, icon: XCircle, accent: "from-rose-500/30 to-transparent", tone: "destructive" },
+  ],
+  sections: [
+    {
+      key: "intake",
+      title: "IOD Intake",
+      tagline: "Register · verify employer",
+      description: "Register an Injury on Duty or occupational disease with employer and incident details.",
+      icon: HardHat,
+      accent: "from-primary/25 via-amber-500/15 to-transparent",
+      ring: "ring-primary/30",
+      actions: [
+        { key: "register-iod", label: "Register IOD", icon: HardHat, hint: "Register an injury on duty", kind: "IOD", startStatus: "intake",
+          fields: [
+            { name: "patient", label: "Patient", required: true },
+            { name: "employer", label: "Employer", required: true },
+            { name: "incidentDate", label: "Incident date", placeholder: "YYYY-MM-DD" },
+            { name: "injury", label: "Injury / condition", required: true },
+            { name: "bodyPart", label: "Body part" },
+            { name: "description", label: "Description", type: "textarea" },
+          ]},
+      ],
+    },
+    {
+      key: "submit",
+      title: "Commissioner Submission",
+      tagline: "W.CL forms · pre-auth",
+      description: "Compile and submit W.CL.1/2/4/5 forms to the Compensation Commissioner.",
+      icon: Send,
+      accent: "from-emerald-500/25 via-teal-500/15 to-transparent",
+      ring: "ring-emerald-400/30",
+      actions: [
+        { key: "compile", label: "Compile W.CL Pack", icon: FileText, hint: "Assemble statutory pack", kind: "Compile", startStatus: "intake",
+          fields: [{ name: "reference", label: "COID case ref", required: true }]},
+        { key: "submit-coid", label: "Submit to Commissioner", icon: Send, hint: "Submit statutory pack", kind: "Submit", startStatus: "submitted",
+          fields: [
+            { name: "reference", label: "COID case ref", required: true },
+            { name: "coidRef", label: "W.CL reference", placeholder: "W.CL-000000" },
+          ]},
+      ],
+    },
+    {
+      key: "reconcile",
+      title: "Assessment & Payment",
+      tagline: "Track · reconcile",
+      description: "Track Commissioner assessment, receive award and reconcile payment.",
+      icon: Coins,
+      accent: "from-amber-500/25 via-orange-500/15 to-transparent",
+      ring: "ring-amber-400/30",
+      actions: [
+        { key: "record-award", label: "Record Award", icon: ClipboardList, hint: "Log Commissioner's award", kind: "Award", startStatus: "approved",
+          fields: [
+            { name: "reference", label: "COID case ref", required: true },
+            { name: "awardAmount", label: "Award (R)", type: "number", required: true },
+            { name: "notes", label: "Notes", type: "textarea" },
+          ]},
+        { key: "reconcile-payment", label: "Reconcile Payment", icon: Coins, hint: "Match payment to award", kind: "Payment", startStatus: "paid",
+          fields: [
+            { name: "reference", label: "COID case ref", required: true },
+            { name: "amount", label: "Paid amount (R)", type: "number", required: true },
+          ]},
+        { key: "search", label: "Search COID", icon: Search, hint: "Filter COID cases", kind: "Search", startStatus: "active",
+          fields: [{ name: "query", label: "Search", required: true }] },
+        { key: "dispute", label: "Dispute Rejection", icon: AlertTriangle, hint: "Lodge dispute at Commissioner", kind: "Dispute", startStatus: "submitted",
+          fields: [
+            { name: "reference", label: "COID case ref", required: true },
+            { name: "grounds", label: "Grounds", required: true, type: "textarea" },
+          ], destructive: true },
+      ],
+    },
+  ],
+  businessFlow: {
+    moduleKey: "coid",
+    title: "COID Claim",
+    purpose: "Register an occupational injury or disease, submit W.CL forms to the Commissioner, and track through award and payment.",
+    legacySource: "Rich/Statutory/COID.Implet; coid.menu.xml",
+    routeFamily: ["/coid", "/coid/new", "/coid/{id}", "/coid/{id}/pack", "/coid/{id}/dispute"],
+    patientRequired: true,
+    completionKind: "COID",
+    completionStatus: "submitted",
+    completionLabel: "COID case",
+    titleFrom: (v) => `IOD · ${v.patient ?? "Patient"}`,
+    subtitleFrom: (v) => [v.employer, v.injury].filter(Boolean).join(" · "),
+    events: [
+      "IODRegistered", "COIDPackCompiled", "COIDSubmitted",
+      "COIDAssessed", "COIDAwarded", "COIDRejected", "COIDPaid", "COIDDisputed",
+    ],
+    handoffs: ["Employer notification", "Treating Practitioner", "Billing", "Case Management"],
+    globalRules: [
+      "IOD must be reported to the employer within 7 days.",
+      "First medical report (W.CL.4) required within 14 days of first treatment.",
+      "Progress reports required until Maximum Medical Improvement.",
+      "COID pays a statutory tariff — schemes are not billed for accepted IOD.",
+      "Every submission and response is audit-logged.",
+    ],
+    acceptance: [
+      "Register an IOD, compile the W.CL pack and submit to the Commissioner.",
+      "Record the Commissioner's award and reconcile the payment.",
+      "Dispute a rejection with supporting evidence.",
+    ],
+    steps: [
+      { key: "patient", title: "Patient & incident", description: "Capture the patient and incident essentials.",
+        fields: [
+          { name: "patient", label: "Injured worker", required: true },
+          { name: "idNumber", label: "ID / passport" },
+          { name: "incidentDate", label: "Incident date", required: true, placeholder: "YYYY-MM-DD" },
+          { name: "incidentTime", label: "Incident time", placeholder: "HH:mm" },
+          { name: "location", label: "Where did it happen?" },
+        ] },
+      { key: "employer", title: "Employer & workplace", description: "Capture employer details and CF reference number.",
+        fields: [
+          { name: "employer", label: "Employer", required: true },
+          { name: "employerRef", label: "Employer CF number" },
+          { name: "occupation", label: "Occupation" },
+          { name: "workplace", label: "Workplace / department" },
+        ] },
+      { key: "injury", title: "Injury / disease detail", description: "Capture injury nature, body part and severity.",
+        fields: [
+          { name: "injury", label: "Injury / disease", required: true },
+          { name: "bodyPart", label: "Body part" },
+          { name: "mechanism", label: "Mechanism of injury", type: "textarea" },
+          { name: "severity", label: "Severity", type: "select", options: ["First aid", "Minor", "Moderate", "Severe", "Fatal"] },
+        ] },
+      { key: "wcl1", title: "W.CL.1 · Employer's report", description: "Confirm the employer's first report of accident (W.CL.1) is on file.",
+        checklist: ["Employer's W.CL.1 received", "Section 39 notice sent to employer", "Copy of ID / payslip attached"],
+        rules: ["Employer must report within 7 days of the incident."] },
+      { key: "wcl4", title: "W.CL.4 · First medical report", description: "First medical report by the treating practitioner.",
+        fields: [
+          { name: "practitioner", label: "Treating practitioner", required: true },
+          { name: "diagnosis", label: "Diagnosis / ICD-10" },
+          { name: "treatmentStart", label: "Treatment start", placeholder: "YYYY-MM-DD" },
+        ],
+        rules: ["W.CL.4 required within 14 days of first treatment."] },
+      { key: "wcl5", title: "W.CL.5 · Progress report", description: "Add any progress reports up to Maximum Medical Improvement.",
+        fields: [
+          { name: "progress", label: "Latest progress note", type: "textarea" },
+          { name: "mmi", label: "MMI reached?", type: "select", options: ["No", "Yes"] },
+        ] },
+      { key: "pack", title: "Compile statutory pack", description: "Compile the W.CL pack (1, 4, 5), ID, payslip and any specialist reports.",
+        checklist: ["W.CL.1 attached", "W.CL.4 attached", "Progress reports attached", "ID + payslip attached", "Specialist reports attached (if any)"],
+        events: ["COIDPackCompiled"] },
+      { key: "submit", title: "Submit to Commissioner", description: "Submit via CompEasy portal or manual channel.",
+        fields: [
+          { name: "channel", label: "Channel", type: "select", options: ["CompEasy portal", "Manual · courier", "Employer-mediated"] },
+          { name: "coidRef", label: "W.CL reference (if issued)" },
+        ],
+        events: ["COIDSubmitted"] },
+      { key: "assess", title: "Commissioner assessment", description: "Track Commissioner assessment and award or rejection.",
+        fields: [
+          { name: "decision", label: "Decision", type: "select", options: ["Pending", "Accepted", "Rejected", "More info requested"] },
+          { name: "awardAmount", label: "Award (R)", type: "number" },
+        ],
+        events: ["COIDAssessed", "COIDAwarded", "COIDRejected"] },
+      { key: "dispute", title: "Dispute (if rejected)", description: "Lodge a Section 91 objection with supporting evidence.",
+        fields: [
+          { name: "grounds", label: "Grounds", type: "textarea" },
+          { name: "newEvidence", label: "New evidence", type: "textarea" },
+        ],
+        events: ["COIDDisputed"] },
+      { key: "payment", title: "Payment reconciliation", description: "Receive payment against the award and reconcile.",
+        fields: [
+          { name: "paidAmount", label: "Paid (R)", type: "number" },
+          { name: "paidAt", label: "Paid on", placeholder: "YYYY-MM-DD" },
+        ],
+        events: ["COIDPaid"] },
+      { key: "publish", title: "Publish & close", description: "Publish COIDPaid to the service bus and close the case.",
+        events: ["COIDPaid"] },
+    ],
+  },
+};
 
 export const Route = createFileRoute("/_app/coid")({
   head: () => ({
     meta: [
       { title: "COID Claims — Impilo" },
-      { name: "description", content: "Compensation for Occupational Injuries and Diseases (COID) claim intake and lifecycle." },
+      { name: "description", content: config.description },
     ],
   }),
-  component: CoidPage,
+  component: () => <ModuleConsole config={config} />,
 });
-
-function CoidPage() {
-  return (
-    <WorkflowModule
-      config={{
-        moduleKey: "coid",
-        eyebrow: "Statutory · COID",
-        title: "COID",
-        description: "Register injury-on-duty and occupational disease cases, submit to the Compensation Commissioner and track through payment.",
-        workflow: ["intake", "submitted", "assessment", "approved", "paid"],
-        outcomes: ["rejected"],
-        columns: [
-          { key: "title", label: "Case" },
-          { key: "Employer", label: "Employer" },
-          { key: "COID Ref", label: "COID Ref" },
-          { key: "Injury", label: "Injury" },
-        ],
-        fields: [
-          { key: "patient", label: "Patient", required: true, placeholder: "Full name" },
-          { key: "employer", label: "Employer", required: true },
-          { key: "coidRef", label: "COID reference", placeholder: "W.CL-000000" },
-          { key: "injury", label: "Injury / condition", required: true },
-          { key: "incidentDate", label: "Incident date", placeholder: "YYYY-MM-DD" },
-          { key: "bodyPart", label: "Body part" },
-          { key: "notes", label: "Description", type: "textarea" },
-        ],
-        titleFrom: (f) => `Injury on duty — ${f["Patient"]}`,
-        subtitleFrom: (f) => `Employer: ${f["Employer"]}`,
-        kpis: (items) => [
-          { label: "Open", value: items.filter((i) => ["intake", "submitted", "assessment"].includes(i.status)).length },
-          { label: "Approved", value: items.filter((i) => i.status === "approved").length },
-          { label: "Paid", value: items.filter((i) => i.status === "paid").length },
-          { label: "Rejected", value: items.filter((i) => i.status === "rejected").length },
-        ],
-        extras: <CoidExtras />,
-      }}
-    />
-  );
-}
-
-function CoidExtras() {
-  const items = useWorkflow((s) => s.items.coid);
-  const advance = useWorkflow((s) => s.advance);
-  const addNote = useWorkflow((s) => s.addNote);
-
-  const [submitOpen, setSubmitOpen] = useState(false);
-  const [attachOpen, setAttachOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string>("");
-
-  const submittable = items.filter((i) => i.status === "intake");
-  const overdue = items.filter((i) => i.status === "submitted"); // stub: assume >7d
-
-  return (
-    <>
-      <Card className="p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">COID actions</div>
-            <div className="mt-1 text-sm text-muted-foreground">Submit cases to the Compensation Commissioner, attach medical reports and print the W.Cl.4 first-medical form.</div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={() => setAttachOpen(true)}>
-              <Paperclip className="h-4 w-4" /> Attach medical report
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => printWCl4(items[0])} disabled={!items[0]}>
-              <Printer className="h-4 w-4" /> Print W.Cl.4
-            </Button>
-            <Button size="sm" onClick={() => setSubmitOpen(true)} className="bg-gradient-primary hover:opacity-90">
-              <Send className="h-4 w-4" /> Submit to Commissioner
-            </Button>
-          </div>
-        </div>
-        {overdue.length > 0 && (
-          <div className="mt-4 flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
-            <AlertTriangle className="mt-0.5 h-4 w-4" />
-            <div>
-              <div className="font-medium">{overdue.length} submitted case(s) awaiting assessment</div>
-              <div className="text-xs opacity-80">Follow up with the Commissioner if no assessment within 7 working days.</div>
-            </div>
-          </div>
-        )}
-      </Card>
-
-      <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Submit COID case</DialogTitle>
-            <DialogDescription>Send an intake case to the Compensation Commissioner. Requires a case in <b>intake</b> status.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-2 py-2">
-            <Label>Case</Label>
-            <Select value={selectedId} onValueChange={setSelectedId}>
-              <SelectTrigger><SelectValue placeholder={submittable.length ? "Select a case…" : "No intake cases available"} /></SelectTrigger>
-              <SelectContent>
-                {submittable.map((c) => <SelectItem key={c.id} value={c.id}>{c.title} — {c.id}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSubmitOpen(false)}>Cancel</Button>
-            <Button
-              disabled={!selectedId}
-              onClick={() => {
-                advance("coid", selectedId, "submitted", "Submitted to Compensation Commissioner");
-                toast.success("Case submitted", { description: selectedId });
-                setSubmitOpen(false); setSelectedId("");
-              }}
-              className="bg-gradient-primary hover:opacity-90"
-            >Send</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <AttachReportDialog
-        open={attachOpen}
-        onOpenChange={setAttachOpen}
-        cases={items}
-        onAttach={(id, name) => {
-          addNote("coid", id, `Attached medical report: ${name}`);
-          toast.success("Report attached", { description: name });
-          setAttachOpen(false);
-        }}
-      />
-    </>
-  );
-}
-
-function AttachReportDialog({
-  open, onOpenChange, cases, onAttach,
-}: {
-  open: boolean; onOpenChange: (o: boolean) => void;
-  cases: { id: string; title: string }[];
-  onAttach: (id: string, filename: string) => void;
-}) {
-  const [id, setId] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Attach medical report</DialogTitle>
-          <DialogDescription>Upload a PDF or scanned document to a COID case. Files stay local in this demo.</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-3 py-2">
-          <div className="grid gap-1.5">
-            <Label>Case</Label>
-            <Select value={id} onValueChange={setId}>
-              <SelectTrigger><SelectValue placeholder="Select a case…" /></SelectTrigger>
-              <SelectContent>
-                {cases.map((c) => <SelectItem key={c.id} value={c.id}>{c.title} — {c.id}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-1.5">
-            <Label>File</Label>
-            <Input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button disabled={!id || !file} onClick={() => file && onAttach(id, file.name)}>Attach</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function printWCl4(c?: { id: string; title: string; fields: Record<string, string | number> }) {
-  if (!c) { toast.info("No case to print"); return; }
-  const w = window.open("", "_blank", "width=900,height=1100");
-  if (!w) return;
-  w.document.write(`<!doctype html><html><head><title>W.Cl.4 — ${c.id}</title>
-    <meta charset="utf-8"/>
-    <style>body{font-family:system-ui,sans-serif;color:#111;padding:32px;max-width:820px;margin:0 auto;}
-    h1{font-size:20px;margin:0;} header{border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:16px;}
-    dl{display:grid;grid-template-columns:220px 1fr;gap:6px 12px;font-size:13px;} dt{color:#555;} .box{border:1px solid #999;padding:12px;margin-top:16px;border-radius:6px;}</style>
-    </head><body>
-      <header>
-        <h1>W.Cl.4 · First Medical Report</h1>
-        <div style="font-size:12px;color:#555;">Compensation for Occupational Injuries and Diseases Act · Generated ${new Date().toLocaleString()}</div>
-      </header>
-      <dl>
-        <dt>Case reference</dt><dd>${c.id}</dd>
-        <dt>Case title</dt><dd>${c.title}</dd>
-        <dt>Employer</dt><dd>${c.fields["Employer"] ?? "—"}</dd>
-        <dt>COID reference</dt><dd>${c.fields["COID Ref"] ?? "—"}</dd>
-        <dt>Injury / condition</dt><dd>${c.fields["Injury"] ?? "—"}</dd>
-        <dt>Body part</dt><dd>${c.fields["Body part"] ?? "—"}</dd>
-        <dt>Incident date</dt><dd>${c.fields["Incident date"] ?? "—"}</dd>
-      </dl>
-      <div class="box"><b>Attending practitioner's findings</b><br/><br/><br/><br/><br/><br/></div>
-      <div class="box"><b>Signature &amp; HPCSA number</b><br/><br/><br/></div>
-      <script>window.onload=()=>setTimeout(()=>window.print(),300);</script>
-    </body></html>`);
-  w.document.close();
-}
