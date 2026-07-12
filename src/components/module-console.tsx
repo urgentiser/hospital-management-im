@@ -115,7 +115,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
       <PageHeader
         eyebrow={isFlow ? `${config.eyebrow} · Guided workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
         title={isFlow ? `${config.businessFlow!.title} — Guided flow` : activeSection ? activeSection.title : config.title}
-        description={isFlow ? config.businessFlow!.purpose : activeSection ? activeSection.description : config.description}
+        description={isFlow ? config.description : activeSection ? activeSection.description : config.description}
         actions={
           <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
             <Sparkles className="h-3.5 w-3.5" /> Command centre

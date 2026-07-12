@@ -96,8 +96,8 @@ const flow: BusinessFlow = {
 export const Route = createFileRoute("/_app/pharmacy/business-flow")({
   head: () => ({
     meta: [
-      { title: "Pharmacy Business Flow — Impilo" },
-      { name: "description", content: "Prescription-to-dispense business flow with clinical screening, stock, labelling and hand-off." },
+      { title: "Pharmacy Guided Workflow — Impilo" },
+      { name: "description", content: "Prescription-to-dispense workflow with clinical screening, stock, labelling and delivery." },
     ],
   }),
   component: () => (
