@@ -292,6 +292,31 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       history: [{ at: nowFmt(), action: "Signed by coder", by: "A. Khan" }], createdAt: now(), updatedAt: now() },
   ];
 
+  const reimbursements: WorkflowItem[] = [
+    { id: "REI-3301", title: "Refund — over-collection", subtitle: "N. Dlamini · R 1,240",
+      status: "pending", fields: { Kind: "Refund", Patient: "N. Dlamini", Amount: "R 1,240", Reason: "Over-collected on discharge" },
+      history: [{ at: nowFmt(), action: "Refund requested", by: "Billing" }], createdAt: now(), updatedAt: now() },
+    { id: "REI-3302", title: "Refund — duplicate payment", subtitle: "E. Carter · R 620",
+      status: "approved", fields: { Kind: "Refund", Patient: "E. Carter", Amount: "R 620", Reason: "Duplicate EFT" },
+      history: [{ at: nowFmt(), action: "Approved by CFO", by: "Finance" }], createdAt: now(), updatedAt: now() },
+  ];
+  const supplierInvoices: WorkflowItem[] = [
+    { id: "SI-9101", title: "Medtronic — theatre consumables", subtitle: "PO-88214 · R 48,900",
+      status: "pending", fields: { Kind: "Invoice", Supplier: "Medtronic", PO: "PO-88214", Amount: "R 48,900" },
+      history: [{ at: nowFmt(), action: "Invoice received", by: "AP" }], createdAt: now(), updatedAt: now() },
+    { id: "SI-9102", title: "Sanofi — pharmacy stock", subtitle: "PO-88220 · R 132,450",
+      status: "approved", fields: { Kind: "Invoice", Supplier: "Sanofi", PO: "PO-88220", Amount: "R 132,450" },
+      history: [{ at: nowFmt(), action: "Approved for payment", by: "Finance" }], createdAt: now(), updatedAt: now() },
+  ];
+  const accountEnquiries: WorkflowItem[] = [
+    { id: "AQ-6601", title: "Statement dispute — E. Carter", subtitle: "Item on 2026-06-14",
+      status: "open", fields: { Kind: "Enquiry", Patient: "E. Carter", Channel: "Call", Amount: "R 3,200" },
+      history: [{ at: nowFmt(), action: "Enquiry logged", by: "Accounts" }], createdAt: now(), updatedAt: now() },
+    { id: "AQ-6602", title: "Refund status — N. Dlamini", subtitle: "REI-3301",
+      status: "in-progress", fields: { Kind: "Enquiry", Patient: "N. Dlamini", Channel: "Portal" },
+      history: [{ at: nowFmt(), action: "In progress", by: "Accounts" }], createdAt: now(), updatedAt: now() },
+  ];
+
   return {
     patients, admissions, authorisations, pharmacy, theatre, ward,
     facilities, practitioners, "case-management": cases, billing, funding,
@@ -300,6 +325,9 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
     "clinical-assessments": clinicalAssessments,
     "medical-events": medicalEvents,
     "clinical-coding": clinicalCoding,
+    reimbursements,
+    "supplier-invoices": supplierInvoices,
+    "account-enquiries": accountEnquiries,
   };
 }
 
