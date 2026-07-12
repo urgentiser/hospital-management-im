@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  ArrowLeft, ArrowRight, CheckCircle2, Circle, ShieldAlert, Radio,
+  ArrowLeft, ArrowRight, CheckCircle2, Radio,
   ClipboardCheck, User, HeartPulse, Building2, Wallet, AlertTriangle,
 } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
@@ -167,19 +167,20 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
         </span>
       </div>
 
-      {/* Stepper */}
-      <div className="mb-6 overflow-x-auto pb-1 scrollbar-hidden">
-        <ol className="flex min-w-full gap-1.5">
+      {/* Stepper — wraps, never cuts off */}
+      <div className="mb-6">
+        <ol className="flex flex-wrap gap-1.5">
           {flow.steps.map((s, i) => {
             const done = completed.has(i);
             const active = i === index;
             return (
-              <li key={s.key} className="flex-1 min-w-[140px]">
+              <li key={s.key}>
                 <button
                   type="button"
                   onClick={() => setIndex(i)}
+                  title={s.title}
                   className={
-                    "group relative flex w-full flex-col rounded-xl border px-3 py-2 text-left transition-colors " +
+                    "group inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors " +
                     (active
                       ? "border-primary/50 bg-primary/10 text-foreground shadow-soft"
                       : done
@@ -187,17 +188,19 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                       : "border-border bg-card/60 text-muted-foreground hover:border-primary/30 hover:text-foreground")
                   }
                 >
-                  <div className="flex items-center gap-1.5">
-                    {done ? (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                    ) : (
-                      <Circle className={"h-3.5 w-3.5 " + (active ? "text-primary" : "text-muted-foreground")} />
-                    )}
-                    <span className="font-mono text-[10px] uppercase tracking-wider">
-                      Step {String(i + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <span className="mt-1 truncate text-xs font-medium">{s.title}</span>
+                  <span
+                    className={
+                      "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold " +
+                      (done
+                        ? "bg-emerald-500 text-white"
+                        : active
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground")
+                    }
+                  >
+                    {done ? <CheckCircle2 className="h-3 w-3" /> : i + 1}
+                  </span>
+                  <span className="max-w-[160px] truncate font-medium">{s.title}</span>
                 </button>
               </li>
             );
@@ -261,34 +264,21 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
             </div>
           )}
 
-          {(step.events?.length || step.rules?.length) && (
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {step.events && step.events.length > 0 && (
-                <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3">
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-sky-600 dark:text-sky-400">
-                    <Radio className="h-3.5 w-3.5" /> Events on complete
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {step.events.map((e) => (
-                      <span key={e} className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[11px] font-mono text-sky-700 dark:text-sky-300">
-                        {e}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {step.rules && step.rules.length > 0 && (
-                <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3">
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                    <ShieldAlert className="h-3.5 w-3.5" /> Rules
-                  </div>
-                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                    {step.rules.map((r) => <li key={r}>• {r}</li>)}
-                  </ul>
-                </div>
-              )}
+          {step.events && step.events.length > 0 && (
+            <div className="mt-6 rounded-xl border border-sky-500/20 bg-sky-500/5 p-3">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                <Radio className="h-3.5 w-3.5" /> Events on complete
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {step.events.map((e) => (
+                  <span key={e} className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[11px] font-mono text-sky-700 dark:text-sky-300">
+                    {e}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
+
 
           {/* Nav */}
           <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
