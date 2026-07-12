@@ -168,7 +168,10 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
       </div>
 
       {/* Stepper — wraps, never cuts off */}
-      <div className="mb-6">
+      <div className="mb-6" role="group" aria-label="Flow steps">
+        <div className="mb-2 h-1 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label={`Flow progress ${progress}%`}>
+          <div className="h-full bg-gradient-primary transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${progress}%` }} />
+        </div>
         <ol className="flex flex-wrap gap-1.5">
           {flow.steps.map((s, i) => {
             const done = completed.has(i);
@@ -179,8 +182,10 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                   type="button"
                   onClick={() => setIndex(i)}
                   title={s.title}
+                  aria-current={active ? "step" : undefined}
+                  aria-label={`Step ${i + 1}: ${s.title}${done ? " (completed)" : active ? " (current)" : ""}`}
                   className={
-                    "group inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors " +
+                    "group inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none " +
                     (active
                       ? "border-primary/50 bg-primary/10 text-foreground shadow-soft"
                       : done
@@ -189,6 +194,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                   }
                 >
                   <span
+                    aria-hidden="true"
                     className={
                       "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold " +
                       (done
