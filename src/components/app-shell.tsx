@@ -445,8 +445,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 
       <main className="min-h-[calc(100vh-4rem)] bg-gradient-hero lg:pl-64">
-        <div className="mx-auto max-w-[1400px] px-4 pb-28 pt-6 sm:pb-24 lg:px-8 lg:py-8">{children}</div>
+        <div className="mx-auto w-full max-w-[1560px] px-6 pb-28 pt-5 sm:pb-24 lg:px-8 lg:py-6">{children}</div>
       </main>
+
     </div>
   );
 }
@@ -490,27 +491,28 @@ export function PageHeader({
   breadcrumbs?: Crumb[];
 }) {
   return (
-    <div className="mb-6">
+    <div className="mb-5">
       {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
         <div className="min-w-0">
           {eyebrow && (
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-primary">
+            <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
               {eyebrow}
             </div>
           )}
-          <h1 className="font-display text-3xl tracking-tight text-foreground sm:text-[2.25rem] sm:leading-tight">
+          <h1 className="truncate font-display text-[26px] font-semibold tracking-tight text-foreground sm:text-[30px] sm:leading-[1.15]">
             {title}
           </h1>
           {description && (
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
+            <p className="mt-1 max-w-3xl text-sm leading-snug text-muted-foreground">{description}</p>
           )}
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {actions && <div className="flex flex-wrap items-center justify-end gap-2">{actions}</div>}
       </div>
     </div>
   );
 }
+
 
 const STATUS_LABEL: Record<string, string> = {
   deadletter: "Dead letter",
