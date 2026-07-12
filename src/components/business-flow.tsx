@@ -205,7 +205,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
         </ol>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div>
         {/* Step body */}
         <Card className="p-6">
           <div className="mb-4 flex items-start justify-between gap-3">
