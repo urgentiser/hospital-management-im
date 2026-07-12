@@ -1,13 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ModuleStub } from "@/components/module-stub";
+import { AdminSectionPage, sectionHead } from "@/components/admin/section-page";
+import { SECTIONS } from "@/components/admin/actions";
+
+const section = SECTIONS.find((s) => s.key === "workflow")!;
 
 export const Route = createFileRoute("/_app/admin/workflow")({
-  head: () => ({ meta: [{ title: "Workflow Configuration — Impilo" }] }),
-  component: () => (
-    <ModuleStub
-      eyebrow="Administration · Workflow"
-      title="Workflow Configuration"
-      description="Configure workflow states, transitions and routing rules."
-    />
-  ),
+  head: () => sectionHead(section),
+  component: () => <AdminSectionPage sectionKey="workflow" />,
 });

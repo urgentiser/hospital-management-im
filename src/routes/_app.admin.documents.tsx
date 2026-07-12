@@ -1,13 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ModuleStub } from "@/components/module-stub";
+import { AdminSectionPage, sectionHead } from "@/components/admin/section-page";
+import { SECTIONS } from "@/components/admin/actions";
+
+const section = SECTIONS.find((s) => s.key === "documents")!;
 
 export const Route = createFileRoute("/_app/admin/documents")({
-  head: () => ({ meta: [{ title: "Document Configuration — Impilo" }] }),
-  component: () => (
-    <ModuleStub
-      eyebrow="Administration · Documents"
-      title="Document Configuration"
-      description="Document templates, categories, retention and signing rules."
-    />
-  ),
+  head: () => sectionHead(section),
+  component: () => <AdminSectionPage sectionKey="documents" />,
 });

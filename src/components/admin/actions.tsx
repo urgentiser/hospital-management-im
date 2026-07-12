@@ -165,7 +165,9 @@ export const ACTIONS: Record<ActionKey, ActionSpec> = {
   userLogsQuery: { key: "userLogsQuery", label: "User Logs — Query", icon: Search, kind: "Logs Query", startStatus: "active", hint: "Query user activity logs", fields: LOG_FIELDS },
 };
 
-export type SectionKey = "users" | "facilities" | "reference" | "billing" | "printing" | "monitoring";
+export type SectionKey =
+  | "users" | "facilities" | "reference" | "billing" | "printing" | "monitoring"
+  | "workflow" | "documents" | "featureFlags" | "support";
 
 export const SECTIONS: {
   key: SectionKey;
@@ -195,6 +197,33 @@ export const SECTIONS: {
     accent: "from-emerald-500/25 via-teal-500/15 to-transparent",
     ring: "ring-emerald-400/30",
     actions: ["editFacilities", "maintainHospital", "editTheatre", "editWard", "pingFacility"],
+  },
+  {
+    key: "workflow", slug: "workflow", title: "Workflow Configuration",
+    tagline: "States · transitions · owners",
+    description: "Configure workflow states, transitions, routing rules and approver ladders across modules.",
+    icon: Workflow,
+    accent: "from-sky-500/25 via-primary/15 to-transparent",
+    ring: "ring-sky-400/30",
+    actions: ["manageWorkflow", "manageApprovers", "submitCaseOwners"],
+  },
+  {
+    key: "documents", slug: "documents", title: "Document Configuration",
+    tagline: "Templates · numbering · retention",
+    description: "Curate document templates, categories, numbering, retention and signing rules.",
+    icon: LayoutTemplate,
+    accent: "from-fuchsia-500/25 via-violet-500/15 to-transparent",
+    ring: "ring-fuchsia-400/30",
+    actions: ["docConfig", "maintainTemplates"],
+  },
+  {
+    key: "featureFlags", slug: "feature-flags", title: "Feature Flags",
+    tagline: "Toggle · target · rollout",
+    description: "Toggle capabilities per environment, tenant, facility or role. Ship dark, roll out safely.",
+    icon: ToggleRight,
+    accent: "from-teal-500/25 via-emerald-500/15 to-transparent",
+    ring: "ring-teal-400/30",
+    actions: ["featureToggle"],
   },
   {
     key: "reference", slug: "reference", title: "Reference Data",
@@ -231,6 +260,15 @@ export const SECTIONS: {
     accent: "from-rose-500/25 via-pink-500/15 to-transparent",
     ring: "ring-rose-400/30",
     actions: ["eventSummary", "integrationErrors", "userLogsQuery", "userLogsClear"],
+  },
+  {
+    key: "support", slug: "support", title: "Support Tools",
+    tagline: "Diagnose · unlock · replay",
+    description: "Operator diagnostics — unlock stuck records, replay failed jobs, ping facilities and query user logs.",
+    icon: KeyRound,
+    accent: "from-rose-500/25 via-orange-500/15 to-transparent",
+    ring: "ring-rose-400/30",
+    actions: ["unlockMe", "unlockResources", "replayBillJob", "pingFacility", "integrationErrors", "userLogsQuery", "userLogsClear"],
   },
 ];
 
