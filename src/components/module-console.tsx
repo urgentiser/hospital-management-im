@@ -113,7 +113,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   return (
     <>
       <PageHeader
-        eyebrow={isFlow ? `${config.eyebrow} · Business flow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
+        eyebrow={isFlow ? `${config.eyebrow} · Guided workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
         title={isFlow ? `${config.businessFlow!.title} — Guided flow` : activeSection ? activeSection.title : config.title}
         description={isFlow ? config.businessFlow!.purpose : activeSection ? activeSection.description : config.description}
         actions={
@@ -129,7 +129,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
           <TabPill
             label={
               <span className="inline-flex items-center gap-1.5">
-                <Workflow className="h-3.5 w-3.5" /> Business flow
+                <Workflow className="h-3.5 w-3.5" /> Guided workflow
               </span>
             }
             active={activeTab === "flow"}

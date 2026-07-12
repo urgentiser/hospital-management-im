@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  ArrowLeft, ArrowRight, CheckCircle2, Circle, ShieldAlert, Radio, ScrollText,
-  ClipboardCheck, Sparkles, User, HeartPulse, Building2, Wallet, AlertTriangle,
+  ArrowLeft, ArrowRight, CheckCircle2, Circle, ShieldAlert, Radio,
+  ClipboardCheck, User, HeartPulse, Building2, Wallet, AlertTriangle,
 } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -145,7 +145,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
     const fields: Record<string, string | number> = { Kind: flow.completionKind };
     for (const s of flow.steps) for (const f of s.fields ?? []) if (values[f.name]) fields[f.label] = f.type === "number" ? Number(values[f.name]) : values[f.name];
     const rec = create(flow.moduleKey, { title, subtitle, status: flow.completionStatus, fields });
-    toast.success(`${flow.completionLabel ?? flow.title} completed`, { description: `${rec.id} · Events published: ${flow.events.length}` });
+    toast.success(`${flow.completionLabel ?? flow.title} completed`, { description: rec.id });
     setValues({});
     setCompleted(new Set());
     setIndex(0);
@@ -157,17 +157,10 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
     <>
       {flow.patientRequired && <PatientBanner values={values} />}
 
-      {/* Meta strip */}
+      {/* Progress strip */}
       <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px]">
         <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 font-medium text-primary">
-          <Sparkles className="mr-1 inline h-3 w-3" /> Business flow
-        </span>
-        <span className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-muted-foreground">
-          Legacy: <span className="font-mono">{flow.legacySource}</span>
-        </span>
-        <span className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-muted-foreground">
-          Routes: {flow.routeFamily.slice(0, 2).join(" · ")}
-          {flow.routeFamily.length > 2 && ` +${flow.routeFamily.length - 2}`}
+          {flow.title}
         </span>
         <span className="ml-auto rounded-full border border-border bg-background/60 px-2.5 py-1 font-medium text-muted-foreground">
           Step {index + 1} of {total} · {progress}%
@@ -212,7 +205,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
         </ol>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div>
         {/* Step body */}
         <Card className="p-6">
           <div className="mb-4 flex items-start justify-between gap-3">
@@ -318,75 +311,8 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
             </div>
           </div>
         </Card>
-
-        {/* Right rail */}
-        <div className="space-y-4">
-          <Card className="p-4">
-            <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-primary">Purpose</div>
-            <p className="mt-1.5 text-xs text-muted-foreground">{flow.purpose}</p>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              <Radio className="h-3.5 w-3.5" /> Events published
-            </div>
-            <ul className="mt-2 space-y-1">
-              {flow.events.map((e) => (
-                <li key={e} className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                  <span className="font-mono text-[11px] text-muted-foreground">{e}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          {flow.handoffs && flow.handoffs.length > 0 && (
-            <Card className="p-4">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                <ArrowRight className="h-3.5 w-3.5" /> Hand-offs
-              </div>
-              <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                {flow.handoffs.map((h) => <li key={h}>→ {h}</li>)}
-              </ul>
-            </Card>
-          )}
-
-          <Card className="p-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              <ShieldAlert className="h-3.5 w-3.5" /> Business rules
-            </div>
-            <ul className="mt-2 space-y-1.5">
-              {flow.globalRules.map((r) => (
-                <li key={r} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                  <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
-                  <span>{r}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              <ScrollText className="h-3.5 w-3.5" /> Acceptance scenarios
-            </div>
-            <ol className="mt-2 space-y-1.5">
-              {flow.acceptance.map((a, i) => (
-                <li key={a} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[10px] font-medium text-primary">
-                    {i + 1}
-                  </span>
-                  <span>{a}</span>
-                </li>
-              ))}
-            </ol>
-          </Card>
-
-          <div className="rounded-2xl border border-dashed border-border p-3 text-[11px] text-muted-foreground">
-            <StatusChip status={flow.completionStatus} />
-            <span className="ml-1">on flow completion</span>
-          </div>
-        </div>
       </div>
     </>
   );
 }
+
