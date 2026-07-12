@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  ArrowLeft, ArrowRight, CheckCircle2, Circle, ShieldAlert, Radio, ScrollText,
-  ClipboardCheck, Sparkles, User, HeartPulse, Building2, Wallet, AlertTriangle,
+  ArrowLeft, ArrowRight, CheckCircle2, Circle, ShieldAlert, Radio,
+  ClipboardCheck, User, HeartPulse, Building2, Wallet, AlertTriangle,
 } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
