@@ -3,6 +3,7 @@ import {
   ScrollText, Search, ShieldCheck, Download, Lock, ClipboardCheck, FileSignature,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { AuditDetailTable } from "@/components/audit-detail";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "audit",
@@ -23,6 +24,7 @@ const config: ModuleConsoleConfig = {
     { label: "Reviewed", value: items.filter((i) => i.status === "reviewed").length, icon: ClipboardCheck, accent: "from-emerald-500/30 to-transparent", tone: "success" },
     { label: "Sealed", value: items.filter((i) => i.status === "sealed").length, icon: Lock, accent: "from-amber-500/30 to-transparent", tone: "warning" },
   ],
+  overviewExtras: (items) => <AuditDetailTable items={items} />,
   sections: [
     {
       key: "search", title: "Search & Drill", tagline: "Query · trace",

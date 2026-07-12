@@ -4,6 +4,7 @@ import {
   Cable, Bug, Server,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { IntegrationsDetailTable } from "@/components/integrations-detail";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "integrations",
@@ -24,6 +25,7 @@ const config: ModuleConsoleConfig = {
     { label: "Pending", value: items.filter((i) => i.status === "pending").length, icon: RotateCcw, accent: "from-amber-500/30 to-transparent", tone: "warning" },
     { label: "Dead-lettered", value: items.filter((i) => i.status === "deadletter" || i.status === "dead-lettered").length, icon: ShieldAlert, accent: "from-rose-500/30 to-transparent", tone: "destructive" },
   ],
+  overviewExtras: (items) => <IntegrationsDetailTable items={items} />,
   sections: [
     {
       key: "monitor", title: "Monitor Topics", tagline: "Live · trace",
