@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowRight, ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronRight, Search, Sparkles, Workflow } from "lucide-react";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { useWorkflow, type ModuleKey, type WorkflowItem } from "@/lib/workflow-store";
+import { BusinessFlowWizard, type BusinessFlow } from "@/components/business-flow";
 
 // ---------------- Types ----------------
 
