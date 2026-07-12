@@ -238,10 +238,19 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
   );
 }
 
+const FACILITIES = [
+  "Life Fourways",
+  "Life Groenkloof",
+  "Life Kingsbury",
+  "Life Vincent Pallotti",
+  "All facilities",
+];
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [facility, setFacility] = useState<string>(FACILITIES[0]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -301,11 +310,54 @@ export function AppShell({ children }: { children: ReactNode }) {
         </button>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <span className="hidden items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-accent md:inline-flex">
+          {/* Facility selector */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="hidden items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 md:inline-flex"
+                aria-label="Select facility"
+              >
+                <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="max-w-[10rem] truncate">{facility}</span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                Active facility
+              </DropdownMenuLabel>
+              {FACILITIES.map((f) => (
+                <DropdownMenuItem key={f} onClick={() => setFacility(f)}>
+                  <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="truncate">{f}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Environment + health */}
+          <span
+            className="hidden items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-accent lg:inline-flex"
+            title="Environment"
+          >
             <Sparkles className="h-3 w-3" /> Demo
           </span>
+          <Link
+            to={"/system-health" as never}
+            title="System health · All services operational"
+            aria-label="System health"
+            className="hidden h-9 items-center gap-1.5 rounded-lg border border-border bg-card/60 px-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 lg:inline-flex"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/60 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+            </span>
+            Healthy
+          </Link>
+
           <button
             title="Reset demo data"
+            aria-label="Reset demo data"
             onClick={() => {
               try {
                 localStorage.removeItem("impilo-workflow-v2");
@@ -315,34 +367,71 @@ export function AppShell({ children }: { children: ReactNode }) {
                 toast.error("Could not reset demo data");
               }
             }}
-            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground hover:text-foreground md:inline-flex"
+            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 xl:inline-flex"
           >
             <RotateCcw className="h-4 w-4" />
           </button>
           <Link
             to="/admissions"
             search={{ new: "1" }}
-            className="hidden items-center gap-2 rounded-lg bg-gradient-primary px-3.5 py-2 text-sm font-medium text-primary-foreground shadow-glow transition-opacity hover:opacity-90 md:inline-flex"
+            className="hidden items-center gap-2 rounded-lg bg-gradient-primary px-3.5 py-2 text-sm font-medium text-primary-foreground shadow-glow transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background md:inline-flex"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden lg:inline">New Admission</span>
             <span className="lg:hidden">New</span>
           </Link>
-          <button className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground hover:text-foreground">
+          <button
+            aria-label="Notifications"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
             <Bell className="h-4 w-4" />
             <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
           </button>
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-card/60 py-1 pl-1 pr-1 sm:pr-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
-              <CircleUser className="h-4 w-4" />
-            </div>
-            <div className="hidden text-left leading-tight md:block">
-              <div className="text-xs font-medium">Dr. K. Naidoo</div>
-              <div className="text-[10px] text-muted-foreground">Clinical Lead</div>
-            </div>
-          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="Open user menu"
+                className="flex items-center gap-2 rounded-lg border border-border bg-card/60 py-1 pl-1 pr-1 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:pr-2.5"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+                  <CircleUser className="h-4 w-4" />
+                </div>
+                <div className="hidden text-left leading-tight md:block">
+                  <div className="text-xs font-medium">Dr. K. Naidoo</div>
+                  <div className="text-[10px] text-muted-foreground">Clinical Lead</div>
+                </div>
+                <ChevronDown className="ml-0.5 hidden h-3 w-3 text-muted-foreground md:block" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span className="text-sm">Dr. K. Naidoo</span>
+                  <span className="text-[11px] font-normal text-muted-foreground">
+                    Clinical Lead · {facility}
+                  </span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <UserCog className="h-4 w-4 text-muted-foreground" /> Preferences
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={"/admin/users" as never}>
+                  <KeyRound className="h-4 w-4 text-muted-foreground" /> Users & permissions
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <LogOut className="h-4 w-4 text-muted-foreground" /> Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
+
+
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <AskImpiloAI />
