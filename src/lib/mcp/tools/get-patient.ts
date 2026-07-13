@@ -1,19 +1,15 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { requireAuth } from "../require-auth";
 
 export default defineTool({
   name: "get_patient",
   title: "Get patient by ID or MRN",
-  description:
-    "Look up a single patient by Impilo patient ID (e.g. 'P-10241') or MRN (e.g. 'MRN-0032411'). Requires an authenticated Impilo user.",
+  description: "Look up a single patient by Impilo patient ID (e.g. 'P-10241') or MRN (e.g. 'MRN-0032411').",
   inputSchema: {
     idOrMrn: z.string().min(1).describe("Patient ID or Medical Record Number."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ idOrMrn }, ctx) => {
-    const denied = requireAuth(ctx);
-    if (denied) return denied;
+  handler: async ({ idOrMrn }) => {
     const { patients, admissions, authorisations } = await import("@/lib/mock-data");
     const q = idOrMrn.trim().toLowerCase();
     const patient = patients.find(

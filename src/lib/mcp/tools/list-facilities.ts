@@ -1,5 +1,4 @@
 import { defineTool } from "@lovable.dev/mcp-js";
-import { requireAuth } from "../require-auth";
 
 const FACILITIES = [
   { id: "LHC-FOU", name: "Life Fourways Hospital", location: "Fourways, Johannesburg", beds: 260, wards: 12, theatres: 8 },
@@ -16,15 +15,11 @@ export default defineTool({
   name: "list_facilities",
   title: "List Life Healthcare facilities",
   description:
-    "List Life Healthcare hospitals available on the Impilo platform, with location, bed count, wards and theatres. Requires an authenticated Impilo user.",
+    "List Life Healthcare hospitals available on the Impilo platform, with location, bed count, wards and theatres.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: (_input, ctx) => {
-    const denied = requireAuth(ctx);
-    if (denied) return denied;
-    return {
-      content: [{ type: "text", text: JSON.stringify(FACILITIES, null, 2) }],
-      structuredContent: { facilities: FACILITIES },
-    };
-  },
+  handler: () => ({
+    content: [{ type: "text", text: JSON.stringify(FACILITIES, null, 2) }],
+    structuredContent: { facilities: FACILITIES },
+  }),
 });

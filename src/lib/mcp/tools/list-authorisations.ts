@@ -1,12 +1,11 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { requireAuth } from "../require-auth";
 
 export default defineTool({
   name: "list_authorisations",
   title: "List medical scheme authorisations",
   description:
-    "List medical scheme pre-authorisations for procedures across the Impilo Life Healthcare platform. Optional status filter. Requires an authenticated Impilo user.",
+    "List medical scheme pre-authorisations for procedures across the Impilo Life Healthcare platform. Optional status filter.",
   inputSchema: {
     status: z
       .enum(["approved", "pending", "declined", "review"])
@@ -14,9 +13,7 @@ export default defineTool({
       .describe("Filter by authorisation status."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ status }, ctx) => {
-    const denied = requireAuth(ctx);
-    if (denied) return denied;
+  handler: async ({ status }) => {
     const { authorisations } = await import("@/lib/mock-data");
     const rows = status ? authorisations.filter((a) => a.status === status) : authorisations;
     return {
