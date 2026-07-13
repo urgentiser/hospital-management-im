@@ -59,56 +59,62 @@
 :root {
   --radius: 0.75rem;
 
-  /* Life Healthcare palette — light theme with deep navy + signature red */
-  --background: oklch(0.98 0.002 250);
-  --foreground: oklch(0.22 0.03 265);
+  /* Life Healthcare official brand palette
+     Corporate Blue #153152 (primary, 30%), Corporate Red #e71c20 (accent, 5%),
+     Light backgrounds (65%). Secondary supports: #B9D9EB, #A7BCD6, #BBBCBC, #D9D9D6, #49C5B1 */
+  --background: #f7f9fc;
+  --foreground: #153152;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.03 265);
+  --card: #ffffff;
+  --card-foreground: #153152;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.03 265);
+  --popover: #ffffff;
+  --popover-foreground: #153152;
 
-  --primary: oklch(0.55 0.2 27);
-  --primary-foreground: oklch(0.99 0.005 0);
+  /* Primary = Corporate Blue */
+  --primary: #153152;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.95 0.015 265);
-  --secondary-foreground: oklch(0.28 0.05 265);
+  --secondary: #B9D9EB;
+  --secondary-foreground: #153152;
 
-  --muted: oklch(0.94 0.01 250);
-  --muted-foreground: oklch(0.55 0.03 250);
+  --muted: #eef2f7;
+  --muted-foreground: #5a6b82;
 
-  --accent: oklch(0.9 0.02 250);
-  --accent-foreground: oklch(0.25 0.05 265);
+  /* Accent = supportive light blue */
+  --accent: #A7BCD6;
+  --accent-foreground: #153152;
 
-  --destructive: oklch(0.62 0.22 27);
-  --destructive-foreground: oklch(0.99 0.005 0);
+  /* Destructive = Corporate Red (used sparingly, ~5%) */
+  --destructive: #e71c20;
+  --destructive-foreground: #ffffff;
 
-  --success: oklch(0.65 0.18 150);
-  --success-foreground: oklch(1 0 0);
+  --success: #49C5B1;
+  --success-foreground: #0b3b34;
 
-  --warning: oklch(0.78 0.15 78);
-  --warning-foreground: oklch(0.25 0.04 60);
+  --warning: #e8a63a;
+  --warning-foreground: #3a2a08;
 
-  --info: oklch(0.65 0.1 245);
-  --info-foreground: oklch(1 0 0);
+  --info: #B9D9EB;
+  --info-foreground: #153152;
 
-  --border: oklch(0.88 0.015 265);
-  --input: oklch(0.88 0.015 265);
-  --ring: oklch(0.55 0.2 27);
+  --border: #dbe3ee;
+  --input: #dbe3ee;
+  --ring: #153152;
 
-  --sidebar: oklch(0.25 0.1 265);
-  --sidebar-foreground: oklch(0.95 0.01 250);
-  --sidebar-primary: oklch(0.62 0.22 27);
-  --sidebar-primary-foreground: oklch(0.99 0.005 0);
-  --sidebar-accent: oklch(0.35 0.1 265);
-  --sidebar-accent-foreground: oklch(0.97 0.008 250);
-  --sidebar-border: oklch(0.35 0.08 265);
-  --sidebar-ring: oklch(0.62 0.22 27);
+  /* Sidebar in Corporate Blue */
+  --sidebar: #153152;
+  --sidebar-foreground: #eaf1f9;
+  --sidebar-primary: #e71c20;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f4272;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #24467a;
+  --sidebar-ring: #e71c20;
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.55 0.2 27), oklch(0.45 0.18 15));
-  --gradient-surface: linear-gradient(180deg, oklch(1 0 0), oklch(0.96 0.005 250));
-  --gradient-hero: radial-gradient(1200px 600px at 10% -10%, oklch(0.55 0.2 27 / 0.08), transparent 60%),
+  --gradient-primary: linear-gradient(135deg, #153152, #1f4272);
+  --gradient-surface: linear-gradient(180deg, #ffffff, #f2f6fb);
+  --gradient-hero: radial-gradient(1200px 600px at 10% -10%, rgba(21, 49, 82, 0.10), transparent 60%),
                    radial-gradient(1000px 500px at 90% 10%, oklch(0.45 0.14 265 / 0.12), transparent 60%);
 }
 
