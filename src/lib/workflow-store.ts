@@ -50,7 +50,8 @@ export type ModuleKey =
   | "failed-messages"
   | "notifications"
   | "system-health"
-  | "workflow-inbox";
+  | "workflow-inbox"
+  | "services";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
