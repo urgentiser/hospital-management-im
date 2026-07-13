@@ -1,11 +1,12 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { requireAuth } from "../require-auth";
 
 export default defineTool({
   name: "list_admissions",
   title: "List admissions",
   description:
-    "List current and recent hospital admissions across Life Healthcare facilities. Optionally filter by facility or status.",
+    "List current and recent hospital admissions across Life Healthcare facilities. Optionally filter by facility or status. Requires an authenticated Impilo user.",
   inputSchema: {
     facility: z.string().optional().describe("Filter by facility name."),
     status: z
@@ -14,7 +15,9 @@ export default defineTool({
       .describe("Filter by admission status."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ facility, status }) => {
+  handler: async ({ facility, status }, ctx) => {
+    const denied = requireAuth(ctx);
+    if (denied) return denied;
     const { admissions } = await import("@/lib/mock-data");
     let rows = admissions as readonly (typeof admissions)[number][];
     if (facility) {

@@ -19,7 +19,7 @@
       {
         "name": "list_facilities",
         "title": "List Life Healthcare facilities",
-        "description": "List Life Healthcare hospitals available on the Impilo platform, with location, bed count, wards and theatres.",
+        "description": "List Life Healthcare hospitals available on the Impilo platform, with location, bed count, wards and theatres. Requires an authenticated Impilo user.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -35,7 +35,7 @@
       {
         "name": "list_patients",
         "title": "List patients",
-        "description": "List patients on the Impilo Life Healthcare platform. Optionally filter by facility name (e.g. 'Life Fourways') or clinical status.",
+        "description": "List patients on the Impilo Life Healthcare platform. Optionally filter by facility name (e.g. 'Life Fourways') or clinical status. Requires an authenticated Impilo user.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -74,7 +74,7 @@
       {
         "name": "list_admissions",
         "title": "List admissions",
-        "description": "List current and recent hospital admissions across Life Healthcare facilities. Optionally filter by facility or status.",
+        "description": "List current and recent hospital admissions across Life Healthcare facilities. Optionally filter by facility or status. Requires an authenticated Impilo user.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -106,7 +106,7 @@
       {
         "name": "get_patient",
         "title": "Get patient by ID or MRN",
-        "description": "Look up a single patient by Impilo patient ID (e.g. 'P-10241') or MRN (e.g. 'MRN-0032411').",
+        "description": "Look up a single patient by Impilo patient ID (e.g. 'P-10241') or MRN (e.g. 'MRN-0032411'). Requires an authenticated Impilo user.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -132,7 +132,7 @@
       {
         "name": "list_authorisations",
         "title": "List medical scheme authorisations",
-        "description": "List medical scheme pre-authorisations for procedures across the Impilo Life Healthcare platform. Optional status filter.",
+        "description": "List medical scheme pre-authorisations for procedures across the Impilo Life Healthcare platform. Optional status filter. Requires an authenticated Impilo user.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
