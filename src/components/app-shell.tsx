@@ -423,7 +423,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  const { supabase } = await import("@/integrations/supabase/client");
+                  await supabase.auth.signOut();
+                }}
+              >
                 <LogOut className="h-4 w-4 text-muted-foreground" /> Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>
