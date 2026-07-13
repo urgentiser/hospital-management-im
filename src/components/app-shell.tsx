@@ -151,7 +151,49 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+function isItemActive(pathname: string, to: string) {
+  return to === "/" ? pathname === "/" : pathname.startsWith(to);
+}
+
+const OPEN_GROUPS_STORAGE_KEY = "impilo-sidebar-open-groups";
+
 function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  // Which group contains the current route — always keep that one open.
+  const activeGroupTitle =
+    navGroups.find((g) => g.items.some((i) => isItemActive(pathname, i.to)))?.title ?? null;
+
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const raw = window.localStorage.getItem(OPEN_GROUPS_STORAGE_KEY);
+        if (raw) return JSON.parse(raw) as Record<string, boolean>;
+      } catch {
+        /* ignore */
+      }
+    }
+    // Default: only the active group is expanded; others collapsed.
+    const initial: Record<string, boolean> = {};
+    for (const g of navGroups) initial[g.title] = g.title === activeGroupTitle;
+    return initial;
+  });
+
+  // Ensure the active group is always expanded when the route changes.
+  useEffect(() => {
+    if (!activeGroupTitle) return;
+    setOpenGroups((prev) => (prev[activeGroupTitle] ? prev : { ...prev, [activeGroupTitle]: true }));
+  }, [activeGroupTitle]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(OPEN_GROUPS_STORAGE_KEY, JSON.stringify(openGroups));
+    } catch {
+      /* ignore */
+    }
+  }, [openGroups]);
+
+  const toggleGroup = (title: string) =>
+    setOpenGroups((prev) => ({ ...prev, [title]: !prev[title] }));
+
   return (
     <>
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-5">
@@ -165,61 +207,80 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hidden">
-        {navGroups.map((group) => (
-          <div key={group.title} className="mb-5">
-            <div className="mb-1 px-3 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              {group.title}
-            </div>
-            <ul className="space-y-0.5">
-              {group.items.map((item) => {
-                const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
-                const Icon = item.icon;
-                return (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      onClick={onNavigate}
-                      aria-current={active ? "page" : undefined}
-                      className={
-                        "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 " +
-                        (active
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground")
-                      }
-                    >
-                      <span
-                        aria-hidden
-                        className={
-                          "absolute left-0 top-1/2 h-5 -translate-y-1/2 rounded-r-full bg-primary transition-all " +
-                          (active ? "w-[3px] opacity-100" : "w-0 opacity-0")
-                        }
-                      />
-                      <Icon
-                        className={
-                          "h-4 w-4 shrink-0 " +
-                          (active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")
-                        }
-                      />
-                      <span className="flex-1 truncate">{item.label}</span>
-                      {item.badge && (
-                        <span
+        {navGroups.map((group) => {
+          const isOpen = !!openGroups[group.title];
+          const hasActive = group.items.some((i) => isItemActive(pathname, i.to));
+          return (
+            <div key={group.title} className="mb-2">
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.title)}
+                aria-expanded={isOpen}
+                className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+              >
+                <ChevronRight
+                  className={
+                    "h-3 w-3 shrink-0 transition-transform " + (isOpen ? "rotate-90" : "")
+                  }
+                />
+                <span className="flex-1 text-left">{group.title}</span>
+                {!isOpen && hasActive && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+                )}
+              </button>
+              {isOpen && (
+                <ul className="mt-1 space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = isItemActive(pathname, item.to);
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.to}>
+                        <Link
+                          to={item.to}
+                          onClick={onNavigate}
+                          aria-current={active ? "page" : undefined}
                           className={
-                            "rounded-md px-1.5 py-0.5 text-[10px] font-medium " +
+                            "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 " +
                             (active
-                              ? "bg-primary/15 text-primary"
-                              : "bg-muted text-muted-foreground")
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground")
                           }
                         >
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+                          <span
+                            aria-hidden
+                            className={
+                              "absolute left-0 top-1/2 h-5 -translate-y-1/2 rounded-r-full bg-primary transition-all " +
+                              (active ? "w-[3px] opacity-100" : "w-0 opacity-0")
+                            }
+                          />
+                          <Icon
+                            className={
+                              "h-4 w-4 shrink-0 " +
+                              (active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")
+                            }
+                          />
+                          <span className="flex-1 truncate">{item.label}</span>
+                          {item.badge && (
+                            <span
+                              className={
+                                "rounded-md px-1.5 py-0.5 text-[10px] font-medium " +
+                                (active
+                                  ? "bg-primary/15 text-primary"
+                                  : "bg-muted text-muted-foreground")
+                              }
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
       <div className="shrink-0 border-t border-sidebar-border p-3">
