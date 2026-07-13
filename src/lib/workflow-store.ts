@@ -50,7 +50,8 @@ export type ModuleKey =
   | "failed-messages"
   | "notifications"
   | "system-health"
-  | "workflow-inbox";
+  | "workflow-inbox"
+  | "services";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
@@ -478,6 +479,26 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
       fields: { Kind: "Task", Assignee: "Dr. L. Pillay", Origin: "Ward", DueIn: "6h" },
       history: [{ at: nowFmt(), action: "Assigned", by: "Workflow" }], createdAt: now(), updatedAt: now() },
   ];
+  const services: WorkflowItem[] = [
+    { id: "SVC-20411", title: "General Ward — Bed Day", subtitle: "Tariff 00190 · Discovery Health · R 3 480",
+      status: "active", fields: { "Tariff code": "00190", Category: "Accommodation", Scheme: "Discovery Health", "Unit price (R)": "3480", Facility: "Life Fourways" },
+      history: [{ at: nowFmt(), action: "Service published", by: "Catalogue Admin" }], createdAt: now(), updatedAt: now() },
+    { id: "SVC-20412", title: "ICU — Bed Day", subtitle: "Tariff 00202 · GEMS · R 12 950",
+      status: "active", fields: { "Tariff code": "00202", Category: "Accommodation", Scheme: "GEMS", "Unit price (R)": "12950", Facility: "Life Kingsbury" },
+      history: [{ at: nowFmt(), action: "Service published", by: "Catalogue Admin" }], createdAt: now(), updatedAt: now() },
+    { id: "SVC-20413", title: "Theatre — Major Session (2h)", subtitle: "Tariff 01475 · Bonitas · R 18 400",
+      status: "active", fields: { "Tariff code": "01475", Category: "Theatre", Scheme: "Bonitas", "Unit price (R)": "18400", Facility: "Life Groenkloof" },
+      history: [{ at: nowFmt(), action: "Service published", by: "Catalogue Admin" }], createdAt: now(), updatedAt: now() },
+    { id: "SVC-20414", title: "MRI Lumbar Spine", subtitle: "Tariff 34101 · Momentum Health · R 8 750",
+      status: "review", fields: { "Tariff code": "34101", Category: "Radiology", Scheme: "Momentum Health", "Unit price (R)": "8750", Facility: "Life Vincent Pallotti" },
+      history: [{ at: nowFmt(), action: "Price under review", by: "Finance" }], createdAt: now(), updatedAt: now() },
+    { id: "SVC-20415", title: "Pharmacy Dispensing Fee", subtitle: "Tariff PH-001 · All schemes · R 62",
+      status: "active", fields: { "Tariff code": "PH-001", Category: "Pharmacy", Scheme: "All schemes", "Unit price (R)": "62", Facility: "All facilities" },
+      history: [{ at: nowFmt(), action: "Service published", by: "Catalogue Admin" }], createdAt: now(), updatedAt: now() },
+    { id: "SVC-20416", title: "Consumables — Suture Pack", subtitle: "Tariff CS-118 · Polmed · R 245",
+      status: "draft", fields: { "Tariff code": "CS-118", Category: "Consumables", Scheme: "Polmed", "Unit price (R)": "245", Facility: "Life Westville" },
+      history: [{ at: nowFmt(), action: "Draft created", by: "Catalogue Admin" }], createdAt: now(), updatedAt: now() },
+  ];
 
   return {
     patients, admissions, authorisations, pharmacy, theatre, ward,
@@ -495,6 +516,7 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
     notifications,
     "system-health": systemHealth,
     "workflow-inbox": workflowInbox,
+    services,
   };
 }
 

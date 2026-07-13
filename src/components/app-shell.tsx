@@ -120,6 +120,7 @@ const navGroups: NavGroup[] = [
       { to: "/facilities", label: "Facilities", icon: Building2 },
       { to: "/practitioners", label: "Practitioners", icon: Stethoscope },
       { to: "/workflow-inbox", label: "Workflow Inbox", icon: Inbox },
+      { to: "/services", label: "Services", icon: ClipboardList },
       { to: "/mylife-portal", label: "MyLife Portal Instructions", icon: Smartphone },
     ],
   },

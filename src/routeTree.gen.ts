@@ -19,6 +19,7 @@ import { Route as AppTriageRouteImport } from './routes/_app.triage'
 import { Route as AppTheatreRouteImport } from './routes/_app.theatre'
 import { Route as AppSystemHealthRouteImport } from './routes/_app.system-health'
 import { Route as AppSupplierInvoicesRouteImport } from './routes/_app.supplier-invoices'
+import { Route as AppServicesRouteImport } from './routes/_app.services'
 import { Route as AppServiceBusRouteImport } from './routes/_app.service-bus'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppReimbursementsRouteImport } from './routes/_app.reimbursements'
@@ -116,6 +117,11 @@ const AppSystemHealthRoute = AppSystemHealthRouteImport.update({
 const AppSupplierInvoicesRoute = AppSupplierInvoicesRouteImport.update({
   id: '/supplier-invoices',
   path: '/supplier-invoices',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppServicesRoute = AppServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => AppRoute,
 } as any)
 const AppServiceBusRoute = AppServiceBusRouteImport.update({
@@ -400,6 +406,7 @@ export interface FileRoutesByFullPath {
   '/reimbursements': typeof AppReimbursementsRoute
   '/reports': typeof AppReportsRoute
   '/service-bus': typeof AppServiceBusRoute
+  '/services': typeof AppServicesRoute
   '/supplier-invoices': typeof AppSupplierInvoicesRoute
   '/system-health': typeof AppSystemHealthRoute
   '/theatre': typeof AppTheatreRoute
@@ -457,6 +464,7 @@ export interface FileRoutesByTo {
   '/reimbursements': typeof AppReimbursementsRoute
   '/reports': typeof AppReportsRoute
   '/service-bus': typeof AppServiceBusRoute
+  '/services': typeof AppServicesRoute
   '/supplier-invoices': typeof AppSupplierInvoicesRoute
   '/system-health': typeof AppSystemHealthRoute
   '/theatre': typeof AppTheatreRoute
@@ -519,6 +527,7 @@ export interface FileRoutesById {
   '/_app/reimbursements': typeof AppReimbursementsRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/service-bus': typeof AppServiceBusRoute
+  '/_app/services': typeof AppServicesRoute
   '/_app/supplier-invoices': typeof AppSupplierInvoicesRoute
   '/_app/system-health': typeof AppSystemHealthRoute
   '/_app/theatre': typeof AppTheatreRoute
@@ -582,6 +591,7 @@ export interface FileRouteTypes {
     | '/reimbursements'
     | '/reports'
     | '/service-bus'
+    | '/services'
     | '/supplier-invoices'
     | '/system-health'
     | '/theatre'
@@ -639,6 +649,7 @@ export interface FileRouteTypes {
     | '/reimbursements'
     | '/reports'
     | '/service-bus'
+    | '/services'
     | '/supplier-invoices'
     | '/system-health'
     | '/theatre'
@@ -700,6 +711,7 @@ export interface FileRouteTypes {
     | '/_app/reimbursements'
     | '/_app/reports'
     | '/_app/service-bus'
+    | '/_app/services'
     | '/_app/supplier-invoices'
     | '/_app/system-health'
     | '/_app/theatre'
@@ -809,6 +821,13 @@ declare module '@tanstack/react-router' {
       path: '/supplier-invoices'
       fullPath: '/supplier-invoices'
       preLoaderRoute: typeof AppSupplierInvoicesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/services': {
+      id: '/_app/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof AppServicesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/service-bus': {
@@ -1243,6 +1262,7 @@ interface AppRouteChildren {
   AppReimbursementsRoute: typeof AppReimbursementsRoute
   AppReportsRoute: typeof AppReportsRoute
   AppServiceBusRoute: typeof AppServiceBusRoute
+  AppServicesRoute: typeof AppServicesRoute
   AppSupplierInvoicesRoute: typeof AppSupplierInvoicesRoute
   AppSystemHealthRoute: typeof AppSystemHealthRoute
   AppTheatreRoute: typeof AppTheatreRoute
@@ -1280,6 +1300,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppReimbursementsRoute: AppReimbursementsRoute,
   AppReportsRoute: AppReportsRoute,
   AppServiceBusRoute: AppServiceBusRoute,
+  AppServicesRoute: AppServicesRoute,
   AppSupplierInvoicesRoute: AppSupplierInvoicesRoute,
   AppSystemHealthRoute: AppSystemHealthRoute,
   AppTheatreRoute: AppTheatreRoute,
