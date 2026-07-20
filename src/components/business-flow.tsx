@@ -4,13 +4,16 @@ import {
   ArrowLeft,
   ArrowRight,
   Building2,
+  Check,
   CheckCircle2,
   ClipboardCheck,
   HeartPulse,
   Radio,
+  Search,
   User,
   Wallet,
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { Card } from "@/components/app-shell";
 import { RuleResults } from "@/components/workflow/rule-results";
@@ -196,7 +199,9 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [ruleResults, setRuleResults] = useState<RuleResult[]>([]);
   const [patientPickerOpen, setPatientPickerOpen] = useState(false);
+  const [patientSearch, setPatientSearch] = useState("");
   const [busy, setBusy] = useState(false);
+
   const stepperRef = useRef<HTMLDivElement>(null);
   const total = flow.steps.length;
   const step = flow.steps[index];
@@ -237,10 +242,35 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
     }
   }, [globalFacility]);
 
+  // Auto-mark patient-identity steps complete when a patient is already loaded,
+  // so users are not asked to "select a patient" twice when the banner already shows one.
+  useEffect(() => {
+    if (!values.patient) return;
+    const identityKeys = new Set(["patient", "identity", "context", "select-patient"]);
+    setCompleted((current) => {
+      let changed = false;
+      const next = new Set(current);
+      flow.steps.forEach((candidate, candidateIndex) => {
+        if (!identityKeys.has(candidate.key)) return;
+        const missing = (candidate.fields ?? []).filter((field) => {
+          if (!field.required) return false;
+          const value = values[field.name];
+          return value === undefined || value === null || String(value).trim() === "";
+        });
+        if (missing.length === 0 && !next.has(candidateIndex)) {
+          next.add(candidateIndex);
+          changed = true;
+        }
+      });
+      return changed ? next : current;
+    });
+  }, [values, flow.steps]);
+
   useEffect(() => {
     const element = stepperRef.current?.querySelector<HTMLElement>(`[data-step-idx="${index}"]`);
     element?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, [index]);
+
 
   const groupedFields = useMemo(() => {
     const groups = new Map<string, StepField[]>();
@@ -410,41 +440,74 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
           <div className="flex items-center gap-2"><span className="text-[11px] text-muted-foreground">{completed.size} of {total} steps signed</span><CurrentStateModuleButton moduleKey={flow.moduleKey} compact /></div>
         </div>
 
-        <div ref={stepperRef} className="flex snap-x gap-2 overflow-x-auto pb-1 scrollbar-hidden" aria-label="Workflow steps">
+        <div
+          ref={stepperRef}
+          className="relative flex snap-x gap-0 overflow-x-auto rounded-2xl border border-border bg-card/60 px-4 py-4 scrollbar-hidden"
+          aria-label="Workflow steps"
+        >
           {flow.steps.map((candidate, candidateIndex) => {
             const done = completed.has(candidateIndex);
             const active = candidateIndex === index;
             const furthest = Math.max(...[...completed, -1]) + 1;
             const canJump = done || candidateIndex <= furthest;
+            const isFirst = candidateIndex === 0;
+            const prevDone = completed.has(candidateIndex - 1);
             return (
-              <Tooltip key={candidate.key}>
-                <TooltipTrigger asChild>
-                  <button
-                    data-step-idx={candidateIndex}
-                    type="button"
-                    disabled={!canJump}
-                    onClick={() => canJump && setIndex(candidateIndex)}
-                    aria-current={active ? "step" : undefined}
+              <div key={candidate.key} data-step-idx={candidateIndex} className="flex min-w-[140px] flex-1 snap-start items-start">
+                {!isFirst && (
+                  <div
+                    aria-hidden
                     className={
-                      "inline-flex shrink-0 snap-start items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 " +
-                      (active
-                        ? "border-primary/60 bg-primary/10 text-foreground shadow-soft"
-                        : done
-                          ? "border-success/30 bg-success/5 text-foreground"
-                          : "border-border bg-card text-muted-foreground hover:bg-muted/40")
+                      "mt-4 h-[2px] flex-1 rounded-full transition-colors " +
+                      (prevDone ? "bg-primary" : "bg-border")
                     }
-                  >
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full border border-current/30 text-[10px] font-semibold">
-                      {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : candidateIndex + 1}
-                    </span>
-                    <span className="max-w-[180px] truncate">{candidate.title}</span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>{candidate.title}: {candidate.description}</TooltipContent>
-              </Tooltip>
+                  />
+                )}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      disabled={!canJump}
+                      onClick={() => canJump && setIndex(candidateIndex)}
+                      aria-current={active ? "step" : undefined}
+                      className={
+                        "group flex min-w-[140px] flex-col items-center gap-1.5 px-2 text-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 " +
+                        (isFirst ? "" : "-ml-2")
+                      }
+                    >
+                      <span
+                        className={
+                          "flex h-9 w-9 items-center justify-center rounded-full border-2 text-[12px] font-semibold transition-all group-focus-visible:ring-2 group-focus-visible:ring-primary/40 " +
+                          (done
+                            ? "border-primary bg-primary text-primary-foreground shadow-soft"
+                            : active
+                              ? "border-primary bg-background text-primary ring-4 ring-primary/15"
+                              : "border-border bg-background text-muted-foreground group-hover:border-primary/40")
+                        }
+                      >
+                        {done ? <Check className="h-4 w-4" /> : candidateIndex + 1}
+                      </span>
+                      <span
+                        className={
+                          "line-clamp-2 max-w-[140px] text-[11px] leading-tight transition-colors " +
+                          (active
+                            ? "font-semibold text-foreground"
+                            : done
+                              ? "font-medium text-foreground/80"
+                              : "text-muted-foreground")
+                        }
+                      >
+                        {candidate.title}
+                      </span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{candidate.description}</TooltipContent>
+                </Tooltip>
+              </div>
             );
           })}
         </div>
+
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
           <Card className="p-5 sm:p-6">
@@ -488,19 +551,47 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                             onChange={(event) => setValue(field.name, event.target.value)}
                           />
                         ) : field.type === "select" ? (
-                          <select
-                            id={field.name}
-                            value={values[field.name] ?? ""}
-                            disabled={disabled}
-                            aria-invalid={Boolean(fieldErrors[field.name])}
-                            onChange={(event) => setValue(field.name, event.target.value)}
-                            className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            <option value="">Select…</option>
-                            {(facilityField && !(field.options?.length) ? [...FACILITIES] : field.options ?? []).map((option) => (
-                              <option key={option} value={option}>{option}</option>
-                            ))}
-                          </select>
+                          (() => {
+                            const opts = (facilityField && !(field.options?.length) ? [...FACILITIES] : field.options ?? []);
+                            const searchable = opts.length > 8;
+                            const listId = `${field.name}-options`;
+                            if (searchable) {
+                              return (
+                                <>
+                                  <div className="relative">
+                                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                      id={field.name}
+                                      list={listId}
+                                      value={values[field.name] ?? ""}
+                                      placeholder={field.placeholder ?? "Search…"}
+                                      disabled={disabled}
+                                      aria-invalid={Boolean(fieldErrors[field.name])}
+                                      onChange={(event) => setValue(field.name, event.target.value)}
+                                      className="pl-9"
+                                    />
+                                  </div>
+                                  <datalist id={listId}>
+                                    {opts.map((option) => (<option key={option} value={option} />))}
+                                  </datalist>
+                                </>
+                              );
+                            }
+                            return (
+                              <select
+                                id={field.name}
+                                value={values[field.name] ?? ""}
+                                disabled={disabled}
+                                aria-invalid={Boolean(fieldErrors[field.name])}
+                                onChange={(event) => setValue(field.name, event.target.value)}
+                                className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                <option value="">Select…</option>
+                                {opts.map((option) => (<option key={option} value={option}>{option}</option>))}
+                              </select>
+                            );
+                          })()
+
                         ) : (
                           <Input
                             id={field.name}
@@ -614,34 +705,64 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
         </div>
       </div>
 
-      <Dialog open={patientPickerOpen} onOpenChange={setPatientPickerOpen}>
+      <Dialog open={patientPickerOpen} onOpenChange={(open) => { setPatientPickerOpen(open); if (!open) setPatientSearch(""); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Select patient and active context</DialogTitle>
-            <DialogDescription>Choose the patient explicitly. Impilo will not silently select the first record.</DialogDescription>
+            <DialogDescription>Search by name, MRN, ID number, scheme or facility.</DialogDescription>
           </DialogHeader>
-          <div className="max-h-[460px] space-y-2 overflow-y-auto pr-1">
-            {availablePatients.map((patient) => (
-              <button
-                key={patient.id}
-                type="button"
-                onClick={() => {
-                  setPatient(patient.id);
-                  setPatientPickerOpen(false);
-                  toast.success("Patient context loaded", { description: patient.name });
-                }}
-                className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left hover:border-primary/40 hover:bg-primary/[0.025]"
-              >
-                <span>
-                  <span className="block font-medium">{patient.name}</span>
-                  <span className="block text-xs text-muted-foreground">{patient.mrn} · {patient.dob} · {patient.scheme}</span>
-                </span>
-                <span className="text-xs text-muted-foreground">{patient.facility}</span>
-              </button>
-            ))}
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              autoFocus
+              value={patientSearch}
+              onChange={(event) => setPatientSearch(event.target.value)}
+              placeholder="Search patients…"
+              className="pl-9"
+              aria-label="Search patients"
+            />
+          </div>
+          <div className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
+            {(() => {
+              const query = patientSearch.trim().toLowerCase();
+              const filtered = query
+                ? availablePatients.filter((patient) =>
+                    [patient.name, patient.mrn, patient.dob, patient.scheme, patient.facility, patient.id]
+                      .filter(Boolean)
+                      .some((value) => String(value).toLowerCase().includes(query)),
+                  )
+                : availablePatients;
+              if (filtered.length === 0) {
+                return (
+                  <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                    No patients match “{patientSearch}”.
+                  </div>
+                );
+              }
+              return filtered.map((patient) => (
+                <button
+                  key={patient.id}
+                  type="button"
+                  onClick={() => {
+                    setPatient(patient.id);
+                    setPatientPickerOpen(false);
+                    setPatientSearch("");
+                    toast.success("Patient context loaded", { description: patient.name });
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-primary/40 hover:bg-primary/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                >
+                  <span>
+                    <span className="block font-medium">{patient.name}</span>
+                    <span className="block text-xs text-muted-foreground">{patient.mrn} · {patient.dob} · {patient.scheme}</span>
+                  </span>
+                  <span className="text-xs text-muted-foreground">{patient.facility}</span>
+                </button>
+              ));
+            })()}
           </div>
         </DialogContent>
       </Dialog>
+
     </TooltipProvider>
   );
 }
