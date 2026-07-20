@@ -11,6 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { useWorkflow, type ModuleKey, type WorkflowItem } from "@/lib/workflow-store";
 import { BusinessFlowWizard, type BusinessFlow } from "@/components/business-flow";
+import { OperationalProcessConsole } from "@/components/compatibility/operational-process";
+import { getCurrentStateModuleSummary } from "@/current-state/module-manifest";
+import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
+import { useFacilityContext } from "@/lib/facility-context";
+import { useAuth } from "@/security/auth-provider";
+import { getDefaultModulePermissions } from "@/security/module-permissions";
+import { hasPermission } from "@/security/permissions";
+import { getModuleService } from "@/services/modules/registry";
+import { validateModuleInput } from "@/validation/engine";
 
 // ---------------- Types ----------------
 
@@ -73,11 +82,17 @@ export type ModuleConsoleConfig = {
 
 export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const items = useWorkflow((s) => s.items[config.moduleKey]);
-  const createItem = useWorkflow((s) => s.create);
+  const { principal } = useAuth();
+  const activeFacility = useFacilityContext((state) => state.facility);
+  const permissions = getDefaultModulePermissions(config.moduleKey);
+  const moduleService = getModuleService(config.moduleKey);
+  const canExecuteActions = hasPermission(principal, permissions.create ?? permissions.manage);
   const hasFlow = !!config.businessFlow;
-  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : "overview");
+  const hasOperationalProcess = Boolean(getCurrentStateModuleSummary(config.moduleKey));
+  const [activeTab, setActiveTab] = useState<string>(hasOperationalProcess ? "operational" : hasFlow ? "flow" : "overview");
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
   const [feedQuery, setFeedQuery] = useState("");
+  const [busy, setBusy] = useState(false);
 
   const activeSection = useMemo(
     () => config.sections.find((s) => s.key === activeTab) ?? null,
@@ -91,46 +106,87 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
 
   const overviewKpis = useMemo(() => config.overviewKpis(items), [config, items]);
 
-  const submit = (spec: ActionSpec, values: Record<string, string>) => {
-    const fields: Record<string, string | number> = { Kind: spec.kind };
-    spec.fields.forEach((f) => {
-      const raw = values[f.name] ?? "";
-      if (!raw) return;
-      fields[f.label] = f.type === "number" ? Number(raw) : raw;
-    });
-    const title = String(
-      values.title || values.name || values.patient || values.facility || values.scheme ||
-      values.fund || values.carrier || values.reference || values.id || spec.label,
-    );
-    const subtitle = [values.owner, values.priority, values.ward, values.plan, values.rate, values.period, values.scope, values.employer]
-      .filter(Boolean).join(" · ") || spec.kind;
-    const rec = createItem(config.moduleKey, { title, subtitle, status: spec.startStatus, fields });
-    toast.success(`${spec.label} captured`, { description: `${rec.id} · ${title}` });
-    setActiveAction(null);
+  const submit = async (spec: ActionSpec, values: Record<string, string>): Promise<boolean> => {
+    setBusy(true);
+    try {
+      const permission = permissions.create ?? permissions.manage;
+      const facility = values.facility || activeFacility;
+      const validation = await validateModuleInput({
+        moduleKey: config.moduleKey,
+        action: spec.key,
+        fields: spec.fields.map((field) => ({ name: field.name, label: field.label, type: field.type, required: field.required })),
+        values,
+        user: principal,
+        facility,
+        permission,
+        reason: values.reason || values.notes || values.note,
+      });
+      if (!validation.allowed) {
+        toast.error(validation.errors[0]?.message ?? "The action did not pass business validation.");
+        return false;
+      }
+
+      const fields: Record<string, string | number> = { Kind: spec.kind };
+      spec.fields.forEach((field) => {
+        const raw = values[field.name] ?? "";
+        if (!raw) return;
+        fields[field.label] = field.type === "number" ? Number(raw) : raw;
+      });
+      const title = String(
+        values.title || values.name || values.patient || values.facility || values.scheme ||
+        values.fund || values.carrier || values.reference || values.id || spec.label,
+      );
+      const subtitle = [values.owner, values.priority, values.ward, values.plan, values.rate, values.period, values.scope, values.employer]
+        .filter(Boolean).join(" · ") || spec.kind;
+      const result = await moduleService.createRecord({ title, subtitle, status: spec.startStatus, fields });
+      toast.success(`${spec.label} captured`, { description: `${result.data.id} · ${result.correlationId}` });
+      setActiveAction(null);
+      return true;
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "The action could not be completed.");
+      return false;
+    } finally {
+      setBusy(false);
+    }
   };
 
+  const isOperational = hasOperationalProcess && activeTab === "operational";
   const isFlow = hasFlow && activeTab === "flow";
 
   return (
     <>
       <PageHeader
-        eyebrow={isFlow ? `${config.eyebrow} · Guided workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
-        title={isFlow ? `${config.businessFlow!.title} — Guided flow` : activeSection ? activeSection.title : config.title}
-        description={isFlow ? config.description : activeSection ? activeSection.description : config.description}
+        eyebrow={isOperational ? `${config.eyebrow} · Operational process` : isFlow ? `${config.eyebrow} · Assisted workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
+        title={isOperational ? `${config.title} — Operational process` : isFlow ? `${config.businessFlow!.title} — Assisted flow` : activeSection ? activeSection.title : config.title}
+        description={isOperational ? "The standard Impilo action names, access controls, step sequence and validation flow are preserved." : isFlow ? config.description : activeSection ? activeSection.description : config.description}
         actions={
-          <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
-            <Sparkles className="h-3.5 w-3.5" /> Command centre
-          </div>
+          <>
+            <CurrentStateModuleButton moduleKey={config.moduleKey} compact />
+            <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
+              <Sparkles className="h-3.5 w-3.5" /> Command centre
+            </div>
+          </>
         }
       />
 
       {/* Tab bar */}
       <nav className="mb-6 -mx-1 flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hidden">
+        {hasOperationalProcess && (
+          <TabPill
+            label={
+              <span className="inline-flex items-center gap-1.5">
+                <Workflow className="h-3.5 w-3.5" /> Operational process
+              </span>
+            }
+            active={activeTab === "operational"}
+            onClick={() => setActiveTab("operational")}
+          />
+        )}
         {hasFlow && (
           <TabPill
             label={
               <span className="inline-flex items-center gap-1.5">
-                <Workflow className="h-3.5 w-3.5" /> Guided workflow
+                <Workflow className="h-3.5 w-3.5" /> Assisted workflow
               </span>
             }
             active={activeTab === "flow"}
@@ -153,7 +209,9 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
         </div>
       )}
 
-      {isFlow ? (
+      {isOperational ? (
+        <OperationalProcessConsole moduleKey={config.moduleKey} embedded />
+      ) : isFlow ? (
         <BusinessFlowWizard flow={config.businessFlow!} />
       ) : !activeSection ? (
         <OverviewPane
@@ -171,11 +229,12 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
           feedQuery={feedQuery}
           setFeedQuery={setFeedQuery}
           onOpenAction={(a) => setActiveAction(a)}
+          canExecute={canExecuteActions}
           onBack={() => setActiveTab("overview")}
         />
       )}
 
-      <ActionDialog spec={activeAction} onOpenChange={(o) => !o && setActiveAction(null)} onSubmit={submit} />
+      <ActionDialog spec={activeAction} busy={busy} onOpenChange={(o) => !o && setActiveAction(null)} onSubmit={submit} />
     </>
   );
 }
@@ -354,7 +413,7 @@ function OverviewPane({
 // ---------------- Section ----------------
 
 function SectionPane({
-  config, section, items, feedQuery, setFeedQuery, onOpenAction, onBack,
+  config, section, items, feedQuery, setFeedQuery, onOpenAction, canExecute, onBack,
 }: {
   config: ModuleConsoleConfig;
   section: SectionSpec;
@@ -362,6 +421,7 @@ function SectionPane({
   feedQuery: string;
   setFeedQuery: (v: string) => void;
   onOpenAction: (a: ActionSpec) => void;
+  canExecute: boolean;
   onBack: () => void;
 }) {
   const actionKinds = useMemo(
@@ -422,8 +482,10 @@ function SectionPane({
                 <button
                   key={a.key}
                   onClick={() => onOpenAction(a)}
+                  disabled={!canExecute}
+                  title={!canExecute ? `Permission ${config.moduleKey} manage is required` : undefined}
                   className={
-                    "group relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-4 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 " +
+                    "group relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-4 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0 " +
                     (a.destructive ? "hover:border-destructive/50 focus-visible:ring-destructive/40" : "")
                   }
                 >
@@ -564,11 +626,12 @@ function StatCard({ kpi }: { kpi: KpiCard }) {
 // ---------------- Action dialog ----------------
 
 function ActionDialog({
-  spec, onOpenChange, onSubmit,
+  spec, busy = false, onOpenChange, onSubmit,
 }: {
   spec: ActionSpec | null;
+  busy?: boolean;
   onOpenChange: (o: boolean) => void;
-  onSubmit: (spec: ActionSpec, values: Record<string, string>) => void;
+  onSubmit: (spec: ActionSpec, values: Record<string, string>) => Promise<boolean>;
 }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const open = !!spec;
@@ -578,16 +641,16 @@ function ActionDialog({
     onOpenChange(o);
   };
 
-  const submit = () => {
-    if (!spec) return;
+  const submit = async () => {
+    if (!spec || busy) return;
     for (const f of spec.fields) {
       if (f.required && !values[f.name]?.trim()) {
         toast.error(`${f.label} is required`);
         return;
       }
     }
-    onSubmit(spec, values);
-    setValues({});
+    const accepted = await onSubmit(spec, values);
+    if (accepted) setValues({});
   };
 
   if (!spec) return null;
@@ -636,10 +699,11 @@ function ActionDialog({
         <DialogFooter className="border-t border-border px-6 py-4">
           <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
           <Button
-            onClick={submit}
+            onClick={() => void submit()}
+            disabled={busy}
             className={spec.destructive ? "bg-destructive text-destructive-foreground hover:opacity-90" : "bg-gradient-primary hover:opacity-90"}
           >
-            Save {spec.label}
+            {busy ? "Validating…" : `Save ${spec.label}`}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,0 +1,2046 @@
+{
+  "accounting:statement-of-account": {
+    "serviceInterface": "IRichAccountQueryService",
+    "method": "EmailStatement",
+    "parameters": "StatementContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/AccountQuery/Client.Implet/AccountStatement/Dashboard/DashboardController.cs"
+    ]
+  },
+  "accounting:receipting": {
+    "serviceInterface": "IRichAccountingService",
+    "method": "Search",
+    "parameters": "AccountingPatientSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 5,
+    "sourceReferences": [
+      "Rich/Accounting/Client/VisualSteps/CapturePrePayment/CapturePrepaymentController.cs",
+      "Rich/Accounting/Client/VisualSteps/CapturePrePayment/LineItemAdapter.cs",
+      "Rich/Accounting/Client/VisualSteps/OutstandingVisit/OutstandingVisitBuilder.cs",
+      "Rich/Accounting/Client/VisualSteps/OutstandingVisit/OutstandingVisitController.cs",
+      "Rich/Accounting/Client/VisualSteps/OutstandingVisit/OutstandingVisitWAH.cs"
+    ]
+  },
+  "accounting:eu-dr-renal-receipts": {
+    "serviceInterface": "IRichAccountingService",
+    "method": "Search",
+    "parameters": "AccountingPatientSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Accounting/Client/ThirdPartyPayment/Search/ThirdPartyPaymentSearchBuilder.cs",
+      "Rich/Accounting/Client/ThirdPartyPayment/Search/ThirdPartyPaymentSearchView.xaml.cs",
+      "Rich/Accounting/Client/ThirdPartyPayment/Search/ThirdPartyPaymentSearchWAH.cs",
+      "Rich/Accounting/Client/ThirdPartyPayment/Search/ThirdPartypaymentSearchController.cs",
+      "Rich/Accounting/Client/ThirdPartyPayment/ThirdPartyPaymentMaster.cs"
+    ]
+  },
+  "accounting:refund-patient": {
+    "serviceInterface": "IRichAccountingService",
+    "method": "LoadRefundContext",
+    "parameters": "RefundContext refundContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Accounting/Client/Refund/CreditCardRefund/CreditCardRefundController.cs",
+      "Rich/Accounting/Client/Refund/RefundPatientSearch/RefundPatientSearchController.cs"
+    ]
+  },
+  "accounting:reversal-of-receipts": {
+    "serviceInterface": "IRichAccountingService",
+    "method": "SearchForReversalOfReceiptPatients",
+    "parameters": "AccountingPatientSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Accounting/Client/ReversalOfReceipts/ReversalOfReceiptSearch/ReversalOfReceiptSearchController.cs"
+    ]
+  },
+  "accounting:capture-zero-payments": {
+    "serviceInterface": "IRichAccountingService",
+    "method": "SearchForZeroPaymentPatients",
+    "parameters": "AccountingPatientSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Accounting/Client/ZeroPayment/ZeroPaymentSearch/ZeroPaymentSearchController.cs"
+    ]
+  },
+  "accounting:bulk-zero-payment": {
+    "serviceInterface": "IRichAccountingService",
+    "method": "SaveBulkZeroPaymentNote",
+    "parameters": "ZeroPaymentContext zeroPaymentContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Accounting/Client/BulkZeroPayment/CaptureBulkZeroPayment/CaptureBulkZeroPaymentController.cs"
+    ]
+  },
+  "accounting:suspense-account": {
+    "serviceInterface": "IRichAccountingService",
+    "method": "SaveAccountSuspenseAccount",
+    "parameters": "SuspenseAccountContext conversationContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Accounting/Client/SuspenseAccount/SuspenseAccount/SuspenseAccountController.cs"
+    ]
+  },
+  "accounting:payment-receipting": {
+    "serviceInterface": "IRichAccountQueryService",
+    "method": "SearchForAccounts",
+    "parameters": "AccountHolderCriteria criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Reimbursement/Client.Implet/Receipting/PatientAccountSearch/PatientAccountSearchController.cs"
+    ]
+  },
+  "adhoc-and-supplier-invoices:manage-billing-checks": {
+    "serviceInterface": "IRichSupplierInvoiceService",
+    "method": "CloseLoanStockBillingChecks",
+    "parameters": "InvoiceContext context",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "adhoc-and-supplier-invoices:supplier-invoice": {
+    "serviceInterface": "IRichSupplierInvoiceService",
+    "method": "SearchForInvoices",
+    "parameters": "InvoiceSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/SupplierInvoice/Client.Implet/SearchSupplierInvoice/Search/SearchController.cs"
+    ]
+  },
+  "administration:maintain-impilo-user": {
+    "serviceInterface": "IConfigurationService",
+    "method": "UpdateFeatureConfiguration",
+    "parameters": "FeatureConfiguration featureConfiguration",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "administration:unlock-resources": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "SearchForLocks",
+    "parameters": "RichAdministrationUnlockContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/Unlocking/SearchUserLockedDomainObjects/SearchUserLockedDomainObjectsController.cs",
+      "Rich/Administration/Client.Implet/Unlocking/SearchUserLockedDomainObjects/SearchUserLockedDomainObjectsView.xaml.cs"
+    ]
+  },
+  "administration:unlock-me": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "SearchForLocks",
+    "parameters": "RichAdministrationUnlockContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/UnlockMe/UserLockedDomainObjects/UserLockedDomainObjectsController.cs"
+    ]
+  },
+  "administration:maintain-user": {
+    "serviceInterface": "IConfigurationService",
+    "method": "UpdateFeatureConfiguration",
+    "parameters": "FeatureConfiguration featureConfiguration",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "administration:manage-approvers": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "UpdateApprover",
+    "parameters": "ApproverDetailsContext context,ApproverDetailsDTO emailApprovalsDetails, ActiveEmailApprover activeEmailApprover",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/ManageApproverEmails/ManageEmails/ManageEmailController.cs",
+      "Rich/Administration/Client.Implet/ManageApproverEmails/ManageEmails/ManageEmailView.xaml.cs"
+    ]
+  },
+  "administration:maintain-templates": {
+    "serviceInterface": "IConfigurationService",
+    "method": "UpdateFeatureConfiguration",
+    "parameters": "FeatureConfiguration featureConfiguration",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "administration:maintain-print-servers": {
+    "serviceInterface": "IConfigurationService",
+    "method": "GetPrintServers",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/PrintServerPrinter/PrintServer/PrintServerController.cs"
+    ]
+  },
+  "administration:maintain-printers": {
+    "serviceInterface": "IConfigurationService",
+    "method": "StorePrintServerPrinters",
+    "parameters": "IList<PrintServerPrinter> printServerPrinters",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/MaintainPrinters/LinkPrintServer/LinkPrintServerController.cs"
+    ]
+  },
+  "administration:document-configuration": {
+    "serviceInterface": "IConfigurationService",
+    "method": "GetPrinterConfigurations",
+    "parameters": "int hospitalUnitId, int functionId, int documentJobTypeId",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/MaintainDocumentConfiguration/PrinterConfiguration/PrinterConfigurationController.cs"
+    ]
+  },
+  "administration:ping-facility": {
+    "serviceInterface": "IOutboundAdministrationIntegrationService",
+    "method": "Ping",
+    "parameters": "string sid",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/Ping/ConversationConstants.cs",
+      "Rich/Administration/Client.Implet/Ping/PingFacility/FacilityPingFunctionBuilder.cs",
+      "Rich/Administration/Client.Implet/Ping/PingFacility/FacilityPingFunctionController.cs",
+      "Rich/Administration/Client.Implet/Ping/PingFacility/FacilityPingFunctionView.xaml.cs",
+      "Rich/Administration/Client.Implet/Ping/PingFacility/FacilityPingFunctionWAH.cs"
+    ]
+  },
+  "administration:integration-errors": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "GetHospitalUnitById",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/IntegrationExceptions/QueryIntegrationExceptions.cs"
+    ]
+  },
+  "administration:submit-case-owners": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "SubmitVisitOwners",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/SubmitCaseOwners/ConfirmSubmitCaseOwner/ConfirmSubmitCaseOwnerController.cs"
+    ]
+  },
+  "administration:view-auth-message": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "GetAuthorisationMessage",
+    "parameters": "AuthorisationTransaction transaction",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/ViewAuthorisationXml/ViewAuthorisationTransaction/ViewAuthorisationTransactionController.cs"
+    ]
+  },
+  "administration:edit-ward": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "UpdateBed",
+    "parameters": "EditWardContext context, BedDetail bedDetails",
+    "confidence": "confirmed",
+    "sourceCallCount": 5,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/EditWards/EditBed/EditBedController.cs",
+      "Rich/Administration/Client.Implet/EditWards/EditBed/EditBedView.xaml.cs",
+      "Rich/Administration/Client.Implet/EditWards/EditWard/EditWardController.cs",
+      "Rich/Administration/Client.Implet/EditWards/EditWard/EditWardView.xaml.cs"
+    ]
+  },
+  "administration:edit-facilities": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "LoadEditFacilityContext",
+    "parameters": "EditFacilityContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/EditFacilities/EditFacility/EditFacilityController.cs"
+    ]
+  },
+  "administration:edit-theatre": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "UpdateOperatingRoom",
+    "parameters": "EditTheatreContext context, OperatingRoom operatingRoom",
+    "confidence": "confirmed",
+    "sourceCallCount": 5,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/EditTheatres/EditOperatingRoom/EditOperatingRoomController.cs",
+      "Rich/Administration/Client.Implet/EditTheatres/EditOperatingRoom/EditOperatingRoomView.xaml.cs",
+      "Rich/Administration/Client.Implet/EditTheatres/EditTheatre/EditTheatreController.cs",
+      "Rich/Administration/Client.Implet/EditTheatres/EditTheatre/EditTheatreView.xaml.cs"
+    ]
+  },
+  "administration:feature-toggle": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "LoadEditFeatureToggleContext",
+    "parameters": "EditFeatureToggleContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/FeatureToggle/EditFeatureToggle/EditFeatureToggleController.cs"
+    ]
+  },
+  "administration:replay-bill-job": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "UpdateBillJobEventDetails",
+    "parameters": "IList<BillJobEventDetailsDTO> billJobEventDetails",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/BillJobs/ReplayBillJob/ReplayBillJobController.cs"
+    ]
+  },
+  "administration:maintain-hospital": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "UpdateHospitalDepartment",
+    "parameters": "HospitalDepartmentDTO hospitalDepartment",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/MaintainHospital/MaintainHospital/MaintainHospitalController.cs"
+    ]
+  },
+  "administration:manage-workflow": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "Unlock",
+    "parameters": "RichAdministrationUnlockContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/ManageWorkflow/ManageWorkflow/ManageWorkflowController.cs",
+      "Rich/Administration/Client.Implet/ManageWorkflow/ManageWorkflow/ManageWorkflowObjectsView.xaml.cs"
+    ]
+  },
+  "administration:manage-coid-claims": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "GetCoidCOIDBulkSubmissions",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Administration/Client.Implet/ManageCOIDClaims/ManageCOIDClaims/ManageCOIDClaimsController.cs"
+    ]
+  },
+  "administration:invoices-statements": {
+    "serviceInterface": "IConfigurationService",
+    "method": "GetPrintersForConfiguration",
+    "parameters": "int hospitalUnitId, int functionId, int documentJobTypeId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Billing/Client.Implet/InvoicesAndStatements/PrintOptions/PrintOptionsController.cs"
+    ]
+  },
+  "administration:guarantor-statements": {
+    "serviceInterface": "IConfigurationService",
+    "method": "GetPrintersForConfiguration",
+    "parameters": "int hospitalUnitId, int functionId, int documentJobTypeId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Billing/Client.Implet/ConsolidatedInvoicesAndStatements/PrintOptions/PrintOptionsController.cs"
+    ]
+  },
+  "administration:provincial-statements": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "GetHospitalUnitById",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Billing/Client.Implet/ProvincialStatements/ProvincialStatementProcess.cs"
+    ]
+  },
+  "administration:maintain-short-codes": {
+    "serviceInterface": "IConfigurationService",
+    "method": "UpdateFeatureConfiguration",
+    "parameters": "FeatureConfiguration featureConfiguration",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "administration:sanction-practitioner": {
+    "serviceInterface": "IRichAdministrationService",
+    "method": "GetHospitalUnitById",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Practitioner/Client.Implet/Sanction/SanctionPractitionerProcess.cs"
+    ]
+  },
+  "admissions:no-auth-admissions": {
+    "serviceInterface": "IAdmissionService",
+    "method": "SearchForNoAuthAdmissions",
+    "parameters": "NoAuthAdmissionSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdmissionsWithNoAuthorisation/SearchNoAuthAdmissions/SearchNoAuthAdmissionsController.cs"
+    ]
+  },
+  "admissions:no-auth": {
+    "serviceInterface": "IAdmissionService",
+    "method": "LoadPostAdmissionsContext",
+    "parameters": "int medicalEventId",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/NoAuthorisationAdmissions/NoAuthorisationAdmissionsActions.cs"
+    ]
+  },
+  "admissions:admit-a-patient": {
+    "serviceInterface": "IAdmissionService",
+    "method": "CreateConvertPreadmissionContext",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/PreadmissionSearch/ConvertPreadmission/ConvertPreadmissionController.cs",
+      "Rich/Admissions/Client.Implet/PreadmissionSearch/PreadmissionSearchActions.cs"
+    ]
+  },
+  "admissions:move-to-ward": {
+    "serviceInterface": "IAdmissionService",
+    "method": "UnloadConvertAEContext",
+    "parameters": "ConvertAEContext convertContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/TransferAEAdmission/ConvertAEAdmission/ConvertAEAdmissionController.cs"
+    ]
+  },
+  "admissions:discharge-patient": {
+    "serviceInterface": "IAdmissionService",
+    "method": "GetAdmissionLookups",
+    "parameters": "int? hospitalUnitId, int? admissionVisitTypeId = null",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/DischargeAdmissions/CaptureDeparture/CaptureDepartureController.cs",
+      "Rich/Admissions/Client.Implet/DischargeAdmissions/ConfirmDeparture/ConfirmDepartureController.cs",
+      "Rich/Admissions/Client.Implet/DischargeAdmissions/SearchAdmissions/SearchAdmissionsController.cs"
+    ]
+  },
+  "admissions:undischarge-eu-patient": {
+    "serviceInterface": "IAdmissionService",
+    "method": "SearchLookupData",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/UnDischarge/CommonActions.cs",
+      "Rich/Admissions/Client.Implet/UnDischarge/Confirm/ConfirmUnDischargeController.cs",
+      "Rich/Admissions/Client.Implet/UnDischarge/SearchDischargedAdmissions/SearchDischargedAdmissionController.cs",
+      "Rich/Admissions/Client.Implet/UnDischarge/UnDischargeAdmissionMaster.cs"
+    ]
+  },
+  "admissions:view-admission": {
+    "serviceInterface": "IAdmissionService",
+    "method": "LoadAdmissionContext",
+    "parameters": "ElectiveAdmissionContext admissionContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/ViewAdmission/SearchAdmission/SearchAdmissionController.cs",
+      "Rich/Admissions/Client.Implet/ViewAdmission/ViewAdmissionActions.cs"
+    ]
+  },
+  "admissions:register-birth": {
+    "serviceInterface": "IAdmissionService",
+    "method": "RegisterBirth",
+    "parameters": "RegisterBirthContext registerBirthContext, bool integrate",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/RegisterBirth/BirthRegistrationDocuments/PrintBirthRegistrationDocumentsBuilder.cs",
+      "Rich/Admissions/Client.Implet/RegisterBirth/BirthRegistrationDocuments/PrintBirthRegistrationDocumentsController.cs",
+      "Rich/Admissions/Client.Implet/RegisterBirth/BirthRegistrationDocuments/PrintBirthRegistrationDocumentsView.xaml.cs",
+      "Rich/Admissions/Client.Implet/RegisterBirth/BirthRegistrationDocuments/PrintBirthRegistrationDocumentsWAH.cs",
+      "Rich/Admissions/Client.Implet/RegisterBirth/Business/BirthRegistrationStateHandler.cs"
+    ]
+  },
+  "admissions:patient-location": {
+    "serviceInterface": "IAdmissionService",
+    "method": "SearchForWardsDetailed",
+    "parameters": "IList<WardSR> wards, string wardType=null",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AssignWard/AssignWard/AssignWardController.cs"
+    ]
+  },
+  "admissions:cancel-admission": {
+    "serviceInterface": "IAdmissionService",
+    "method": "CancelAdmission",
+    "parameters": "CancelAdmissionContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/CancelVisit/Business/IntegrityManager.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitActions.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitMasterProcess.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitProcess.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/Confirm/ConfirmController.cs"
+    ]
+  },
+  "admissions:miscellaneous-charges": {
+    "serviceInterface": "IAdmissionService",
+    "method": "ProcessAdHocCharges",
+    "parameters": "AdHocChargeContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdHocCharge/Confirm/AdHocChargeConfirmController.cs"
+    ]
+  },
+  "admissions:view-dashboard": {
+    "serviceInterface": "IAdmissionService",
+    "method": "LoadAdmissionContext",
+    "parameters": "ElectiveAdmissionContext admissionContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/ViewDashboard/SearchAdmission/SearchAdmissionController.cs",
+      "Rich/Admissions/Client.Implet/ViewDashboard/ViewDashboardActions.cs"
+    ]
+  },
+  "admissions:discontinue-admission": {
+    "serviceInterface": "IAdmissionService",
+    "method": "DiscontinueAdmission",
+    "parameters": "DiscontinueAdmissionContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/DiscontinueVisit/Business/IntegrityManager.cs",
+      "Rich/Admissions/Client.Implet/DiscontinueVisit/Confirm/ConfirmController.cs",
+      "Rich/Admissions/Client.Implet/DiscontinueVisit/DiscontinueVisitActions.cs",
+      "Rich/Admissions/Client.Implet/DiscontinueVisit/DiscontinueVisitMasterProcess.cs",
+      "Rich/Admissions/Client.Implet/DiscontinueVisit/DiscontinueVisitProcess.cs"
+    ]
+  },
+  "admissions:medical-aid-details": {
+    "serviceInterface": "IAdmissionService",
+    "method": "GetAdmissionLookups",
+    "parameters": "int? hospitalUnitId, int? admissionVisitTypeId = null",
+    "confidence": "confirmed",
+    "sourceCallCount": 31,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdHocCharge/SearchVisit/AdHocChargeSearchVisitController.cs",
+      "Rich/Admissions/Client.Implet/AssignWard/AssignWard/AssignWardController.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitActions.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/COIDAdmission.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/CaptureReasonForAdmission.cs"
+    ]
+  },
+  "admissions:authorisation-search-2": {
+    "serviceInterface": "IAdmissionService",
+    "method": "GetAdmissionLookups",
+    "parameters": "int? hospitalUnitId, int? admissionVisitTypeId = null",
+    "confidence": "confirmed",
+    "sourceCallCount": 31,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdHocCharge/SearchVisit/AdHocChargeSearchVisitController.cs",
+      "Rich/Admissions/Client.Implet/AssignWard/AssignWard/AssignWardController.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitActions.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/COIDAdmission.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/CaptureReasonForAdmission.cs"
+    ]
+  },
+  "admissions:past-coid-admissions": {
+    "serviceInterface": "IAdmissionService",
+    "method": "GetAdmissionLookups",
+    "parameters": "int? hospitalUnitId, int? admissionVisitTypeId = null",
+    "confidence": "confirmed",
+    "sourceCallCount": 31,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdHocCharge/SearchVisit/AdHocChargeSearchVisitController.cs",
+      "Rich/Admissions/Client.Implet/AssignWard/AssignWard/AssignWardController.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitActions.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/COIDAdmission.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/CaptureReasonForAdmission.cs"
+    ]
+  },
+  "admissions:past-injury-admissions": {
+    "serviceInterface": "IAdmissionService",
+    "method": "GetAdmissionLookups",
+    "parameters": "int? hospitalUnitId, int? admissionVisitTypeId = null",
+    "confidence": "confirmed",
+    "sourceCallCount": 31,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdHocCharge/SearchVisit/AdHocChargeSearchVisitController.cs",
+      "Rich/Admissions/Client.Implet/AssignWard/AssignWard/AssignWardController.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitActions.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/COIDAdmission.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/CaptureReasonForAdmission.cs"
+    ]
+  },
+  "admissions:past-poisonings": {
+    "serviceInterface": "IAdmissionService",
+    "method": "GetAdmissionLookups",
+    "parameters": "int? hospitalUnitId, int? admissionVisitTypeId = null",
+    "confidence": "confirmed",
+    "sourceCallCount": 31,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdHocCharge/SearchVisit/AdHocChargeSearchVisitController.cs",
+      "Rich/Admissions/Client.Implet/AssignWard/AssignWard/AssignWardController.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitActions.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/COIDAdmission.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/CaptureReasonForAdmission.cs"
+    ]
+  },
+  "admissions:crash-test-dummy": {
+    "serviceInterface": "IAdmissionService",
+    "method": "GetAdmissionLookups",
+    "parameters": "int? hospitalUnitId, int? admissionVisitTypeId = null",
+    "confidence": "confirmed",
+    "sourceCallCount": 31,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/AdHocCharge/SearchVisit/AdHocChargeSearchVisitController.cs",
+      "Rich/Admissions/Client.Implet/AssignWard/AssignWard/AssignWardController.cs",
+      "Rich/Admissions/Client.Implet/CancelVisit/CancelVisitActions.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/COIDAdmission.cs",
+      "Rich/Admissions/Client.Implet/CaptureAdmission/CaptureReasonForAdmission.cs"
+    ]
+  },
+  "authorisations:transfer-authorisation": {
+    "serviceInterface": "IOutboundAuthorisationIntegrationService",
+    "method": "TransferAuthorisation",
+    "parameters": "AuthorisationNegotiation negotiation, AuthorisationTransfer.AuthorisationTransfer transfer, HospitalUnit hospitalUnit",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/TransferAuthorisation/ConversationConstants.cs",
+      "Rich/Authorisation/Client.Implet/TransferAuthorisation/SelectAuthorisation/SelectAuthorisationBuilder.cs",
+      "Rich/Authorisation/Client.Implet/TransferAuthorisation/SelectAuthorisation/SelectAuthorisationController.cs",
+      "Rich/Authorisation/Client.Implet/TransferAuthorisation/SelectAuthorisation/SelectAuthorisationView.xaml.cs",
+      "Rich/Authorisation/Client.Implet/TransferAuthorisation/SelectAuthorisation/SelectAuthorisationWAH.cs"
+    ]
+  },
+  "authorisations:capture-authorisation": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "LoadCaptureAuthorisationContext",
+    "parameters": "CaptureAuthorisationContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/CentralisedSelectAuthorisationProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationForHospitalProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationProcessActions.cs"
+    ]
+  },
+  "authorisations:rejected-authorisations": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "UnloadRejectedAuthorisationContext",
+    "parameters": "RejectedAuthorisationContext rejectedAuthContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Admissions/Client.Implet/RejectedAuthorisation/AuthorisationSummary/AuthorisationSummaryController.cs"
+    ]
+  },
+  "authorisations:confirm-authorisation": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "ConfirmAuthorisation",
+    "parameters": "ConfirmAuthorisationContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/AuthorisationConfirmationActions.cs",
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/AuthorisationConfirmationProcess.cs",
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/AuthorisationSummary/AuthorisationSummaryController.cs",
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/Business/AuthorisationConfirmationLinkManager.cs",
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/Business/CentralisedNavigationModelBuilder.cs"
+    ]
+  },
+  "authorisations:preadmissions": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "LoadCaptureAuthorisationContext",
+    "parameters": "CaptureAuthorisationContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/CentralisedSelectAuthorisationProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationForHospitalProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationProcessActions.cs"
+    ]
+  },
+  "authorisations:capture-reauthorisation": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "LoadCaptureAuthorisationContext",
+    "parameters": "CaptureAuthorisationContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/CentralisedSelectAuthorisationProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationForHospitalProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationProcess.cs",
+      "Rich/Authorisation/Client.Implet/SelectAuthorisation/SelectAuthorisationProcessActions.cs"
+    ]
+  },
+  "authorisations:resolve-issues": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "SearchIssues",
+    "parameters": "IssueSC searchCritetia",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/ResolveIssues/SelectIssue/SelectIssueController.cs"
+    ]
+  },
+  "authorisations:authorisation-enquiry": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "LoadAuthorisationEnquiryTransactionDetails",
+    "parameters": "AuthorisationEnquirySR transaction",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/AuthorisationEnquiries/AuthorisationEnquiryProcess.cs"
+    ]
+  },
+  "authorisations:rejected-authorisation": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "GetCaptureAuthorisationLookups",
+    "parameters": "int? hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 25,
+    "sourceReferences": [
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/AuthorisationConfirmationProcess.cs",
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/AuthorisationSummary/AuthorisationSummaryController.cs",
+      "Rich/Authorisation/Client.Implet/AuthorisationConfirmation/CentralisedAuthConfirmProcess.cs",
+      "Rich/Authorisation/Client.Implet/CaptureAuthorisationCommon/CentralisedEventDetails/CentralisedEventDetailsController.cs",
+      "Rich/Authorisation/Client.Implet/CaptureAuthorisationCommon/EventDetails/EventDetailsController.cs"
+    ]
+  },
+  "authorisations:view-auth-transaction": {
+    "serviceInterface": "ICoreAuthorisationService",
+    "method": "GetAuthorisationByFunderTransactionNumber",
+    "parameters": "string funderTransactionNumber, string practiceNumber",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Support/Client.Implet/ViewAuthorisation/ViewAuthorisationTransaction/ViewAuthorisationTransactionController.cs"
+    ]
+  },
+  "authorisations:sync-authorisation": {
+    "serviceInterface": "ICoreAuthorisationService",
+    "method": "GetAuthorisationMessage",
+    "parameters": "int messageId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Support/Client.Implet/SyncAuthorisations/Provider/ImpiloAuthorisationProvider.cs"
+    ]
+  },
+  "authorisations:resend-to-biz-talk": {
+    "serviceInterface": "ICoreAuthorisationService",
+    "method": "GetAuthorisationMessage",
+    "parameters": "int messageId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Support/Client.Implet/ResendAuthorisationTransaction/ViewAuthorisationTransactions/ViewAuthorisationTransactionsController.cs"
+    ]
+  },
+  "authorisations:view-mrs-errors": {
+    "serviceInterface": "IAuthorisationService",
+    "method": "LoadLockErrorsForTransfer",
+    "parameters": "TransferAuthorisationContext context",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "billing:invoices-statements": {
+    "serviceInterface": "IRichInvoiceStatementService",
+    "method": "PrintStatementAndInvoices",
+    "parameters": "PrintingDTO printingDTO, string noteType",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Billing/Client.Implet/InvoicesAndStatements/PrintOptions/PrintOptionsController.cs"
+    ]
+  },
+  "billing:guarantor-statements": {
+    "serviceInterface": "IRichInvoiceStatementService",
+    "method": "PrintConsolidatedStatementAndInvoices",
+    "parameters": "PrintingDTO printingDTO, bool sendEmail",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Billing/Client.Implet/ConsolidatedInvoicesAndStatements/PrintOptions/PrintOptionsController.cs"
+    ]
+  },
+  "billing:provincial-statements": {
+    "serviceInterface": "IRichInvoiceStatementService",
+    "method": "PrintProvincialStatements",
+    "parameters": "ProvincialStatementContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Billing/Client.Implet/ProvincialStatements/SearchProvincialStatement/SearchProvincialStatementController.cs"
+    ]
+  },
+  "case-management:manage-case": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "GetCaseManagementLookups",
+    "parameters": "int hospitalUnitId, int? admissionVisitTypeId= null",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/SelectCase/BilledCases/BilledCasesController.cs",
+      "Rich/CaseManagement/Client.Implet/SelectCase/SearchCases/SearchCasesController.cs",
+      "Rich/CaseManagement/Client.Implet/SelectCase/ViewCases/ViewCasesController.cs"
+    ]
+  },
+  "case-management:find-case": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "GetCaseManagementLookups",
+    "parameters": "int hospitalUnitId, int? admissionVisitTypeId= null",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/SelectCase/BilledCases/BilledCasesController.cs",
+      "Rich/CaseManagement/Client.Implet/SelectCase/SearchCases/SearchCasesController.cs",
+      "Rich/CaseManagement/Client.Implet/SelectCase/ViewCases/ViewCasesController.cs"
+    ]
+  },
+  "case-management:unfinal-bill": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "LoadOpenBillContext",
+    "parameters": "OpenBillContext openBillContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/UnFinalBill/CommonActions.cs",
+      "Rich/CaseManagement/Client.Implet/UnFinalBill/Dashboard/DashboardController.cs"
+    ]
+  },
+  "case-management:billing-checks": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "GetCaseManagementLookups",
+    "parameters": "int hospitalUnitId, int? admissionVisitTypeId= null",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/SelectCase/BilledCases/BilledCasesController.cs",
+      "Rich/CaseManagement/Client.Implet/SelectCase/SearchCases/SearchCasesController.cs",
+      "Rich/CaseManagement/Client.Implet/SelectCase/ViewCases/ViewCasesController.cs"
+    ]
+  },
+  "case-management:finalise-bill": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "SearchForCases",
+    "parameters": "CaseManEventSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/ManageBillingChecks/OPDashboard/OPDashBoardController.cs"
+    ]
+  },
+  "case-management:resolve-issues": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "CreateIssuesContext",
+    "parameters": "int medicalEventyId",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/CaseManagementIssues/ViewIssues/ViewIssuesController.cs"
+    ]
+  },
+  "case-management:escalation-to-national": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "GetCaseManagementLookups",
+    "parameters": "int hospitalUnitId, int? admissionVisitTypeId= null",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/EscalatedIssues/CaseSummary/CaseSummaryController.cs"
+    ]
+  },
+  "case-management:enquiries": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "UnloadEnquiriesContext",
+    "parameters": "EnquiriesContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/Enquiries/CaseSummary/CaseSummaryController.cs",
+      "Rich/CaseManagement/Client.Implet/Enquiries/EnquiriesProcess.cs"
+    ]
+  },
+  "case-management:assign-cases": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "LoadCaseManagerRosterContext",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/CaseAllocation/CaseManagerRoster/CaseManagerRosterController.cs",
+      "Rich/CaseManagement/Client.Implet/CaseAllocation/CaseManagerRosterProcess.cs"
+    ]
+  },
+  "case-management:case-manager-roster": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "LoadCaseManagerRosterContext",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/CaseAllocation/CaseManagerRoster/CaseManagerRosterController.cs",
+      "Rich/CaseManagement/Client.Implet/CaseAllocation/CaseManagerRosterProcess.cs"
+    ]
+  },
+  "case-management:manage-billing-checks": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "SearchForCases",
+    "parameters": "CaseManEventSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/ManageBillingChecks/OPDashboard/OPDashBoardController.cs"
+    ]
+  },
+  "case-management:summary-visit-enquiry": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "LoadPatientDetailsContext",
+    "parameters": "PatientDetailsContext context, bool loadFullFundingInfo = false",
+    "confidence": "confirmed",
+    "sourceCallCount": 9,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/SummaryVisitEnquiry/CoidDetail/CoidDetailController.cs",
+      "Rich/CaseManagement/Client.Implet/SummaryVisitEnquiry/EmergencyContactDetail/EmergencyContactDetailController.cs",
+      "Rich/CaseManagement/Client.Implet/SummaryVisitEnquiry/FunderDetail/FunderDetailController.cs",
+      "Rich/CaseManagement/Client.Implet/SummaryVisitEnquiry/GuarantorDetail/GuarantorDetailController.cs",
+      "Rich/CaseManagement/Client.Implet/SummaryVisitEnquiry/MainMemberDetail/MainMemberDetailController.cs"
+    ]
+  },
+  "case-management:case-administration": {
+    "serviceInterface": "ICaseManagementService",
+    "method": "ReauthoriseCaseManagementContext",
+    "parameters": "CaseManagementContext caseManagementContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/CaseManagement/Client.Implet/CaseAdministration/CommonActions.cs"
+    ]
+  },
+  "clinical-assessment:assess-patient": {
+    "serviceInterface": "IObservationService",
+    "method": "GetPhenomenon",
+    "parameters": "int phenomenonId",
+    "confidence": "confirmed",
+    "sourceCallCount": 54,
+    "sourceReferences": [
+      "Rich/Assessment/Client.Implet/ActionAssessment/Documents/ClinicalRecord/ClinicalRecordBuilder.cs",
+      "Rich/Assessment/Client.Implet/ClinicalAssessment/Acuity/One/AcuityAssessmentOneObservationsAdapter.cs",
+      "Rich/Assessment/Client.Implet/ClinicalAssessment/Acuity/Two/AcuityAssessmentTwoObservationsAdapter.cs",
+      "Rich/Assessment/Client.Implet/ClinicalAssessment/Consideration/Information/ConsiderationsInformationStateController.cs",
+      "Rich/Assessment/Client.Implet/ClinicalAssessment/Consideration/Treatment/ConsiderationsAdditionalInformationObservationsAdapter.cs"
+    ]
+  },
+  "clinical-assessment:view-assessment": {
+    "serviceInterface": "IClinicalService",
+    "method": "LoadAssessmentById",
+    "parameters": "int assessmentId",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Assessment/Client.Implet/ViewAssessment/Search/DirectSearchController.cs",
+      "Rich/Assessment/Client.Implet/ViewAssessment/ViewAssessmentActions.cs"
+    ]
+  },
+  "clinical-coding:maintain-icd-subset": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SaveCPTList",
+    "parameters": "CPTList cptList",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "clinical-coding:maintain-cpt-subset": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SaveCPTList",
+    "parameters": "CPTList cptList",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "clinical-coding:maintain-icd-codes": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SaveCPTList",
+    "parameters": "CPTList cptList",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "clinical-coding:maintain-cpt-codes": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SaveCPTList",
+    "parameters": "CPTList cptList",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "clinical-coding:maintain-cpt-crossmap": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SaveCPTList",
+    "parameters": "CPTList cptList",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "clinical-coding:maintain-sadanrpl": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SearchForSADANRPLCodesByCode",
+    "parameters": "string codeString",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Encoding/Client.Implet/MaintainSADANRPL/MaintainSADANRPLController.cs"
+    ]
+  },
+  "clinical-coding:maintain-predictables": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SearchForLookupData",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Encoding/Client.Implet/MaintainCPTLists/SelectCPTList/SelectCPTListController.cs"
+    ]
+  },
+  "clinical-coding:maintain-coding-lists": {
+    "serviceInterface": "IRichEncodingService",
+    "method": "SearchForLookupData",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Encoding/Client.Implet/MaintainCPTLists/MaintainCPTLists/MaintainCPTListController.cs",
+      "Rich/Encoding/Client.Implet/MaintainCPTLists/SelectCPTList/SelectCPTListController.cs"
+    ]
+  },
+  "coid:manage-coid": {
+    "serviceInterface": "IRichCoidService",
+    "method": "GetLookupData",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/Coid/Client.Implet/ManageCoid/CoidDetails/CoidDetailsController.cs",
+      "Rich/Coid/Client.Implet/ManageCoid/InjuryDetails/InjuryDetailsController.cs",
+      "Rich/Coid/Client.Implet/ManageCoid/ManageImages/ManageImageController.cs",
+      "Rich/Coid/Client.Implet/ManageCoid/ManageNotes/ManageNotesController.cs",
+      "Rich/Coid/Client.Implet/ManageCoid/PoisonDetails/PoisonDetailsController.cs"
+    ]
+  },
+  "funding:carrier-search": {
+    "serviceInterface": "IRichFundingService",
+    "method": "FindCarrierByName",
+    "parameters": "string name, bool IsActive, bool IsInActive",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainCarrier/SearchCarrier/SearchCarrierController.cs"
+    ]
+  },
+  "funding:maintain-administrators": {
+    "serviceInterface": "IFundingService",
+    "method": "DeleteAdministrator",
+    "parameters": "AdministratorDTO administrator",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainAdministrator/SearchAdministrator/SearchAdministratorController.cs",
+      "Rich/Funding/Client.Implet/MaintainAdministrator/SearchAdministrator/SearchAdministratorView.xaml.cs"
+    ]
+  },
+  "funding:funder-search": {
+    "serviceInterface": "IRichFundingService",
+    "method": "FindFunder",
+    "parameters": "string name, int countryId = 1",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainFunder/SearchFunder/SearchFunderController.cs"
+    ]
+  },
+  "funding:maintain-mcos": {
+    "serviceInterface": "IFundingService",
+    "method": "SaveOrUpdateManagedCareOrganisation",
+    "parameters": "ManagedCareOrganisation managedCareOrganisation",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainMCO/MaintainMCO/MaintainMCOController.cs"
+    ]
+  },
+  "funding:maintain-funds": {
+    "serviceInterface": "IFundingService",
+    "method": "FindLookupData",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 11,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainFunds/MaintainClaimChannels/MaintainClaimChannelsController.cs",
+      "Rich/Funding/Client.Implet/MaintainFunds/MaintainFundingRules/MaintainFundingRulesController.cs"
+    ]
+  },
+  "funding:maintain-cpt-costs": {
+    "serviceInterface": "IFundingService",
+    "method": "SaveOrUpdateProcedureCost",
+    "parameters": "ProcedureCost procedureCost",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainProcedureCosts/SearchProcedureCost/SearchProcedureCostController.cs"
+    ]
+  },
+  "funding:maintain-claim-rules": {
+    "serviceInterface": "IFundingService",
+    "method": "SaveOrUpdateClaimSubmissionRule",
+    "parameters": "ClaimSubmissionRulesDTO rule",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainClaimSubmissionRules/ConfirmClaimSubmissionRules/ConfirmClaimSubmissionRulesController.cs"
+    ]
+  },
+  "funding:maintain-claim-xml": {
+    "serviceInterface": "IFundingService",
+    "method": "SaveOrUpdateClaimXMLFormat",
+    "parameters": "ClaimXMLFormatDTO formatDTO",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainClaimXMLFormat/ConfirmClaimXMLFormat/ConfirmClaimXMLFormatController.cs"
+    ]
+  },
+  "funding:maintain-hospital": {
+    "serviceInterface": "IFundingService",
+    "method": "SaveOrUpdateHospitalMarkup",
+    "parameters": "HospitalMarkup hospitalMarkup",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Funding/Client.Implet/MaintainHospitalMargin/SearchHospitalMargin/SearchHospitalMarginController.cs"
+    ]
+  },
+  "funding:medical-aid-details": {
+    "serviceInterface": "ICOIDService",
+    "method": "GetActiveFunds",
+    "parameters": "DateTime? admissionDate, int countryId",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Funding/Client.UI/InsuranceDetails/InsuranceDetailsConfiguration.cs",
+      "Rich/Funding/Client.UI/InsuranceDetails/InsuranceDetailsController.cs",
+      "Rich/Funding/Client.UI/MedicalAidDetails/MedicalAidDetailsConfiguration.cs",
+      "Rich/Funding/Client.UI/MedicalAidDetails/MedicalAidDetailsController.cs",
+      "Rich/Funding/Client.UI/PrivateDetails/PrivateDetailsController.cs"
+    ]
+  },
+  "integrations-and-support:view-auth-transaction": {
+    "serviceInterface": "IIntegrationService",
+    "method": "GetPatientAccountByVisitImedsId",
+    "parameters": "string visitImedsId, int hospitalId",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "integrations-and-support:sync-authorisation": {
+    "serviceInterface": "ISubscriberHospitalAuthorisationService",
+    "method": "ProcessAuthorisationRequest",
+    "parameters": "string data",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "integrations-and-support:view-mrs-errors": {
+    "serviceInterface": "IIntegrationService",
+    "method": "GetPatientAccountByVisitImedsId",
+    "parameters": "string visitImedsId, int hospitalId",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "medical-events:authorisation-search": {
+    "serviceInterface": "IMedicalEventService",
+    "method": "IsElectronicAuthorisationRequestEnabled",
+    "parameters": "int hospitalUnitId, int visitTypeId",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "medical-events:authorisation-mad": {
+    "serviceInterface": "IMedicalEventService",
+    "method": "IsElectronicAuthorisationRequestEnabled",
+    "parameters": "int hospitalUnitId, int visitTypeId",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "medical-events:manage-authorisation": {
+    "serviceInterface": "IMedicalEventService",
+    "method": "IsElectronicAuthorisationRequestEnabled",
+    "parameters": "int hospitalUnitId, int visitTypeId",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "member-validation:verify-patient-and-guarantor": {
+    "serviceInterface": "ICoreMemberValidationService",
+    "method": "SendVerificationRequest",
+    "parameters": "Person Patient, Person Guarantor, PatientAndGuarantorConsent consent",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Core/MemberValidation"
+    ]
+  },
+  "member-validation:validate-medical-aid-membership": {
+    "serviceInterface": "ICoreMemberValidationService",
+    "method": "SendValidationRequest",
+    "parameters": "Person Patient, Person Guarantor, PatientAndGuarantorConsent consent",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Core/MemberValidation"
+    ]
+  },
+  "member-validation:capture-patient-and-guarantor-consent": {
+    "serviceInterface": "ICoreMemberValidationService",
+    "method": "PersistPatientAndGuarantorConsent",
+    "parameters": "PatientAndGuarantorConsent consent",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Core/MemberValidation"
+    ]
+  },
+  "member-validation:review-validation-result": {
+    "serviceInterface": "ICoreMemberValidationService",
+    "method": "LoadALLValidationResponseByTransaction",
+    "parameters": "string transactionNumber",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Core/MemberValidation"
+    ]
+  },
+  "member-validation:retry-member-validation": {
+    "serviceInterface": "ICoreMemberValidationService",
+    "method": "SendValidationRequest",
+    "parameters": "Person Patient, Person Guarantor, PatientAndGuarantorConsent consent",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Core/MemberValidation"
+    ]
+  },
+  "multitouch-theatre:edit-theatre-procedure": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "SearchForNonConsumables",
+    "parameters": "NonConsumableSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Theatre/Client/ChartEvent/CaptureNonConsumables/CaptureNonConsumablesController.cs",
+      "Rich/Theatre/Client/ChartEvent/CaptureStock/CaptureStockController.cs"
+    ]
+  },
+  "multitouch-theatre:complete-register": {
+    "serviceInterface": "IChannelTheatreService",
+    "method": "SearchForTheatreEvents",
+    "parameters": "string hospitalProviderSpellIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 7,
+    "sourceReferences": [
+      "Rich/Theatre/Client/CompleteTheatreRegister/SearchForRegisterTheatreEvents/SearchForRegisterTheatreEventsController.cs",
+      "Rich/Theatre/Client/CompleteTheatreRegister/SearchForRegisterTheatreEvents/SearchForRegisterTheatreEventsView.xaml.cs"
+    ]
+  },
+  "multitouch-theatre:cancel-procedure": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "CancelTheatreEvent",
+    "parameters": "ChartEventContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Theatre/Client/CancelEvent/ConfirmCancelEvent/ConfirmCancelEventController.cs"
+    ]
+  },
+  "multitouch-theatre:approve-theatre-bill": {
+    "serviceInterface": "IChannelTheatreService",
+    "method": "SearchForTheatreEvents",
+    "parameters": "string hospitalProviderSpellIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 10,
+    "sourceReferences": [
+      "Rich/Theatre/Client/ChargeEvent/Dashboard/DashboardController.cs"
+    ]
+  },
+  "multitouch-theatre:edit-preference-card": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "PrintPreferenceCard",
+    "parameters": "int preferenceCardId, int quantity, Printer printer",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Theatre/Client/EditPreferenceCard/SearchForCard/SearchForCardController.cs",
+      "Rich/Theatre/Client/EditPreferenceCard/SearchForCard/SearchForCardView.xaml.cs"
+    ]
+  },
+  "multitouch-theatre:edit-stock-template": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "PrintTemplate",
+    "parameters": "int templateId, int quantity, Printer printer",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Theatre/Client/EditTemplate/SearchForTemplate/SearchForTemplateController.cs",
+      "Rich/Theatre/Client/EditTemplate/SearchForTemplate/SearchForTemplateView.xaml.cs"
+    ]
+  },
+  "multitouch-theatre:prepare-trolley": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "PrintTrolleyContents",
+    "parameters": "int trolleyId, int quantity, Printer printer",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Theatre/Client/PrepareTrolley/SearchForTrolley/SearchForTrolleyController.cs",
+      "Rich/Theatre/Client/PrepareTrolley/SearchForTrolley/SearchForTrolleyView.xaml.cs"
+    ]
+  },
+  "multitouch-ward:edit-nursing-card": {
+    "serviceInterface": "IChannelWardService",
+    "method": "SearchForNonConsumables",
+    "parameters": "string wardIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/Ward/Client/EditNursingCard/CaptureFees/CaptureFeesController.cs",
+      "Rich/Ward/Client/EditNursingCard/CaptureGas/CaptureGasController.cs",
+      "Rich/Ward/Client/EditNursingCard/ChargeEquipment/ChargeEquipmentController.cs"
+    ]
+  },
+  "multitouch-ward:bill-ward-treatments": {
+    "serviceInterface": "IChannelWardService",
+    "method": "SearchForNonConsumables",
+    "parameters": "string wardIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 15,
+    "sourceReferences": [
+      "Rich/Ward/Client/WardEvent/ChargeEquipment/ChargeEquipmentController.cs",
+      "Rich/Ward/Client/WardEvent/ChargeFees/ChargeFeesController.cs",
+      "Rich/Ward/Client/WardEvent/ChargeGas/ChargeGasController.cs",
+      "Rich/Ward/Client/WardEvent/SearchForWardVisit/SearchForWardVisitController.cs"
+    ]
+  },
+  "multitouch-ward:edit-ward-treatments": {
+    "serviceInterface": "IRichWardService",
+    "method": "SearchForWardEvents",
+    "parameters": "WardEventSC wardEventSC",
+    "confidence": "confirmed",
+    "sourceCallCount": 8,
+    "sourceReferences": [
+      "Rich/Ward/Client/CreditWardTreatments/CreditTreatment/CreditTreatmentController.cs",
+      "Rich/Ward/Client/CreditWardTreatments/CreditTreatment/CreditTreatmentView.xaml.cs"
+    ]
+  },
+  "multitouch-ward:additional-specialist": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "LoadAlternateDoctorContext",
+    "parameters": "AlternateDoctorContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/AlternateDoctorMaintenance/EditAlternateDoctorProcess.cs"
+    ]
+  },
+  "multitouch-ward:edit-accommodation": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "UpdateAccommodationEvent",
+    "parameters": "AccommodationContext context, AccommodationEvent accommodationEvent",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/AccommodationCorrection/EditAccommodation/EditAccommodationController.cs",
+      "Rich/WardManagement/Client.Implet/AccommodationCorrection/EditAccommodation/EditAccommodationView.xaml.cs"
+    ]
+  },
+  "multitouch-ward:print-ward-documents": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "SearchForPrintDocumentPatients",
+    "parameters": "AccommodationSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/PrintWardDocuments/PatientSearch/PatientSearchController.cs",
+      "Rich/WardManagement/Client.Implet/PrintWardDocuments/PrintWardDocumentsController.cs"
+    ]
+  },
+  "multitouch-ward:hospital-occupancy": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "LoadHospitalSummaryContext",
+    "parameters": "HospitalSummaryContext hospitalSummaryContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/HospitalOccupancy/HospitalOccupancyProcess.cs"
+    ]
+  },
+  "mylife-portal:registration-vetting": {
+    "serviceInterface": "IHospitalUserInstructionService",
+    "method": "LockAndLoadHospitalUserInstructionContext",
+    "parameters": "int instructionId, int userEntityId, string lockMessage",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Portal/Client.Implet/Registration/InstructionSearch/InstructionSearchController.cs"
+    ]
+  },
+  "mylife-portal:view-theatre-bookings": {
+    "serviceInterface": "ITheatreBookingInstructionService",
+    "method": "LockAndLoadTheatreBookingInstructionContext",
+    "parameters": "int instructionId, int? userEntityId, string lockMessage",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Portal/Client.Implet/TheatreBooking/InstructionSearch/InstructionSearchController.cs"
+    ]
+  },
+  "patient-maintenance:register-patient": {
+    "serviceInterface": "IEntitiesService",
+    "method": "SearchNaturalPersonLikelyMatches",
+    "parameters": "NaturalPersonMatchSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Patient/Client.Implet/Register/RegisterPatientActions.cs"
+    ]
+  },
+  "patient-maintenance:print-past-documents": {
+    "serviceInterface": "IRichEntitiesService",
+    "method": "PrintPastDocument",
+    "parameters": "DocumentJob documentJob, Printer printer, int quantity",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Patient/Client.Implet/PastDocuments/PastDocumentsMaster.cs",
+      "Rich/Patient/Client.Implet/PastDocuments/PatientRecord/PatientRecordStateController.cs",
+      "Rich/Patient/Client.Implet/PastDocuments/PersonSearch/PersonSearchStateController.cs",
+      "Rich/Patient/Client.Implet/PastDocuments/PrintAndPreviewDocument/PrintAndPreviewDocumentController.cs",
+      "Rich/Patient/Client.Implet/PastDocuments/ViewPatientPastDocumentsProcess.cs"
+    ]
+  },
+  "patient-maintenance:update-contact-details": {
+    "serviceInterface": "IEntitiesService",
+    "method": "GetAllEntityLookups",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Patient/Client.Implet/UpdateContactDetails/GuarantorInformationSummary/GuarantorInformationStateController.cs",
+      "Rich/Patient/Client.Implet/UpdateContactDetails/PatientInformationSummary/PatientInformationStateController.cs",
+      "Rich/Patient/Client.Implet/UpdateContactDetails/PersonSearch/PersonSearchStateController.cs"
+    ]
+  },
+  "pharmacy:dispense": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForProductPackages",
+    "parameters": "ProductPackageSC productPackageSC",
+    "confidence": "confirmed",
+    "sourceCallCount": 5,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/Dispense/AdhocCompoundIngredients/AdhocCompoundIngredientsController.cs",
+      "Rich/Pharmacy/Client.Implet/Dispense/SearchForMedication/SearchForMedicationController.cs",
+      "Rich/Pharmacy/Client.Implet/Dispense/SearchForMedication/SearchForMedicationView.xaml.cs"
+    ]
+  },
+  "pharmacy:dispense-with-repeats": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "AddPractitionerToDispense",
+    "parameters": "DispenseContext context, PractitionerSR practitioner",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/Repeats/DispenseRepeatsActions.cs"
+    ]
+  },
+  "pharmacy:dispense-from-ward": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForLookups",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/DispenseRequest/AdhocCompoundInformation/AdhocCompoundInformationController.cs",
+      "Rich/Pharmacy/Client.Implet/DispenseRequest/AdhocCompoundIngredients/AdhocCompoundIngredientsController.cs",
+      "Rich/Pharmacy/Client.Implet/DispenseRequest/MedicationDetails/MedicationDetailsController.cs",
+      "Rich/Pharmacy/Client.Implet/DispenseRequest/RecipeCompoundInformation/RecipeCompoundInformationController.cs"
+    ]
+  },
+  "pharmacy:copy-prescription": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForLookups",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/CopyPrescription/CompoundInformation/CompoundInformationController.cs",
+      "Rich/Pharmacy/Client.Implet/CopyPrescription/MedicationDetails/MedicationDetailsController.cs"
+    ]
+  },
+  "pharmacy:maintain-compounds": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForLookups",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 8,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/MaintainCompounds/CompoundInformation/CompoundInformationController.cs",
+      "Rich/Pharmacy/Client.Implet/MaintainCompounds/CompoundIngredients/CompoundIngredientsController.cs",
+      "Rich/Pharmacy/Client.Implet/MaintainCompounds/ConfirmCompound/ConfirmCompoundController.cs",
+      "Rich/Pharmacy/Client.Implet/MaintainCompounds/ReviewFormulaForCompound/ReviewFormulaForCompoundController.cs"
+    ]
+  },
+  "pharmacy:compounding-request": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "RemoveCompoundingRequest",
+    "parameters": "CompoundingRequestSR compoundingRequestSR",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/CompoundingRequest/CompoundingRequestActions.cs",
+      "Rich/Pharmacy/Client.Implet/CompoundingRequest/CompoundingRequestProcess.cs",
+      "Rich/Pharmacy/Client.Implet/CompoundingRequest/CompoundingRequestProcessChoice.cs",
+      "Rich/Pharmacy/Client.Implet/CompoundingRequest/CompoundingRequests/CompoundingRequestsController.cs"
+    ]
+  },
+  "pharmacy:ward-compounding": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "LoadCompoundingContext",
+    "parameters": "CompoundingContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/WardCompounding/CompoundRequests/CompoundRequestsController.cs"
+    ]
+  },
+  "pharmacy:manage-labels": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForHospitalUnit",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/ManageLabels/ManageLabelsProcess.cs"
+    ]
+  },
+  "pharmacy:ad-hoc-label": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForLookups",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/AdhocLabels/AdhocLabelProductSearch/AdhocLabelProductSearchController.cs",
+      "Rich/Pharmacy/Client.Implet/AdhocLabels/PrintAdhocLabel/PrintAdhocLabelController.cs"
+    ]
+  },
+  "pharmacy:credit-stock": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "LoadCreditContext",
+    "parameters": "CreditContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/CreditStock/CreditStock/CreditStockController.cs",
+      "Rich/Pharmacy/Client.Implet/CreditStock/CreditStockActions.cs"
+    ]
+  },
+  "pharmacy:fulfill-ward-dispense": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForVisitToFollows",
+    "parameters": "ToFollowVisitSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/ToFollow/ViewToFollow/ViewToFollowController.cs"
+    ]
+  },
+  "pharmacy:fulfill-to-follows": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForVisitToFollows",
+    "parameters": "ToFollowVisitSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/ToFollow/ViewToFollow/ViewToFollowController.cs"
+    ]
+  },
+  "pharmacy:enquire-on-patient": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForLookups",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 39,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/AdhocLabels/AdhocLabelProductSearch/AdhocLabelProductSearchController.cs",
+      "Rich/Pharmacy/Client.Implet/AdhocLabels/PrintAdhocLabel/PrintAdhocLabelController.cs",
+      "Rich/Pharmacy/Client.Implet/BatchCapture/CaptureMedication/CaptureMedicationController.cs",
+      "Rich/Pharmacy/Client.Implet/Common/PatientProfile/PatientProfileController.cs",
+      "Rich/Pharmacy/Client.Implet/Common/SearchForMedicalEvent/SearchForMedicalEventController.cs"
+    ]
+  },
+  "pharmacy:batch-capture": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForPractitioner",
+    "parameters": "PractitionerSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/BatchCapture/BatchCaptureSubProcess.cs",
+      "Rich/Pharmacy/Client.Implet/BatchCapture/CaptureMedication/CaptureMedicationController.cs",
+      "Rich/Pharmacy/Client.Implet/BatchCapture/CaptureMedication/CaptureMedicationView.xaml.cs"
+    ]
+  },
+  "pharmacy:maintain-short-codes": {
+    "serviceInterface": "IRichPharmacyAdministrationService",
+    "method": "UpdatePharmacyAbbreviationContext",
+    "parameters": "PrescriptionAbbreviationContext prescriptionAbbreviationContext, PrescriptionAbbreviation prescriptionAbbreviation",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/MaintainAbbreviations/MaintainAbbreviationsController.cs"
+    ]
+  },
+  "pharmacy:retail-sales": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForLookups",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 8,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/DispenseAccount/AdhocCompoundInformation/AdhocCompoundInformationController.cs",
+      "Rich/Pharmacy/Client.Implet/DispenseAccount/AdhocCompoundIngredients/AdhocCompoundIngredientsController.cs",
+      "Rich/Pharmacy/Client.Implet/DispenseAccount/MedicationDetails/MedicationDetailsController.cs",
+      "Rich/Pharmacy/Client.Implet/DispenseAccount/PatientProfileProcess.cs",
+      "Rich/Pharmacy/Client.Implet/DispenseAccount/RecipeCompoundInformation/RecipeCompoundInformationController.cs"
+    ]
+  },
+  "pharmacy:emergency-cupboard": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForProductPackages",
+    "parameters": "ProductPackageSC productPackageSC",
+    "confidence": "confirmed",
+    "sourceCallCount": 5,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/Dispense/AdhocCompoundIngredients/AdhocCompoundIngredientsController.cs",
+      "Rich/Pharmacy/Client.Implet/Dispense/SearchForMedication/SearchForMedicationController.cs",
+      "Rich/Pharmacy/Client.Implet/Dispense/SearchForMedication/SearchForMedicationView.xaml.cs"
+    ]
+  },
+  "pharmacy:issue-surgicals": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "SearchForProductPackages",
+    "parameters": "ProductPackageSC productPackageSC",
+    "confidence": "confirmed",
+    "sourceCallCount": 5,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/Dispense/AdhocCompoundIngredients/AdhocCompoundIngredientsController.cs",
+      "Rich/Pharmacy/Client.Implet/Dispense/SearchForMedication/SearchForMedicationController.cs",
+      "Rich/Pharmacy/Client.Implet/Dispense/SearchForMedication/SearchForMedicationView.xaml.cs"
+    ]
+  },
+  "pharmacy:dispense-to-take-out": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "LoadDispenseContext",
+    "parameters": "DispenseContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/TTO/TTOProcessActions.cs"
+    ]
+  },
+  "pharmacy:practitioner-account": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "LockPractitionerAccountContext",
+    "parameters": "PractitionerAccountContext context, int? userEntityId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/PractitionerAccount/SearchPractitioner/SearchPractitionerController.cs"
+    ]
+  },
+  "pharmacy:pharmacy-account": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "UpdateAccountStatus",
+    "parameters": "int? accountId, AccountStatusTypeCodeData? AccountStatus",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/PharmacyAccount/PharmacyAccount/PharmacyAccountController.cs"
+    ]
+  },
+  "pharmacy:cancel-retail-sale": {
+    "serviceInterface": "IRichPharmacyService",
+    "method": "ReverseRetailSale",
+    "parameters": "RetailSaleReversalContext searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Pharmacy/Client.Implet/ReverseRetailSale/Business/ReverseRetailSaleIntegrityManager.cs",
+      "Rich/Pharmacy/Client.Implet/ReverseRetailSale/Business/ReverseRetailSaleNavigationModelBuilder.cs",
+      "Rich/Pharmacy/Client.Implet/ReverseRetailSale/Business/ReverseRetailSaleProcessManager.cs",
+      "Rich/Pharmacy/Client.Implet/ReverseRetailSale/ConfirmSaleReversal/ConfirmSaleReversalBuilder.cs",
+      "Rich/Pharmacy/Client.Implet/ReverseRetailSale/ConfirmSaleReversal/ConfirmSaleReversalController.cs"
+    ]
+  },
+  "practitioners:sanction-practitioner": {
+    "serviceInterface": "IRichPractitionerManagementService",
+    "method": "LoadSanctionPractitionerContext",
+    "parameters": "SanctionPractitionerContext context, int? userEntityId",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Practitioner/Client.Implet/Sanction/SearchPractitioner/SearchPractitionerController.cs"
+    ]
+  },
+  "practitioners:doctor-search": {
+    "serviceInterface": "ICorePractitionerService",
+    "method": "FindLookupData",
+    "parameters": "",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Practitioner/Client.Implet/DoctorSearch/DoctorSearchController.cs"
+    ]
+  },
+  "preadmission:assess-patient": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "PrintAdmissionAndDischargeRecord",
+    "parameters": "ObservationContext observationContext,PreadmissionEvent preadmission,Person patient, int nrOfCopies, Printer printer",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Assessment/Client.Implet/ActionAssessment/Documents/ClinicalRecord/PrintRecordsController.cs",
+      "Rich/Assessment/Client.Implet/ActionAssessment/Documents/ClinicalRecord/PrintRecordsView.xaml.cs"
+    ]
+  },
+  "preadmission:view-assessment": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "GetClinicalViewerUrl",
+    "parameters": "string userName, string userEmail",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Assessment/Client.Implet/ViewAssessment/Business/ViewAssessmentLinkManager.cs"
+    ]
+  },
+  "preadmission:preadmit-patient": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "CreatePatientContext",
+    "parameters": "int hospitalUnitId",
+    "confidence": "probable",
+    "sourceCallCount": 0,
+    "sourceReferences": []
+  },
+  "preadmission:preadmission-search": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "GetPreadmissionLookups",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Preadmission/Client.Implet/PreadmissionSearch/PreadmissionSearchProcess.cs"
+    ]
+  },
+  "preadmission:view-preadmission": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "LoadViewPreadmissionContext",
+    "parameters": "ViewPreadmissionContext viewPreadmissionContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Preadmission/Client.Implet/ViewPreadmission/SearchPreadmission/SearchPreadmissionController.cs"
+    ]
+  },
+  "preadmission:cancel-preadmission": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "CancelAdmission",
+    "parameters": "CancelPreadmissionContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Preadmission/Client.Implet/CancelPreadmission/Business/IntegrityManager.cs",
+      "Rich/Preadmission/Client.Implet/CancelPreadmission/Confirm/ConfirmController.cs",
+      "Rich/Preadmission/Client.Implet/CancelPreadmission/SearchVisit/SearchVisitController.cs"
+    ]
+  },
+  "preadmission:patient-profile": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "GetPreadmissionLookups",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 14,
+    "sourceReferences": [
+      "Rich/Preadmission/Client.Implet/CancelPreadmission/CancelPreadmissionActions.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/CaptureGovermentDetails.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/CaptureMedicalAidDetails.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/ReasonForAdmission/ReasonForAdmissionController.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/VerifyPreadmission/VerifyPreadmissionController.cs"
+    ]
+  },
+  "preadmission:guarantor-profile": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "GetPreadmissionLookups",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 14,
+    "sourceReferences": [
+      "Rich/Preadmission/Client.Implet/CancelPreadmission/CancelPreadmissionActions.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/CaptureGovermentDetails.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/CaptureMedicalAidDetails.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/ReasonForAdmission/ReasonForAdmissionController.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/VerifyPreadmission/VerifyPreadmissionController.cs"
+    ]
+  },
+  "preadmission:detailed-information": {
+    "serviceInterface": "IPreadmissionService",
+    "method": "GetPreadmissionLookups",
+    "parameters": "int hospitalUnitId",
+    "confidence": "confirmed",
+    "sourceCallCount": 14,
+    "sourceReferences": [
+      "Rich/Preadmission/Client.Implet/CancelPreadmission/CancelPreadmissionActions.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/CaptureGovermentDetails.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/CaptureMedicalAidDetails.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/ReasonForAdmission/ReasonForAdmissionController.cs",
+      "Rich/Preadmission/Client.Implet/CapturePreadmission/VerifyPreadmission/VerifyPreadmissionController.cs"
+    ]
+  },
+  "reimbursements:payment-receipting": {
+    "serviceInterface": "IRichReimbursementService",
+    "method": "SearchForAccounts",
+    "parameters": "AccountSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/Reimbursement/Client.Implet/Receipting/PatientAccountSearch/PatientAccountSearchController.cs"
+    ]
+  },
+  "theatre-management:edit-theatre-procedure": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "SearchForNonConsumables",
+    "parameters": "NonConsumableSC searchCriteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Theatre/Client/ChartEvent/CaptureNonConsumables/CaptureNonConsumablesController.cs",
+      "Rich/Theatre/Client/ChartEvent/CaptureStock/CaptureStockController.cs"
+    ]
+  },
+  "theatre-management:complete-register": {
+    "serviceInterface": "IChannelTheatreService",
+    "method": "SearchForTheatreEvents",
+    "parameters": "string hospitalProviderSpellIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 7,
+    "sourceReferences": [
+      "Rich/Theatre/Client/CompleteTheatreRegister/SearchForRegisterTheatreEvents/SearchForRegisterTheatreEventsController.cs",
+      "Rich/Theatre/Client/CompleteTheatreRegister/SearchForRegisterTheatreEvents/SearchForRegisterTheatreEventsView.xaml.cs"
+    ]
+  },
+  "theatre-management:cancel-procedure": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "CancelTheatreEvent",
+    "parameters": "ChartEventContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/Theatre/Client/CancelEvent/ConfirmCancelEvent/ConfirmCancelEventController.cs"
+    ]
+  },
+  "theatre-management:approve-theatre-bill": {
+    "serviceInterface": "IChannelTheatreService",
+    "method": "SearchForTheatreEvents",
+    "parameters": "string hospitalProviderSpellIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 10,
+    "sourceReferences": [
+      "Rich/Theatre/Client/ChargeEvent/Dashboard/DashboardController.cs"
+    ]
+  },
+  "theatre-management:edit-preference-card": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "PrintPreferenceCard",
+    "parameters": "int preferenceCardId, int quantity, Printer printer",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Theatre/Client/EditPreferenceCard/SearchForCard/SearchForCardController.cs",
+      "Rich/Theatre/Client/EditPreferenceCard/SearchForCard/SearchForCardView.xaml.cs"
+    ]
+  },
+  "theatre-management:edit-stock-template": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "PrintTemplate",
+    "parameters": "int templateId, int quantity, Printer printer",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Theatre/Client/EditTemplate/SearchForTemplate/SearchForTemplateController.cs",
+      "Rich/Theatre/Client/EditTemplate/SearchForTemplate/SearchForTemplateView.xaml.cs"
+    ]
+  },
+  "theatre-management:prepare-trolley": {
+    "serviceInterface": "IRichTheatreService",
+    "method": "PrintTrolleyContents",
+    "parameters": "int trolleyId, int quantity, Printer printer",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Theatre/Client/PrepareTrolley/SearchForTrolley/SearchForTrolleyController.cs",
+      "Rich/Theatre/Client/PrepareTrolley/SearchForTrolley/SearchForTrolleyView.xaml.cs"
+    ]
+  },
+  "theatre-management:replace-theatre-product": {
+    "serviceInterface": "IChannelTheatreService",
+    "method": "SearchForTheatreEvents",
+    "parameters": "string hospitalProviderSpellIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 19,
+    "sourceReferences": [
+      "Rich/Theatre/Client/ChargeEvent/Dashboard/DashboardController.cs",
+      "Rich/Theatre/Client/Common/ListEvents/ListEventsController.cs",
+      "Rich/Theatre/Client/CompleteTheatreRegister/SearchForRegisterTheatreEvents/SearchForRegisterTheatreEventsController.cs",
+      "Rich/Theatre/Client/CompleteTheatreRegister/SearchForRegisterTheatreEvents/SearchForRegisterTheatreEventsView.xaml.cs",
+      "Rich/Theatre/Client/ViewProcedure/ViewTheatreProcedureProcess.cs"
+    ]
+  },
+  "triage:triage-patient": {
+    "serviceInterface": "ICoreTriageService",
+    "method": "SaveTriagePatient",
+    "parameters": "Domain.Triage triage",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Triage/Client.Implet/TriagePatient/Confirmation/ConfirmationController.cs"
+    ]
+  },
+  "triage:triage-list": {
+    "serviceInterface": "ICoreTriageService",
+    "method": "UpdateTriagePatient",
+    "parameters": "Domain.Triage triage",
+    "confidence": "confirmed",
+    "sourceCallCount": 4,
+    "sourceReferences": [
+      "Rich/Triage/Client.Implet/TriagePatientList/AttendPatient/AttendPatientController.cs"
+    ]
+  },
+  "ward-management:edit-nursing-card": {
+    "serviceInterface": "IChannelWardService",
+    "method": "SearchForNonConsumables",
+    "parameters": "string wardIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 6,
+    "sourceReferences": [
+      "Rich/Ward/Client/EditNursingCard/CaptureFees/CaptureFeesController.cs",
+      "Rich/Ward/Client/EditNursingCard/CaptureGas/CaptureGasController.cs",
+      "Rich/Ward/Client/EditNursingCard/ChargeEquipment/ChargeEquipmentController.cs"
+    ]
+  },
+  "ward-management:bill-ward-treatments": {
+    "serviceInterface": "IChannelWardService",
+    "method": "SearchForNonConsumables",
+    "parameters": "string wardIdentifier",
+    "confidence": "confirmed",
+    "sourceCallCount": 15,
+    "sourceReferences": [
+      "Rich/Ward/Client/WardEvent/ChargeEquipment/ChargeEquipmentController.cs",
+      "Rich/Ward/Client/WardEvent/ChargeFees/ChargeFeesController.cs",
+      "Rich/Ward/Client/WardEvent/ChargeGas/ChargeGasController.cs",
+      "Rich/Ward/Client/WardEvent/SearchForWardVisit/SearchForWardVisitController.cs"
+    ]
+  },
+  "ward-management:edit-ward-treatments": {
+    "serviceInterface": "IRichWardService",
+    "method": "SearchForWardEvents",
+    "parameters": "WardEventSC wardEventSC",
+    "confidence": "confirmed",
+    "sourceCallCount": 8,
+    "sourceReferences": [
+      "Rich/Ward/Client/CreditWardTreatments/CreditTreatment/CreditTreatmentController.cs",
+      "Rich/Ward/Client/CreditWardTreatments/CreditTreatment/CreditTreatmentView.xaml.cs"
+    ]
+  },
+  "ward-management:replace-ward-product": {
+    "serviceInterface": "IRichWardService",
+    "method": "ProductActiveInWard",
+    "parameters": "IList<string> stockRoomIdentifier, string productCode",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/Ward/Client/ReplaceProduct/SelectProducts/SelectProductsController.cs"
+    ]
+  },
+  "ward-management:additional-specialist": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "LoadAlternateDoctorContext",
+    "parameters": "AlternateDoctorContext context",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/AlternateDoctorMaintenance/EditAlternateDoctorProcess.cs"
+    ]
+  },
+  "ward-management:edit-accommodation": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "UpdateAccommodationEvent",
+    "parameters": "AccommodationContext context, AccommodationEvent accommodationEvent",
+    "confidence": "confirmed",
+    "sourceCallCount": 3,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/AccommodationCorrection/EditAccommodation/EditAccommodationController.cs",
+      "Rich/WardManagement/Client.Implet/AccommodationCorrection/EditAccommodation/EditAccommodationView.xaml.cs"
+    ]
+  },
+  "ward-management:print-ward-documents": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "SearchForPrintDocumentPatients",
+    "parameters": "AccommodationSC criteria",
+    "confidence": "confirmed",
+    "sourceCallCount": 2,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/PrintWardDocuments/PatientSearch/PatientSearchController.cs",
+      "Rich/WardManagement/Client.Implet/PrintWardDocuments/PrintWardDocumentsController.cs"
+    ]
+  },
+  "ward-management:hospital-occupancy": {
+    "serviceInterface": "IRichWardManagementService",
+    "method": "LoadHospitalSummaryContext",
+    "parameters": "HospitalSummaryContext hospitalSummaryContext",
+    "confidence": "confirmed",
+    "sourceCallCount": 1,
+    "sourceReferences": [
+      "Rich/WardManagement/Client.Implet/HospitalOccupancy/HospitalOccupancyProcess.cs"
+    ]
+  }
+}

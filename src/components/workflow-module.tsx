@@ -1,24 +1,78 @@
 import { useMemo, useState } from "react";
-import { useSearch, useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Download,
+  Filter,
+  MessageSquarePlus,
+  Plus,
+  Search,
+  ShieldAlert,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
-import { Plus, Search, Filter, Download, Trash2, ChevronRight, Clock, MessageSquarePlus, ArrowRight, CheckCircle2, XCircle } from "lucide-react";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { RuleResults } from "@/components/workflow/rule-results";
+import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
+import { OperationalProcessConsole } from "@/components/compatibility/operational-process";
+import { getCurrentStateModuleSummary } from "@/current-state/module-manifest";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useFacilityContext } from "@/lib/facility-context";
 import { useWorkflow, type ModuleKey, type WorkflowItem } from "@/lib/workflow-store";
+import {
+  deriveSequentialStateMachine,
+  getAvailableTransitions,
+  isTerminalState,
+  type StateMachineDefinition,
+  type StateTransition,
+} from "@/rules/state-machines/types";
+import type { RuleResult, RuleValues } from "@/rules/types";
+import { useAuth } from "@/security/auth-provider";
+import { canAccessFacility } from "@/security/facility-scope";
+import { hasPermission, Permissions } from "@/security/permissions";
+import { getDefaultModulePermissions } from "@/security/module-permissions";
+import type { Permission } from "@/security/types";
+import { getModuleService } from "@/services/modules/registry";
+import { validateModuleInput } from "@/validation/engine";
 
 export type FieldDef = {
   key: string;
   label: string;
-  type?: "text" | "number" | "select" | "textarea";
+  type?: "text" | "number" | "select" | "textarea" | "date" | "datetime-local";
   options?: string[];
   required?: boolean;
   placeholder?: string;
+  permission?: Permission;
+};
+
+export type ModulePermissions = {
+  view?: Permission;
+  create?: Permission;
+  manage?: Permission;
+  export?: Permission;
+  note?: Permission;
+  transition?: Record<string, Permission>;
 };
 
 export type ModuleConfig = {
@@ -26,10 +80,14 @@ export type ModuleConfig = {
   eyebrow: string;
   title: string;
   description: string;
-  workflow: string[]; // ordered stages
-  outcomes?: string[]; // terminal alt outcomes (e.g. declined, failed)
-  columns: { key: string; label: string }[]; // display columns from fields or "title"/"subtitle"/"status"/"updatedAt"
-  fields: FieldDef[]; // form fields for create
+  workflow: string[];
+  outcomes?: string[];
+  stateMachine?: StateMachineDefinition;
+  permissions?: ModulePermissions;
+  createRuleIds?: string[];
+  transitionRuleIds?: string[];
+  columns: { key: string; label: string }[];
+  fields: FieldDef[];
   titleFrom?: (fields: Record<string, string | number>) => string;
   subtitleFrom?: (fields: Record<string, string | number>) => string;
   idPrefix?: string;
@@ -37,35 +95,90 @@ export type ModuleConfig = {
   extras?: React.ReactNode;
 };
 
-export function WorkflowModule({ config }: { config: ModuleConfig }) {
-  const items = useWorkflow((s) => s.items[config.moduleKey]);
-  const createItem = useWorkflow((s) => s.create);
-  const advance = useWorkflow((s) => s.advance);
-  const remove = useWorkflow((s) => s.remove);
-  const addNote = useWorkflow((s) => s.addNote);
+type TransitionDialogState = {
+  transition: StateTransition;
+  reason: string;
+  results: RuleResult[];
+} | null;
 
+export function WorkflowModule({ config }: { config: ModuleConfig }) {
+  const { principal } = useAuth();
+  const activeFacility = useFacilityContext((state) => state.facility);
+  const moduleService = getModuleService(config.moduleKey);
+  const hasOperationalProcess = Boolean(getCurrentStateModuleSummary(config.moduleKey));
+  const [activeView, setActiveView] = useState<"operational" | "worklist">(hasOperationalProcess ? "operational" : "worklist");
+  const items = useWorkflow((state) => state.items[config.moduleKey]);
   const search = useSearch({ strict: false }) as { new?: string };
   const navigate = useNavigate();
-
-  const [createOpen, setCreateOpen] = useState<boolean>(search?.new === "1");
+  const [createOpen, setCreateOpen] = useState(search?.new === "1");
   const [detailId, setDetailId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState("all");
+  const [busy, setBusy] = useState(false);
+  const defaultPermissions = getDefaultModulePermissions(config.moduleKey);
+  const permissions = useMemo(
+    () => ({ ...defaultPermissions, ...config.permissions, transition: { ...(config.permissions?.transition ?? {}) } }),
+    [config.permissions, defaultPermissions],
+  );
+  const effectiveConfig = useMemo(() => ({ ...config, permissions }), [config, permissions]);
 
-  const selected = items.find((i) => i.id === detailId) ?? null;
+  const machine = useMemo(
+    () =>
+      config.stateMachine ??
+      deriveSequentialStateMachine(config.workflow, config.outcomes, (target) => permissions.transition?.[target]),
+    [config, permissions],
+  );
+  const selected = items.find((item) => item.id === detailId) ?? null;
+  const statuses = [...new Set([...config.workflow, ...(config.outcomes ?? [])])];
+  const filtered = useMemo(
+    () =>
+      items.filter((item) => {
+        if (filter !== "all" && item.status !== filter) return false;
+        if (!query.trim()) return true;
+        const searchable = [
+          item.id,
+          item.title,
+          item.subtitle ?? "",
+          ...Object.values(item.fields).map(String),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return searchable.includes(query.trim().toLowerCase());
+      }),
+    [filter, items, query],
+  );
 
-  const filtered = useMemo(() => {
-    return items.filter((i) => {
-      if (filter !== "all" && i.status !== filter) return false;
-      if (query) {
-        const hay = [i.id, i.title, i.subtitle ?? "", ...Object.values(i.fields).map(String)].join(" ").toLowerCase();
-        return hay.includes(query.toLowerCase());
-      }
-      return true;
-    });
-  }, [items, query, filter]);
+  const canCreate = hasPermission(principal, permissions.create);
+  const canExport = hasPermission(principal, permissions.export ?? Permissions.ExportData);
 
-  const stages = [...config.workflow, ...(config.outcomes ?? [])];
+  async function createRecord(input: Omit<WorkflowItem, "id" | "history" | "createdAt" | "updatedAt">) {
+    setBusy(true);
+    try {
+      const result = await moduleService.createRecord(input);
+      toast.success(`${config.title.replace(/s$/, "")} created`, {
+        description: `${result.data.id} · ${result.correlationId}`,
+      });
+      setCreateOpen(false);
+      setDetailId(result.data.id);
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "The record could not be created.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function addNote(item: WorkflowItem, note: string) {
+    if (!hasPermission(principal, permissions.note ?? permissions.manage)) {
+      toast.error("You do not have permission to add a note.");
+      return;
+    }
+    try {
+      await moduleService.addNote(item.id, note);
+      toast.success("Note added");
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "The note could not be saved.");
+    }
+  }
 
   return (
     <>
@@ -75,242 +188,264 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
         description={config.description}
         actions={
           <>
-            <Button variant="outline" size="sm" onClick={() => toast.info("Filters coming from Ops preset store")}>
-              <Filter className="h-4 w-4" /> Filters
+            {hasOperationalProcess && (
+              <>
+                <Button
+                  variant={activeView === "operational" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActiveView("operational")}
+                  className={activeView === "operational" ? "bg-gradient-primary shadow-glow hover:opacity-90" : undefined}
+                >
+                  Operational process
+                </Button>
+                <Button
+                  variant={activeView === "worklist" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActiveView("worklist")}
+                  className={activeView === "worklist" ? "bg-gradient-primary shadow-glow hover:opacity-90" : undefined}
+                >
+                  Worklist
+                </Button>
+              </>
+            )}
+            <CurrentStateModuleButton moduleKey={config.moduleKey} compact />
+            <Button variant="outline" size="sm" onClick={() => toast.info("Saved filter presets are prepared for the API worklist.")}>
+              <Filter className="mr-1.5 h-3.5 w-3.5" /> Filters
             </Button>
             <Button
               variant="outline"
               size="sm"
+              disabled={!canExport}
+              title={!canExport ? "Data.Export permission is required" : undefined}
               onClick={() => {
-                const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+                const blob = new Blob([JSON.stringify(filtered, null, 2)], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${config.moduleKey}-export.json`;
-                a.click();
+                const anchor = document.createElement("a");
+                anchor.href = url;
+                anchor.download = `${config.moduleKey}-export.json`;
+                anchor.click();
                 URL.revokeObjectURL(url);
-                toast.success("Export downloaded");
+                toast.success("Export downloaded. The activity will be recorded when connected to the live service.");
               }}
             >
-              <Download className="h-4 w-4" /> Export
+              <Download className="mr-1.5 h-3.5 w-3.5" /> Export
             </Button>
-            <Button onClick={() => setCreateOpen(true)} className="bg-gradient-primary shadow-glow hover:opacity-90">
-              <Plus className="h-4 w-4" /> New
+            <Button
+              size="sm"
+              disabled={!canCreate}
+              title={!canCreate ? `Permission ${permissions.create ?? "Create"} is required` : undefined}
+              onClick={() => setCreateOpen(true)}
+              className="bg-gradient-primary shadow-glow hover:opacity-90"
+            >
+              <Plus className="mr-1.5 h-3.5 w-3.5" /> New
             </Button>
           </>
         }
       />
 
+      {activeView === "operational" ? (
+        <OperationalProcessConsole moduleKey={config.moduleKey} embedded />
+      ) : (
+        <>
       {config.kpis && (
-        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {config.kpis(items).map((k) => (
-            <Card key={k.label} className="relative overflow-hidden p-5">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br from-primary/25 to-transparent opacity-70 blur-2xl" />
-              <div className="relative text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{k.label}</div>
-              <div className="relative mt-2 font-display text-3xl tracking-tight">{k.value}</div>
+        <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {config.kpis(items).map((kpi) => (
+            <Card key={kpi.label} className="p-4">
+              <div className="text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">{kpi.label}</div>
+              <div className="mt-1 font-display text-2xl font-semibold">{kpi.value}</div>
             </Card>
           ))}
         </div>
       )}
 
-      {config.extras && <div className="mb-6">{config.extras}</div>}
+      {config.extras && <div className="mb-4">{config.extras}</div>}
 
-
-      <Card>
-        <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-2">
+      <Card className="overflow-hidden">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border p-3">
+          <div className="flex min-w-[260px] flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3">
             <Search className="h-4 w-4 text-muted-foreground" />
-            <input
+            <Input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(event) => setQuery(event.target.value)}
               placeholder="Search records…"
-              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/70"
+              className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
             />
           </div>
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="All statuses" />
-            </SelectTrigger>
+            <SelectTrigger className="w-[190px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
-              {stages.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
+              {statuses.map((status) => <SelectItem key={status} value={status}>{status}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead className="bg-muted/40 text-left text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
               <tr>
-                <th className="px-5 py-3 font-medium">Reference</th>
-                {config.columns.map((c) => (
-                  <th key={c.key} className="px-5 py-3 font-medium">{c.label}</th>
-                ))}
-                <th className="px-5 py-3 font-medium">Status</th>
-                <th className="w-10" />
+                <th className="px-4 py-3">Reference</th>
+                {config.columns.map((column) => <th key={column.key} className="px-4 py-3">{column.label}</th>)}
+                <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={config.columns.length + 3} className="px-5 py-12">
-                    <div className="flex flex-col items-center gap-2 text-center">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
-                        <Search className="h-4 w-4" />
-                      </div>
-                      <div className="text-sm font-medium">No records match your filters</div>
-                      <div className="text-xs text-muted-foreground">Try clearing the search or status filter, or create a new record.</div>
-                    </div>
-                  </td>
-                </tr>
-              )}
-              {filtered.map((it) => (
+              {filtered.map((item) => (
                 <tr
-                  key={it.id}
+                  key={item.id}
                   tabIndex={0}
-                  role="button"
-                  aria-label={`Open ${it.title}`}
-                  className="cursor-pointer transition-colors hover:bg-muted/30 focus-visible:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40 motion-reduce:transition-none"
-                  onClick={() => setDetailId(it.id)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetailId(it.id); } }}
+                  className="cursor-pointer hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/30"
+                  onClick={() => setDetailId(item.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setDetailId(item.id);
+                    }
+                  }}
                 >
-                  <td className="px-5 py-3 font-mono text-xs">{it.id}</td>
-                  {config.columns.map((c) => {
-                    let v: string | number | undefined;
-                    if (c.key === "title") v = it.title;
-                    else if (c.key === "subtitle") v = it.subtitle;
-                    else if (c.key === "updatedAt") v = new Date(it.updatedAt).toLocaleString();
-                    else v = it.fields[c.key];
-                    return <td key={c.key} className="px-5 py-3">{v ?? "—"}</td>;
+                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{item.id}</td>
+                  {config.columns.map((column) => {
+                    let value: string | number | undefined;
+                    if (column.key === "title") value = item.title;
+                    else if (column.key === "subtitle") value = item.subtitle;
+                    else if (column.key === "updatedAt") value = new Date(item.updatedAt).toLocaleString("en-ZA");
+                    else value = item.fields[column.key];
+                    return <td key={column.key} className="max-w-[260px] truncate px-4 py-3">{value ?? "—"}</td>;
                   })}
-                  <td className="px-5 py-3"><StatusChip status={it.status} /></td>
-                  <td className="px-3 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                  <td className="px-4 py-3"><StatusChip status={item.status} /></td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {filtered.length === 0 && (
+            <div className="p-10 text-center">
+              <div className="font-medium">No records match your filters</div>
+              <p className="mt-1 text-sm text-muted-foreground">Clear the search or create a permitted record.</p>
+            </div>
+          )}
         </div>
       </Card>
 
       <CreateDialog
         open={createOpen}
-        onOpenChange={(o) => {
-          setCreateOpen(o);
-          if (!o && search?.new) navigate({ to: ".", search: {} });
+        busy={busy}
+        config={effectiveConfig}
+        principalCanCreate={canCreate}
+        onOpenChange={(open) => {
+          setCreateOpen(open);
+          if (!open && search?.new) void navigate({ to: ".", search: {} });
         }}
-        config={config}
-        onCreate={(item) => {
-          const created = createItem(config.moduleKey, item);
-          toast.success(`${config.title.replace(/s$/, "")} created`, { description: created.id });
-          setCreateOpen(false);
-          setDetailId(created.id);
-        }}
+        onCreate={createRecord}
       />
 
-      <Sheet open={!!selected} onOpenChange={(o) => !o && setDetailId(null)}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <Sheet open={Boolean(selected)} onOpenChange={(open) => !open && setDetailId(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
           {selected && (
             <DetailPanel
               item={selected}
-              config={config}
-              onAdvance={(to, note) => {
-                advance(config.moduleKey, selected.id, to, note);
-                toast.success(`Moved to ${to}`);
-              }}
-              onNote={(note) => {
-                addNote(config.moduleKey, selected.id, note);
-                toast.success("Note added");
-              }}
-              onDelete={() => {
-                remove(config.moduleKey, selected.id);
-                toast.success("Record removed");
-                setDetailId(null);
-              }}
+              config={effectiveConfig}
+              machine={machine}
+              activeFacility={activeFacility}
+              onTransitioned={() => undefined}
+              onNote={(note) => void addNote(selected, note)}
             />
           )}
         </SheetContent>
       </Sheet>
+        </>
+      )}
     </>
   );
 }
 
 function CreateDialog({
   open,
-  onOpenChange,
+  busy,
   config,
+  principalCanCreate,
+  onOpenChange,
   onCreate,
 }: {
   open: boolean;
-  onOpenChange: (o: boolean) => void;
+  busy: boolean;
   config: ModuleConfig;
-  onCreate: (item: Omit<WorkflowItem, "id" | "history" | "createdAt" | "updatedAt">) => void;
+  principalCanCreate: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreate: (item: Omit<WorkflowItem, "id" | "history" | "createdAt" | "updatedAt">) => Promise<void>;
 }) {
+  const { principal } = useAuth();
+  const activeFacility = useFacilityContext((state) => state.facility);
   const [values, setValues] = useState<Record<string, string>>({});
-  const set = (k: string, v: string) => setValues((s) => ({ ...s, [k]: v }));
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [results, setResults] = useState<RuleResult[]>([]);
 
-  const submit = () => {
-    for (const f of config.fields) {
-      if (f.required && !values[f.key]) {
-        toast.error(`${f.label} is required`);
-        return;
-      }
+  async function submit() {
+    const permission = config.permissions?.create;
+    const facility = values.facility || values.Facility || activeFacility;
+    const validation = await validateModuleInput({
+      moduleKey: config.moduleKey,
+      action: "create",
+      fields: config.fields.map((field) => ({ name: field.key, label: field.label, type: field.type, required: field.required })),
+      values,
+      user: principal,
+      facility,
+      permission,
+      additionalRuleIds: config.createRuleIds,
+    });
+    setErrors(validation.fieldErrors);
+    setResults(validation.results);
+    if (!validation.allowed) {
+      toast.error(validation.errors[0]?.message ?? "The record did not pass validation.");
+      return;
     }
+
     const fields: Record<string, string | number> = {};
-    config.fields.forEach((f) => {
-      const v = values[f.key] ?? "";
-      fields[f.label] = f.type === "number" ? Number(v || 0) : v;
-    });
-    const title = config.titleFrom ? config.titleFrom(fields) : (values[config.fields[0]?.key] ?? "New record");
+    for (const field of config.fields) {
+      const value = values[field.key] ?? "";
+      fields[field.label] = field.type === "number" ? Number(value || 0) : value;
+    }
+    const title = config.titleFrom ? config.titleFrom(fields) : values[config.fields[0]?.key] || "New record";
     const subtitle = config.subtitleFrom?.(fields);
-    onCreate({
-      title,
-      subtitle,
-      status: config.workflow[0],
-      fields,
-    });
+    await onCreate({ title, subtitle, status: config.stateMachine?.initialState ?? config.workflow[0], fields });
     setValues({});
-  };
+    setErrors({});
+    setResults([]);
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>New {config.title.toLowerCase().replace(/s$/, "")}</DialogTitle>
-          <DialogDescription>
-            Fill in the details below to start a new {config.title.toLowerCase()} workflow.
-          </DialogDescription>
+          <DialogDescription>Complete the required information to start a controlled workflow.</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-2">
-          {config.fields.map((f) => (
-            <div key={f.key} className="grid gap-1.5">
-              <Label htmlFor={f.key}>
-                {f.label}{f.required && <span className="text-destructive"> *</span>}
-              </Label>
-              {f.type === "select" ? (
-                <Select value={values[f.key] ?? ""} onValueChange={(v) => set(f.key, v)}>
-                  <SelectTrigger id={f.key}><SelectValue placeholder={f.placeholder ?? "Select…"} /></SelectTrigger>
-                  <SelectContent>
-                    {f.options?.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              ) : f.type === "textarea" ? (
-                <Textarea id={f.key} placeholder={f.placeholder} value={values[f.key] ?? ""} onChange={(e) => set(f.key, e.target.value)} />
-              ) : (
-                <Input
-                  id={f.key}
-                  type={f.type === "number" ? "number" : "text"}
-                  placeholder={f.placeholder}
-                  value={values[f.key] ?? ""}
-                  onChange={(e) => set(f.key, e.target.value)}
-                />
-              )}
-            </div>
-          ))}
+        {results.length > 0 && <RuleResults results={results} />}
+        <div className="grid max-h-[60vh] gap-4 overflow-y-auto pr-1 md:grid-cols-2">
+          {config.fields.map((field) => {
+            const allowed = hasPermission(principal, field.permission);
+            return (
+              <div key={field.key} className={field.type === "textarea" ? "md:col-span-2" : ""}>
+                <Label htmlFor={`create-${field.key}`}>{field.label}{field.required && <span className="text-destructive"> *</span>}</Label>
+                {field.type === "select" ? (
+                  <Select value={values[field.key] ?? ""} disabled={!allowed} onValueChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))}>
+                    <SelectTrigger id={`create-${field.key}`} aria-invalid={Boolean(errors[field.key])}><SelectValue placeholder="Select…" /></SelectTrigger>
+                    <SelectContent>{field.options?.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
+                  </Select>
+                ) : field.type === "textarea" ? (
+                  <Textarea id={`create-${field.key}`} rows={4} disabled={!allowed} value={values[field.key] ?? ""} placeholder={field.placeholder} aria-invalid={Boolean(errors[field.key])} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.target.value }))} />
+                ) : (
+                  <Input id={`create-${field.key}`} type={field.type === "number" ? "number" : field.type === "date" ? "date" : field.type === "datetime-local" ? "datetime-local" : "text"} disabled={!allowed} value={values[field.key] ?? ""} placeholder={field.placeholder} aria-invalid={Boolean(errors[field.key])} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.target.value }))} />
+                )}
+                {errors[field.key] && <p className="mt-1 text-xs text-destructive">{errors[field.key]}</p>}
+              </div>
+            );
+          })}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={submit} className="bg-gradient-primary hover:opacity-90">Create & start workflow</Button>
+          <Button disabled={busy || !principalCanCreate} onClick={() => void submit()} className="bg-gradient-primary hover:opacity-90">
+            {busy ? "Creating…" : "Create & start workflow"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -320,20 +455,87 @@ function CreateDialog({
 function DetailPanel({
   item,
   config,
-  onAdvance,
+  machine,
+  activeFacility,
+  onTransitioned,
   onNote,
-  onDelete,
 }: {
   item: WorkflowItem;
   config: ModuleConfig;
-  onAdvance: (to: string, note?: string) => void;
+  machine: StateMachineDefinition;
+  activeFacility: string;
+  onTransitioned: () => void;
   onNote: (note: string) => void;
-  onDelete: () => void;
 }) {
+  const { principal } = useAuth();
   const [note, setNote] = useState("");
-  const stageIdx = config.workflow.indexOf(item.status);
-  const next = stageIdx >= 0 && stageIdx < config.workflow.length - 1 ? config.workflow[stageIdx + 1] : null;
-  const isTerminalOutcome = config.outcomes?.includes(item.status);
+  const [transitionDialog, setTransitionDialog] = useState<TransitionDialogState>(null);
+  const [busy, setBusy] = useState(false);
+  const [results, setResults] = useState<RuleResult[]>([]);
+  const transitions = getAvailableTransitions(machine, item.status);
+  const terminal = isTerminalState(machine, item.status);
+  const facility = String(item.fields.Facility ?? item.fields.facility ?? activeFacility);
+  const stageIndex = config.workflow.indexOf(item.status);
+
+  async function validateTransition(transition: StateTransition, reason?: string) {
+    const permission = transition.permission ?? config.permissions?.transition?.[transition.to] ?? config.permissions?.manage;
+    const values = item.fields as RuleValues;
+    return validateModuleInput({
+      moduleKey: config.moduleKey,
+      action: `transition:${transition.to}`,
+      fields: Object.keys(item.fields).map((key) => ({ name: key, label: key })),
+      values,
+      user: principal,
+      facility,
+      permission,
+      reason,
+      currentState: item.status,
+      targetState: transition.to,
+      additionalRuleIds: [
+        ...(transition.requiresReason ? ["common.reason-required"] : []),
+        ...(config.transitionRuleIds ?? []),
+        ...(transition.ruleIds ?? []),
+      ],
+    });
+  }
+
+  async function requestTransition(transition: StateTransition) {
+    const permission = transition.permission ?? config.permissions?.transition?.[transition.to] ?? config.permissions?.manage;
+    if (!hasPermission(principal, permission)) {
+      toast.error(`Permission ${permission} is required.`);
+      return;
+    }
+    if (!canAccessFacility(principal, facility)) {
+      toast.error(`You are not authorised to work in ${facility}.`);
+      return;
+    }
+    if (transition.requiresReason || transition.confirmation) {
+      setTransitionDialog({ transition, reason: "", results: [] });
+      return;
+    }
+    await executeTransition(transition);
+  }
+
+  async function executeTransition(transition: StateTransition, reason?: string) {
+    setBusy(true);
+    try {
+      const validation = await validateTransition(transition, reason);
+      setResults(validation.results);
+      if (!validation.allowed) {
+        setTransitionDialog((current) => current ? { ...current, results: validation.results } : current);
+        toast.error(validation.errors[0]?.message ?? "The transition is not allowed.");
+        return;
+      }
+      const result = await getModuleService(config.moduleKey).transitionRecord(item.id, transition.to, reason);
+      toast.success(`Moved to ${transition.to}`, { description: result.correlationId });
+      setTransitionDialog(null);
+      onTransitioned();
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "The transition could not be completed.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <>
@@ -347,109 +549,122 @@ function DetailPanel({
         </div>
       </SheetHeader>
 
-      {/* Workflow stepper */}
+      {results.length > 0 && <div className="mt-4"><RuleResults results={results} /></div>}
+
       <div className="mt-6 rounded-xl border border-border bg-muted/20 p-4">
-        <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Workflow</div>
+        <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Controlled workflow</div>
         <ol className="space-y-2">
-          {config.workflow.map((s, i) => {
-            const done = stageIdx >= i && !isTerminalOutcome;
-            const current = s === item.status;
+          {config.workflow.map((stage, index) => {
+            const completed = stageIndex >= index && !terminal;
+            const current = stage === item.status;
             return (
-              <li key={s} className="flex items-center gap-3">
-                <div className={
-                  "flex h-6 w-6 items-center justify-center rounded-full border text-[10px] font-semibold " +
-                  (current
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : done
-                      ? "border-success/60 bg-success/20 text-success"
-                      : "border-border text-muted-foreground")
-                }>
-                  {done && !current ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
+              <li key={stage} className="flex items-center gap-3">
+                <div className={"flex h-6 w-6 items-center justify-center rounded-full border text-[10px] font-semibold " + (current ? "border-primary bg-primary text-primary-foreground" : completed ? "border-success/60 bg-success/20 text-success" : "border-border text-muted-foreground")}>
+                  {completed && !current ? <CheckCircle2 className="h-3.5 w-3.5" /> : index + 1}
                 </div>
-                <span className={"text-sm capitalize " + (current ? "font-medium text-foreground" : "text-muted-foreground")}>{s}</span>
+                <span className={current ? "text-sm font-medium capitalize" : "text-sm capitalize text-muted-foreground"}>{stage}</span>
               </li>
             );
           })}
         </ol>
-        {isTerminalOutcome && (
-          <div className="mt-3 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
-            <XCircle className="h-4 w-4" /> Closed with outcome: <span className="font-medium capitalize">{item.status}</span>
+        {terminal && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-muted p-2 text-xs text-muted-foreground">
+            <XCircle className="h-4 w-4" /> Terminal state: <span className="font-medium capitalize">{item.status}</span>
           </div>
         )}
       </div>
 
-      {/* Fields */}
       <div className="mt-6">
         <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Details</div>
         <dl className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-card/40 p-4 text-sm">
-          {Object.entries(item.fields).map(([k, v]) => (
-            <div key={k}>
-              <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{k}</dt>
-              <dd className="mt-0.5 font-medium">{String(v)}</dd>
+          {Object.entries(item.fields).map(([key, value]) => (
+            <div key={key} className={key.toLowerCase().includes("message") || key.toLowerCase().includes("timeline") ? "col-span-2" : ""}>
+              <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{key}</dt>
+              <dd className="mt-0.5 break-words font-medium">{String(value)}</dd>
             </div>
           ))}
         </dl>
       </div>
 
-      {/* Actions */}
       <div className="mt-6 space-y-2">
-        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</div>
-        {next && (
-          <Button className="w-full justify-between bg-gradient-primary hover:opacity-90" onClick={() => onAdvance(next)}>
-            Advance to <span className="capitalize">{next}</span> <ArrowRight className="h-4 w-4" />
-          </Button>
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Available actions</div>
+        {terminal ? (
+          <div className="flex items-start gap-2 rounded-xl border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+            <ShieldAlert className="mt-0.5 h-4 w-4" /> This record is closed. Corrections require a configured reversal or reopening workflow.
+          </div>
+        ) : transitions.length ? (
+          <div className="grid gap-2">
+            {transitions.map((transition, index) => {
+              const permission = transition.permission ?? config.permissions?.transition?.[transition.to] ?? config.permissions?.manage;
+              const allowed = hasPermission(principal, permission) && canAccessFacility(principal, facility);
+              return (
+                <Button
+                  key={`${transition.from}-${transition.to}`}
+                  variant={index === 0 ? "default" : "outline"}
+                  className={index === 0 ? "justify-between bg-gradient-primary hover:opacity-90" : "justify-between"}
+                  disabled={busy || !allowed}
+                  title={!allowed ? "Your permission or facility scope does not allow this transition." : undefined}
+                  onClick={() => void requestTransition(transition)}
+                >
+                  <span className="capitalize">{transition.to}</span><ArrowRight className="h-4 w-4" />
+                </Button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 text-sm text-warning">No valid transition is configured from {item.status}.</div>
         )}
-        <div className="flex flex-wrap gap-2">
-          {config.workflow.map((s) => (
-            <Button key={s} size="sm" variant={s === item.status ? "default" : "outline"} onClick={() => onAdvance(s)} className="capitalize">
-              {s}
-            </Button>
-          ))}
-          {config.outcomes?.map((o) => (
-            <Button key={o} size="sm" variant="outline" className="capitalize border-destructive/40 text-destructive hover:bg-destructive/10" onClick={() => onAdvance(o, `Outcome: ${o}`)}>
-              {o}
-            </Button>
-          ))}
-        </div>
       </div>
 
-      {/* Note */}
       <div className="mt-6">
         <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
           <MessageSquarePlus className="h-3.5 w-3.5" /> Add note
         </div>
-        <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Clinical note, escalation reason, or comment…" />
+        <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} placeholder="Clinical note, escalation reason, or comment…" />
         <div className="mt-2 flex justify-end">
-          <Button
-            size="sm"
-            disabled={!note.trim()}
-            onClick={() => { onNote(note.trim()); setNote(""); }}
-          >Save note</Button>
+          <Button size="sm" disabled={!note.trim()} onClick={() => { onNote(note.trim()); setNote(""); }}>Save note</Button>
         </div>
       </div>
 
-      {/* Timeline */}
       <div className="mt-6">
         <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
           <Clock className="h-3.5 w-3.5" /> Activity
         </div>
         <ol className="relative space-y-3 border-l border-border pl-4">
-          {item.history.map((h, i) => (
-            <li key={i} className="relative">
+          {item.history.map((history, index) => (
+            <li key={`${history.at}-${index}`} className="relative">
               <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
-              <div className="text-sm font-medium">{h.action}</div>
-              <div className="text-[11px] text-muted-foreground">{h.at} · {h.by}</div>
-              {h.note && <div className="mt-1 rounded-md border border-border bg-muted/30 p-2 text-xs">{h.note}</div>}
+              <div className="text-sm font-medium">{history.action}</div>
+              <div className="text-[11px] text-muted-foreground">{history.at} · {history.by}</div>
+              {history.note && <div className="mt-1 rounded-md border border-border bg-muted/30 p-2 text-xs">{history.note}</div>}
             </li>
           ))}
         </ol>
       </div>
 
-      <div className="mt-8 border-t border-border pt-4">
-        <Button variant="outline" className="w-full border-destructive/30 text-destructive hover:bg-destructive/10" onClick={onDelete}>
-          <Trash2 className="h-4 w-4" /> Delete record
-        </Button>
-      </div>
+      <Dialog open={Boolean(transitionDialog)} onOpenChange={(open) => !open && setTransitionDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="capitalize">Move to {transitionDialog?.transition.to}</DialogTitle>
+            <DialogDescription>
+              {transitionDialog?.transition.confirmation ?? "Confirm this controlled workflow transition."}
+            </DialogDescription>
+          </DialogHeader>
+          {transitionDialog?.results.length ? <RuleResults results={transitionDialog.results} /> : null}
+          {transitionDialog?.transition.requiresReason && (
+            <div>
+              <Label htmlFor="transition-reason">Reason <span className="text-destructive">*</span></Label>
+              <Textarea id="transition-reason" rows={4} value={transitionDialog.reason} onChange={(event) => setTransitionDialog((current) => current ? { ...current, reason: event.target.value } : current)} />
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransitionDialog(null)}>Cancel</Button>
+            <Button disabled={busy || Boolean(transitionDialog?.transition.requiresReason && !transitionDialog.reason.trim())} onClick={() => transitionDialog && void executeTransition(transitionDialog.transition, transitionDialog.reason)} className="bg-gradient-primary hover:opacity-90">
+              {busy ? "Processing…" : "Confirm transition"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

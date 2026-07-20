@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Pill, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/app-shell";
+import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
 import { SECTIONS } from "@/components/pharmacy/actions";
 
 export const Route = createFileRoute("/_app/pharmacy")({
@@ -29,9 +30,12 @@ function PharmacyLayout() {
             : "A single control plane for dispensing, compounding, labelling, retail and account workflows. Choose a section below to dive in."
         }
         actions={
-          <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
-            <Pill className="h-3.5 w-3.5" /> Pharmacy console
-          </div>
+          <>
+            <CurrentStateModuleButton moduleKey="pharmacy" compact />
+            <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
+              <Pill className="h-3.5 w-3.5" /> Pharmacy console
+            </div>
+          </>
         }
       />
 

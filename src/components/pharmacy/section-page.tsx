@@ -4,6 +4,9 @@ import { ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
 import { useWorkflow } from "@/lib/workflow-store";
+import { useAuth } from "@/security/auth-provider";
+import { getDefaultModulePermissions } from "@/security/module-permissions";
+import { hasPermission } from "@/security/permissions";
 import {
   ACTIONS, ActionDialog, EnquiryDialog, useSubmitAction,
   type ActionSpec, type SectionKey, SECTIONS,
@@ -13,6 +16,9 @@ export function PharmacySectionPage({ sectionKey }: { sectionKey: SectionKey }) 
   const section = SECTIONS.find((s) => s.key === sectionKey)!;
   const submit = useSubmitAction();
   const items = useWorkflow((s) => s.items.pharmacy);
+  const { principal } = useAuth();
+  const permissions = getDefaultModulePermissions("pharmacy");
+  const canExecute = hasPermission(principal, permissions.manage ?? permissions.create);
 
   const [active, setActive] = useState<ActionSpec | null>(null);
   const [enquiryOpen, setEnquiryOpen] = useState(false);
@@ -65,9 +71,11 @@ export function PharmacySectionPage({ sectionKey }: { sectionKey: SectionKey }) 
                 <button
                   key={a.key}
                   onClick={() => openAction(a)}
+                  disabled={!canExecute}
+                  title={!canExecute ? "You do not have permission to perform this action" : undefined}
                   aria-label={a.label}
                   className={
-                    "group relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-4 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 " +
+                    "group relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-4 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0 " +
                     (a.destructive ? "hover:border-destructive/50 focus-visible:ring-destructive/40" : "")
                   }
                 >
@@ -162,9 +170,10 @@ export function PharmacySectionPage({ sectionKey }: { sectionKey: SectionKey }) 
       <ActionDialog
         spec={active}
         onOpenChange={(o) => !o && setActive(null)}
-        onSubmit={(a, values) => {
-          submit(a, values);
+        onSubmit={async (a, values) => {
+          const result = await submit(a, values);
           setActive(null);
+          return result;
         }}
       />
       <EnquiryDialog open={enquiryOpen} onOpenChange={setEnquiryOpen} />

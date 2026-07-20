@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -29,6 +30,7 @@ import { Route as AppPharmacyRouteImport } from './routes/_app.pharmacy'
 import { Route as AppPatientsRouteImport } from './routes/_app.patients'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppMylifePortalRouteImport } from './routes/_app.mylife-portal'
+import { Route as AppMemberValidationRouteImport } from './routes/_app.member-validation'
 import { Route as AppMedicalEventsRouteImport } from './routes/_app.medical-events'
 import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
 import { Route as AppFundingRouteImport } from './routes/_app.funding'
@@ -73,6 +75,11 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -167,6 +174,11 @@ const AppNotificationsRoute = AppNotificationsRouteImport.update({
 const AppMylifePortalRoute = AppMylifePortalRouteImport.update({
   id: '/mylife-portal',
   path: '/mylife-portal',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMemberValidationRoute = AppMemberValidationRouteImport.update({
+  id: '/member-validation',
+  path: '/member-validation',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMedicalEventsRoute = AppMedicalEventsRouteImport.update({
@@ -376,6 +388,7 @@ const Char91DotmcpChar93InvokeToolToolRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -397,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
   '/medical-events': typeof AppMedicalEventsRoute
+  '/member-validation': typeof AppMemberValidationRoute
   '/mylife-portal': typeof AppMylifePortalRoute
   '/notifications': typeof AppNotificationsRoute
   '/patients': typeof AppPatientsRoute
@@ -436,6 +450,7 @@ export interface FileRoutesByFullPath {
   '/pharmacy/': typeof AppPharmacyIndexRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -456,6 +471,7 @@ export interface FileRoutesByTo {
   '/funding': typeof AppFundingRoute
   '/integrations': typeof AppIntegrationsRoute
   '/medical-events': typeof AppMedicalEventsRoute
+  '/member-validation': typeof AppMemberValidationRoute
   '/mylife-portal': typeof AppMylifePortalRoute
   '/notifications': typeof AppNotificationsRoute
   '/patients': typeof AppPatientsRoute
@@ -497,6 +513,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -518,6 +535,7 @@ export interface FileRoutesById {
   '/_app/funding': typeof AppFundingRoute
   '/_app/integrations': typeof AppIntegrationsRoute
   '/_app/medical-events': typeof AppMedicalEventsRoute
+  '/_app/member-validation': typeof AppMemberValidationRoute
   '/_app/mylife-portal': typeof AppMylifePortalRoute
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/patients': typeof AppPatientsRoute
@@ -561,6 +579,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -582,6 +601,7 @@ export interface FileRouteTypes {
     | '/funding'
     | '/integrations'
     | '/medical-events'
+    | '/member-validation'
     | '/mylife-portal'
     | '/notifications'
     | '/patients'
@@ -621,6 +641,7 @@ export interface FileRouteTypes {
     | '/pharmacy/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -641,6 +662,7 @@ export interface FileRouteTypes {
     | '/funding'
     | '/integrations'
     | '/medical-events'
+    | '/member-validation'
     | '/mylife-portal'
     | '/notifications'
     | '/patients'
@@ -681,6 +703,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/auth'
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -702,6 +725,7 @@ export interface FileRouteTypes {
     | '/_app/funding'
     | '/_app/integrations'
     | '/_app/medical-events'
+    | '/_app/member-validation'
     | '/_app/mylife-portal'
     | '/_app/notifications'
     | '/_app/patients'
@@ -744,6 +768,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  AuthRoute: typeof AuthRoute
   McpRoute: typeof McpRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -758,6 +783,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -891,6 +923,13 @@ declare module '@tanstack/react-router' {
       path: '/mylife-portal'
       fullPath: '/mylife-portal'
       preLoaderRoute: typeof AppMylifePortalRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/member-validation': {
+      id: '/_app/member-validation'
+      path: '/member-validation'
+      fullPath: '/member-validation'
+      preLoaderRoute: typeof AppMemberValidationRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/medical-events': {
@@ -1253,6 +1292,7 @@ interface AppRouteChildren {
   AppFundingRoute: typeof AppFundingRoute
   AppIntegrationsRoute: typeof AppIntegrationsRoute
   AppMedicalEventsRoute: typeof AppMedicalEventsRoute
+  AppMemberValidationRoute: typeof AppMemberValidationRoute
   AppMylifePortalRoute: typeof AppMylifePortalRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPatientsRoute: typeof AppPatientsRoute
@@ -1291,6 +1331,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFundingRoute: AppFundingRoute,
   AppIntegrationsRoute: AppIntegrationsRoute,
   AppMedicalEventsRoute: AppMedicalEventsRoute,
+  AppMemberValidationRoute: AppMemberValidationRoute,
   AppMylifePortalRoute: AppMylifePortalRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPatientsRoute: AppPatientsRoute,
@@ -1314,6 +1355,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  AuthRoute: AuthRoute,
   McpRoute: McpRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
