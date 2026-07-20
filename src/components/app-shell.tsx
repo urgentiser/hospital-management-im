@@ -216,7 +216,7 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
     <>
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border/70 px-5">
         <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-sidebar-primary/95 shadow-[0_8px_20px_-8px_rgba(231,28,32,0.6)]">
-          <HeartPulse className="h-4.5 w-4.5 text-primary-foreground" strokeWidth={2.25} />
+          <HeartPulse className="h-[18px] w-[18px] text-primary-foreground" />
           <span aria-hidden className="absolute -inset-px rounded-xl ring-1 ring-inset ring-white/10" />
         </div>
         <div className="flex flex-col leading-tight">
@@ -277,7 +277,6 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
                               "h-4 w-4 shrink-0 transition-colors " +
                               (active ? "text-sidebar-foreground" : "text-sidebar-foreground/50 group-hover:text-sidebar-foreground/90")
                             }
-                            strokeWidth={active ? 2.25 : 1.75}
                           />
                           <span className="flex-1 truncate">{item.label}</span>
                           {item.badge && (
