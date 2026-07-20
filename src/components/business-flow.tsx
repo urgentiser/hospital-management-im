@@ -551,19 +551,47 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                             onChange={(event) => setValue(field.name, event.target.value)}
                           />
                         ) : field.type === "select" ? (
-                          <select
-                            id={field.name}
-                            value={values[field.name] ?? ""}
-                            disabled={disabled}
-                            aria-invalid={Boolean(fieldErrors[field.name])}
-                            onChange={(event) => setValue(field.name, event.target.value)}
-                            className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            <option value="">Select…</option>
-                            {(facilityField && !(field.options?.length) ? [...FACILITIES] : field.options ?? []).map((option) => (
-                              <option key={option} value={option}>{option}</option>
-                            ))}
-                          </select>
+                          (() => {
+                            const opts = (facilityField && !(field.options?.length) ? [...FACILITIES] : field.options ?? []);
+                            const searchable = opts.length > 8;
+                            const listId = `${field.name}-options`;
+                            if (searchable) {
+                              return (
+                                <>
+                                  <div className="relative">
+                                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                      id={field.name}
+                                      list={listId}
+                                      value={values[field.name] ?? ""}
+                                      placeholder={field.placeholder ?? "Search…"}
+                                      disabled={disabled}
+                                      aria-invalid={Boolean(fieldErrors[field.name])}
+                                      onChange={(event) => setValue(field.name, event.target.value)}
+                                      className="pl-9"
+                                    />
+                                  </div>
+                                  <datalist id={listId}>
+                                    {opts.map((option) => (<option key={option} value={option} />))}
+                                  </datalist>
+                                </>
+                              );
+                            }
+                            return (
+                              <select
+                                id={field.name}
+                                value={values[field.name] ?? ""}
+                                disabled={disabled}
+                                aria-invalid={Boolean(fieldErrors[field.name])}
+                                onChange={(event) => setValue(field.name, event.target.value)}
+                                className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                <option value="">Select…</option>
+                                {opts.map((option) => (<option key={option} value={option}>{option}</option>))}
+                              </select>
+                            );
+                          })()
+
                         ) : (
                           <Input
                             id={field.name}
