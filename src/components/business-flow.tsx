@@ -677,34 +677,64 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
         </div>
       </div>
 
-      <Dialog open={patientPickerOpen} onOpenChange={setPatientPickerOpen}>
+      <Dialog open={patientPickerOpen} onOpenChange={(open) => { setPatientPickerOpen(open); if (!open) setPatientSearch(""); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Select patient and active context</DialogTitle>
-            <DialogDescription>Choose the patient explicitly. Impilo will not silently select the first record.</DialogDescription>
+            <DialogDescription>Search by name, MRN, ID number, scheme or facility.</DialogDescription>
           </DialogHeader>
-          <div className="max-h-[460px] space-y-2 overflow-y-auto pr-1">
-            {availablePatients.map((patient) => (
-              <button
-                key={patient.id}
-                type="button"
-                onClick={() => {
-                  setPatient(patient.id);
-                  setPatientPickerOpen(false);
-                  toast.success("Patient context loaded", { description: patient.name });
-                }}
-                className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left hover:border-primary/40 hover:bg-primary/[0.025]"
-              >
-                <span>
-                  <span className="block font-medium">{patient.name}</span>
-                  <span className="block text-xs text-muted-foreground">{patient.mrn} · {patient.dob} · {patient.scheme}</span>
-                </span>
-                <span className="text-xs text-muted-foreground">{patient.facility}</span>
-              </button>
-            ))}
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              autoFocus
+              value={patientSearch}
+              onChange={(event) => setPatientSearch(event.target.value)}
+              placeholder="Search patients…"
+              className="pl-9"
+              aria-label="Search patients"
+            />
+          </div>
+          <div className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
+            {(() => {
+              const query = patientSearch.trim().toLowerCase();
+              const filtered = query
+                ? availablePatients.filter((patient) =>
+                    [patient.name, patient.mrn, patient.dob, patient.scheme, patient.facility, patient.id]
+                      .filter(Boolean)
+                      .some((value) => String(value).toLowerCase().includes(query)),
+                  )
+                : availablePatients;
+              if (filtered.length === 0) {
+                return (
+                  <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                    No patients match “{patientSearch}”.
+                  </div>
+                );
+              }
+              return filtered.map((patient) => (
+                <button
+                  key={patient.id}
+                  type="button"
+                  onClick={() => {
+                    setPatient(patient.id);
+                    setPatientPickerOpen(false);
+                    setPatientSearch("");
+                    toast.success("Patient context loaded", { description: patient.name });
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-primary/40 hover:bg-primary/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                >
+                  <span>
+                    <span className="block font-medium">{patient.name}</span>
+                    <span className="block text-xs text-muted-foreground">{patient.mrn} · {patient.dob} · {patient.scheme}</span>
+                  </span>
+                  <span className="text-xs text-muted-foreground">{patient.facility}</span>
+                </button>
+              ));
+            })()}
           </div>
         </DialogContent>
       </Dialog>
+
     </TooltipProvider>
   );
 }
