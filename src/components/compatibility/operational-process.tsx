@@ -299,7 +299,7 @@ function OperationalProcessDialog({
         : undefined,
       reason: reasonField ? String(values[reasonField.name] ?? "") : undefined,
       patientRequired: patientContextRequired(activeOperation.moduleKey),
-      completedSteps: [...completed].map((index) => activeOperation.steps[index]).filter(Boolean),
+      completedSteps: [...completed].flatMap((groupIndex) => (groups[groupIndex]?.stepIndices ?? []).map((i) => activeOperation.steps[i])).filter(Boolean),
       mandatorySteps: activeOperation.steps,
       stepIndex: targetStep,
     });
