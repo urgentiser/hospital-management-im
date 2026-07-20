@@ -405,7 +405,7 @@ function OperationalProcessDialog({
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
             <Card className="p-5">
               <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-primary">Step {stepIndex + 1} of {activeOperation.steps.length}</div>
-              <h3 className="mt-1 font-display text-xl">{step}</h3>
+              <h3 className="mt-1 font-display text-xl">{group?.title ?? ""}</h3>
               <p className="mt-1 text-xs text-muted-foreground">Follow the standard Impilo operational sequence.</p>
 
               {blockingResults.length > 0 && <div className="mt-4"><RuleResults results={blockingResults} /></div>}
