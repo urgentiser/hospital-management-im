@@ -382,20 +382,21 @@ function OperationalProcessDialog({
 
         <div className="max-h-[calc(94vh-10rem)] overflow-y-auto px-6 py-4">
           <ol className="mb-5 flex gap-2 overflow-x-auto pb-2">
-            {activeOperation.steps.map((candidate, index) => {
+            {groups.map((candidate, index) => {
               const active = index === stepIndex;
               const done = completed.has(index);
               const enabled = freeNavigation || index <= stepIndex || completed.has(index - 1);
               return (
-                <li key={`${candidate}-${index}`} className="shrink-0">
+                <li key={`${candidate.title}-${index}`} className="shrink-0">
                   <button
                     type="button"
                     disabled={!enabled}
                     onClick={() => moveTo(index)}
                     className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${active ? "border-primary/40 bg-primary/10 text-primary" : done ? "border-success/30 bg-success/10 text-success" : "border-border bg-card text-muted-foreground"} disabled:cursor-not-allowed disabled:opacity-50`}
+                    title={candidate.title}
                   >
                     <span className="grid h-5 w-5 place-items-center rounded-full bg-background/70 text-[10px] font-semibold">{done ? "✓" : index + 1}</span>
-                    {candidate}
+                    <span className="max-w-[220px] truncate">{candidate.title}</span>
                   </button>
                 </li>
               );
@@ -404,7 +405,8 @@ function OperationalProcessDialog({
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
             <Card className="p-5">
-              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-primary">Step {stepIndex + 1} of {activeOperation.steps.length}</div>
+              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-primary">Step {stepIndex + 1} of {groups.length}</div>
+
               <h3 className="mt-1 font-display text-xl">{group?.title ?? ""}</h3>
               <p className="mt-1 text-xs text-muted-foreground">Follow the standard Impilo operational sequence.</p>
 
