@@ -328,7 +328,11 @@ function OperationalProcessDialog({
     const validation = await validate();
     if (!validation.allowed) {
       const firstRule = activeOperation.frontendValidationRules.find((rule) => rule.field && validation.fieldErrors[rule.field]);
-      if (firstRule?.stepIndex !== undefined) setStepIndex(firstRule.stepIndex);
+      if (firstRule?.stepIndex !== undefined) {
+        const groupIdx = groups.findIndex((g) => g.stepIndices.includes(firstRule.stepIndex!));
+        if (groupIdx >= 0) setStepIndex(groupIdx);
+      }
+
       toast.error(validation.errors[0]?.message ?? "The process did not pass validation.");
       return;
     }
