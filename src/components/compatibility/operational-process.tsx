@@ -221,9 +221,41 @@ function OperationalProcessDialog({
   if (!operation) return null;
   const activeOperation = operation;
 
-  const step = activeOperation.steps[stepIndex];
-  const isLast = stepIndex === activeOperation.steps.length - 1;
-  const stepFields = activeOperation.fields.filter((field) => field.stepIndex === stepIndex);
+  // Consolidate single-field steps into combined groups so the wizard doesn't
+  // waste a stepper page on selections with only one dropdown or note field.
+  const groups = useMemo(() => {
+    const stepFieldMap = activeOperation.steps.map((_, index) =>
+      activeOperation.fields.filter((field) => field.stepIndex === index),
+    );
+    type Group = { title: string; stepIndices: number[]; fields: typeof activeOperation.fields };
+    const result: Group[] = [];
+    let bucket: Group | null = null;
+    activeOperation.steps.forEach((title, index) => {
+      const fields = stepFieldMap[index];
+      const light = fields.length <= 1;
+      if (light) {
+        if (!bucket) bucket = { title: "", stepIndices: [], fields: [] };
+        bucket.stepIndices.push(index);
+        bucket.fields.push(...fields);
+      } else {
+        if (bucket) { result.push(bucket); bucket = null; }
+        result.push({ title, stepIndices: [index], fields });
+      }
+    });
+    if (bucket) result.push(bucket);
+    return result.map((group) => ({
+      ...group,
+      title: group.stepIndices.length === 1
+        ? activeOperation.steps[group.stepIndices[0]]
+        : group.stepIndices.length <= 3
+          ? group.stepIndices.map((i) => activeOperation.steps[i]).join(" · ")
+          : `Context & selections (${group.stepIndices.length} items)`,
+    }));
+  }, [activeOperation]);
+
+  const group = groups[stepIndex] ?? groups[0];
+  const isLast = stepIndex === groups.length - 1;
+  const stepFields = group?.fields ?? [];
   const freeNavigation = (activeOperation.navigationType ?? "").toLowerCase().includes("free");
   const payload = createCompatibilityPayload(activeOperation, values);
   const contextValues = {
@@ -234,6 +266,7 @@ function OperationalProcessDialog({
     mrn: patient?.mrn ?? "",
   };
   const quickMissing = stepFields.filter((field) => field.required && (values[field.name] === undefined || values[field.name] === "" || values[field.name] === false));
+
 
   function setValue(name: string, value: string | boolean): void {
     setValues((current) => ({ ...current, [name]: value }));
@@ -266,7 +299,7 @@ function OperationalProcessDialog({
         : undefined,
       reason: reasonField ? String(values[reasonField.name] ?? "") : undefined,
       patientRequired: patientContextRequired(activeOperation.moduleKey),
-      completedSteps: [...completed].map((index) => activeOperation.steps[index]).filter(Boolean),
+      completedSteps: [...completed].flatMap((groupIndex) => (groups[groupIndex]?.stepIndices ?? []).map((i) => activeOperation.steps[i])).filter(Boolean),
       mandatorySteps: activeOperation.steps,
       stepIndex: targetStep,
     });
@@ -295,7 +328,11 @@ function OperationalProcessDialog({
     const validation = await validate();
     if (!validation.allowed) {
       const firstRule = activeOperation.frontendValidationRules.find((rule) => rule.field && validation.fieldErrors[rule.field]);
-      if (firstRule?.stepIndex !== undefined) setStepIndex(firstRule.stepIndex);
+      if (firstRule?.stepIndex !== undefined) {
+        const groupIdx = groups.findIndex((g) => g.stepIndices.includes(firstRule.stepIndex!));
+        if (groupIdx >= 0) setStepIndex(groupIdx);
+      }
+
       toast.error(validation.errors[0]?.message ?? "The process did not pass validation.");
       return;
     }
@@ -349,20 +386,21 @@ function OperationalProcessDialog({
 
         <div className="max-h-[calc(94vh-10rem)] overflow-y-auto px-6 py-4">
           <ol className="mb-5 flex gap-2 overflow-x-auto pb-2">
-            {activeOperation.steps.map((candidate, index) => {
+            {groups.map((candidate, index) => {
               const active = index === stepIndex;
               const done = completed.has(index);
               const enabled = freeNavigation || index <= stepIndex || completed.has(index - 1);
               return (
-                <li key={`${candidate}-${index}`} className="shrink-0">
+                <li key={`${candidate.title}-${index}`} className="shrink-0">
                   <button
                     type="button"
                     disabled={!enabled}
                     onClick={() => moveTo(index)}
                     className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${active ? "border-primary/40 bg-primary/10 text-primary" : done ? "border-success/30 bg-success/10 text-success" : "border-border bg-card text-muted-foreground"} disabled:cursor-not-allowed disabled:opacity-50`}
+                    title={candidate.title}
                   >
                     <span className="grid h-5 w-5 place-items-center rounded-full bg-background/70 text-[10px] font-semibold">{done ? "✓" : index + 1}</span>
-                    {candidate}
+                    <span className="max-w-[220px] truncate">{candidate.title}</span>
                   </button>
                 </li>
               );
@@ -371,8 +409,9 @@ function OperationalProcessDialog({
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
             <Card className="p-5">
-              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-primary">Step {stepIndex + 1} of {activeOperation.steps.length}</div>
-              <h3 className="mt-1 font-display text-xl">{step}</h3>
+              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-primary">Step {stepIndex + 1} of {groups.length}</div>
+
+              <h3 className="mt-1 font-display text-xl">{group?.title ?? ""}</h3>
               <p className="mt-1 text-xs text-muted-foreground">Follow the standard Impilo operational sequence.</p>
 
               {blockingResults.length > 0 && <div className="mt-4"><RuleResults results={blockingResults} /></div>}
@@ -449,7 +488,7 @@ function OperationalProcessDialog({
             <Button variant="outline" disabled={stepIndex === 0 || submitting} onClick={() => setStepIndex((current) => Math.max(0, current - 1))}>
               <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
             </Button>
-            <div className="text-xs text-muted-foreground">{quickMissing.length ? `${quickMissing.length} required ${quickMissing.length === 1 ? "field" : "fields"} missing` : `${completed.size} of ${activeOperation.steps.length} steps completed`}</div>
+            <div className="text-xs text-muted-foreground">{quickMissing.length ? `${quickMissing.length} required ${quickMissing.length === 1 ? "field" : "fields"} missing` : `${completed.size} of ${groups.length} steps completed`}</div>
             {isLast ? (
               <Button disabled={submitting || quickMissing.length > 0} onClick={() => void submit()} className="bg-gradient-primary hover:opacity-90">
                 {submitting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Send className="mr-1.5 h-4 w-4" />} Submit
