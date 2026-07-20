@@ -41,7 +41,8 @@ export const compatibilityApi = {
       };
     }
 
-    const response = await fetch(`${apiBaseUrl}${operation.endpoint}`, {
+    const endpoint = `/api/compat/${operation.moduleKey}/${operation.action}`;
+    const response = await fetch(`${apiBaseUrl}${endpoint}`, {
       method: "POST",
       credentials: "include",
       signal,
