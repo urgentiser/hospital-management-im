@@ -199,7 +199,9 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [ruleResults, setRuleResults] = useState<RuleResult[]>([]);
   const [patientPickerOpen, setPatientPickerOpen] = useState(false);
+  const [patientSearch, setPatientSearch] = useState("");
   const [busy, setBusy] = useState(false);
+
   const stepperRef = useRef<HTMLDivElement>(null);
   const total = flow.steps.length;
   const step = flow.steps[index];
