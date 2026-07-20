@@ -221,9 +221,41 @@ function OperationalProcessDialog({
   if (!operation) return null;
   const activeOperation = operation;
 
-  const step = activeOperation.steps[stepIndex];
-  const isLast = stepIndex === activeOperation.steps.length - 1;
-  const stepFields = activeOperation.fields.filter((field) => field.stepIndex === stepIndex);
+  // Consolidate single-field steps into combined groups so the wizard doesn't
+  // waste a stepper page on selections with only one dropdown or note field.
+  const groups = useMemo(() => {
+    const stepFieldMap = activeOperation.steps.map((_, index) =>
+      activeOperation.fields.filter((field) => field.stepIndex === index),
+    );
+    type Group = { title: string; stepIndices: number[]; fields: typeof activeOperation.fields };
+    const result: Group[] = [];
+    let bucket: Group | null = null;
+    activeOperation.steps.forEach((title, index) => {
+      const fields = stepFieldMap[index];
+      const light = fields.length <= 1;
+      if (light) {
+        if (!bucket) bucket = { title: "", stepIndices: [], fields: [] };
+        bucket.stepIndices.push(index);
+        bucket.fields.push(...fields);
+      } else {
+        if (bucket) { result.push(bucket); bucket = null; }
+        result.push({ title, stepIndices: [index], fields });
+      }
+    });
+    if (bucket) result.push(bucket);
+    return result.map((group) => ({
+      ...group,
+      title: group.stepIndices.length === 1
+        ? activeOperation.steps[group.stepIndices[0]]
+        : group.stepIndices.length <= 3
+          ? group.stepIndices.map((i) => activeOperation.steps[i]).join(" · ")
+          : `Context & selections (${group.stepIndices.length} items)`,
+    }));
+  }, [activeOperation]);
+
+  const group = groups[stepIndex] ?? groups[0];
+  const isLast = stepIndex === groups.length - 1;
+  const stepFields = group?.fields ?? [];
   const freeNavigation = (activeOperation.navigationType ?? "").toLowerCase().includes("free");
   const payload = createCompatibilityPayload(activeOperation, values);
   const contextValues = {
@@ -234,6 +266,7 @@ function OperationalProcessDialog({
     mrn: patient?.mrn ?? "",
   };
   const quickMissing = stepFields.filter((field) => field.required && (values[field.name] === undefined || values[field.name] === "" || values[field.name] === false));
+
 
   function setValue(name: string, value: string | boolean): void {
     setValues((current) => ({ ...current, [name]: value }));
