@@ -1,31 +1,56 @@
-import { useMemo, useRef, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowLeft, ArrowRight, CheckCircle2, Radio,
-  ClipboardCheck, User, HeartPulse, Building2, Wallet, AlertTriangle,
-  UserPlus, ChevronRight,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  ClipboardCheck,
+  HeartPulse,
+  Radio,
+  User,
+  Wallet,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Card } from "@/components/app-shell";
+import { RuleResults } from "@/components/workflow/rule-results";
+import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useWorkflow, type ModuleKey } from "@/lib/workflow-store";
-import { usePatientContext, availablePatients } from "@/lib/patient-context";
-import { useFacilityContext } from "@/lib/facility-context";
-
-// ---------- Types ----------
+import { FACILITIES, useFacilityContext } from "@/lib/facility-context";
+import { availablePatients, usePatientContext } from "@/lib/patient-context";
+import type { ModuleKey } from "@/lib/workflow-store";
+import type { RuleEvaluationSummary, RuleResult } from "@/rules/types";
+import { useAuth } from "@/security/auth-provider";
+import { canAccessFacility } from "@/security/facility-scope";
+import { hasPermission, Permissions } from "@/security/permissions";
+import { getDefaultModulePermissions } from "@/security/module-permissions";
+import type { Permission } from "@/security/types";
+import { draftsService } from "@/services/drafts.service";
+import { getModuleService } from "@/services/modules/registry";
+import { validateModuleInput } from "@/validation/engine";
 
 export type StepField = {
   name: string;
   label: string;
-  type?: "text" | "textarea" | "number" | "select";
+  type?: "text" | "textarea" | "number" | "select" | "date" | "datetime-local";
   options?: string[];
   required?: boolean;
   placeholder?: string;
   hint?: string;
-  group?: string; // NEW: group label for form section
+  group?: string;
+  permission?: Permission;
+  readOnly?: boolean;
 };
 
 export type FlowStep = {
@@ -36,6 +61,9 @@ export type FlowStep = {
   checklist?: string[];
   events?: string[];
   rules?: string[];
+  ruleIds?: string[];
+  permission?: Permission;
+  optional?: boolean;
 };
 
 export type BusinessFlow = {
@@ -47,89 +75,91 @@ export type BusinessFlow = {
   patientRequired?: boolean;
   steps: FlowStep[];
   globalRules: string[];
+  globalRuleIds?: string[];
   handoffs?: string[];
   events: string[];
   acceptance: string[];
   completionKind: string;
   completionStatus: string;
   completionLabel?: string;
+  createPermission?: Permission;
+  completionPermission?: Permission;
+  draftKey?: string;
   titleFrom?: (values: Record<string, string>) => string;
   subtitleFrom?: (values: Record<string, string>) => string;
 };
 
-// ---------- Patient Banner ----------
+type Values = Record<string, string>;
 
 export function PatientBanner({
   values,
   onSelectPatient,
 }: {
-  values: Record<string, string>;
+  values: Values;
   onSelectPatient?: () => void;
 }) {
-  const hasPatient = !!(values.patient || values.name);
+  const hasPatient = Boolean(values.patient || values.name);
   const name = values.patient || values.name || "";
   const mrn = values.mrn || values.idNumber || "—";
   const dob = values.dob || "—";
   const gender = values.gender || "—";
   const facility = values.facility || "—";
-  const ward = values.ward || values.unit || "";
+  const ward = values.ward || values.unit || "—";
   const allergies = values.allergies?.trim();
   const scheme = values.scheme || values.funder || "—";
 
   if (!hasPatient) {
     return (
-      <div className="mb-5 flex items-center justify-between gap-4 rounded-xl border border-dashed border-border bg-muted/30 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground">
-            <User className="h-4 w-4" />
+      <Card className="flex min-h-[82px] items-center justify-between gap-4 border-primary/25 bg-primary/[0.035] px-4 py-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+            <User className="h-5 w-5" />
           </div>
-          <div className="leading-tight">
-            <div className="text-sm font-medium text-foreground">No patient selected</div>
-            <div className="text-xs text-muted-foreground">
-              Select a patient to begin the workflow and load the active episode of care.
-            </div>
+          <div className="min-w-0">
+            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Patient banner</div>
+            <div className="font-medium">No patient selected</div>
+            <p className="truncate text-xs text-muted-foreground">
+              Select a patient to load the active episode of care.
+            </p>
           </div>
         </div>
-        <Button size="sm" variant="outline" onClick={onSelectPatient}>
-          <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Select patient
-        </Button>
-      </div>
+        {onSelectPatient && (
+          <Button size="sm" variant="outline" onClick={onSelectPatient}>
+            Select patient
+          </Button>
+        )}
+      </Card>
     );
   }
 
   return (
-    <div className="mb-5 rounded-xl border border-primary/25 bg-gradient-to-r from-primary/10 via-accent/5 to-transparent px-4 py-2.5 shadow-soft">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-primary">
-            <User className="h-4 w-4" />
+    <Card className="border-primary/25 bg-primary/[0.035] px-4 py-3">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+        <div className="flex min-w-[230px] items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+            <User className="h-5 w-5" />
           </div>
-          <div className="min-w-0 leading-tight">
-            <div className="truncate font-display text-[15px] font-semibold text-foreground">{name}</div>
-            <div className="truncate text-[11px] text-muted-foreground">
-              <span className="font-mono">{mrn}</span> · {dob} · {gender}
-            </div>
+          <div className="min-w-0">
+            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Patient</div>
+            <div className="truncate font-semibold">{name}</div>
+            <div className="text-xs text-muted-foreground">{mrn} · {dob} · {gender}</div>
           </div>
         </div>
-        <div className="hidden h-6 w-px bg-border sm:block" />
-        <BannerCell icon={Building2} label="Facility" value={facility} />
-        {ward && <BannerCell icon={HeartPulse} label="Ward" value={ward} />}
+        <BannerCell icon={Building2} label="Facility / ward" value={`${facility} · ${ward}`} />
         <BannerCell icon={Wallet} label="Scheme" value={scheme} />
-        {allergies && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-0.5 text-[11px] font-medium text-destructive">
-            <AlertTriangle className="h-3 w-3" /> {allergies}
-          </span>
-        )}
+        <BannerCell
+          icon={HeartPulse}
+          label="Clinical alerts"
+          value={allergies ? `Allergies: ${allergies}` : "No alerts recorded"}
+          alert={Boolean(allergies)}
+        />
         {onSelectPatient && (
-          <button
-            onClick={onSelectPatient}
-            className="ml-auto text-[11px] font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
-          >
+          <Button className="ml-auto" size="sm" variant="ghost" onClick={onSelectPatient}>
             Change patient
-          </button>
+          </Button>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -137,395 +167,481 @@ function BannerCell({
   icon: Icon,
   label,
   value,
+  alert = false,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
+  alert?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-1.5">
-      <Icon className="h-3 w-3 text-muted-foreground" />
-      <div className="leading-tight">
-        <div className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className="text-[11px] font-medium text-foreground">{value}</div>
+    <div className="flex min-w-[150px] items-center gap-2 border-l border-border pl-4">
+      <Icon className={`h-4 w-4 shrink-0 ${alert ? "text-destructive" : "text-muted-foreground"}`} />
+      <div className="min-w-0">
+        <div className="text-[9px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+        <div className={`truncate text-xs font-medium ${alert ? "text-destructive" : ""}`}>{value}</div>
       </div>
     </div>
   );
 }
 
-// ---------- Wizard ----------
-
 export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
-  const create = useWorkflow((s) => s.create);
-  const currentPatientId = usePatientContext((s) => s.currentPatientId);
-  const setPatient = usePatientContext((s) => s.setPatient);
-  const globalFacility = useFacilityContext((s) => s.facility);
+  const { principal } = useAuth();
+  const currentPatientId = usePatientContext((state) => state.currentPatientId);
+  const setPatient = usePatientContext((state) => state.setPatient);
+  const globalFacility = useFacilityContext((state) => state.facility);
   const [index, setIndex] = useState(0);
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Values>({});
   const [completed, setCompleted] = useState<Set<number>>(new Set());
-  const stepperRef = useRef<HTMLOListElement | null>(null);
-
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [ruleResults, setRuleResults] = useState<RuleResult[]>([]);
+  const [patientPickerOpen, setPatientPickerOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const stepperRef = useRef<HTMLDivElement>(null);
   const total = flow.steps.length;
   const step = flow.steps[index];
   const isLast = index === total - 1;
+  const draftKey = flow.draftKey ?? `${flow.moduleKey}:${flow.title}`;
+  const defaultPermissions = getDefaultModulePermissions(flow.moduleKey);
+  const createPermission = flow.createPermission ?? defaultPermissions.create;
+  const managePermission = flow.completionPermission ?? defaultPermissions.manage ?? createPermission;
 
-  // Sync patient context into flow values
   useEffect(() => {
-    if (currentPatientId) {
-      const p = availablePatients.find((x) => x.id === currentPatientId);
-      if (p) {
-        setValues((s) => ({
-          ...s,
-          patient: s.patient || p.name,
-          mrn: s.mrn || p.mrn,
-          scheme: s.scheme || p.scheme,
-        }));
-      }
-    }
-  }, [currentPatientId]);
+    const draft = draftsService.load<Values>(draftKey);
+    if (!draft) return;
+    setValues(draft.values);
+    setIndex(Math.min(draft.stepIndex, Math.max(0, flow.steps.length - 1)));
+    setCompleted(new Set(draft.completedSteps));
+  }, [draftKey, flow.steps.length]);
 
-  // Inherit global facility into any workflow that has a `facility` field
+  useEffect(() => {
+    if (!currentPatientId) return;
+    const patient = availablePatients.find((candidate) => candidate.id === currentPatientId);
+    if (!patient) return;
+    setValues((current) => ({
+      ...current,
+      patientId: patient.id,
+      patient: patient.name,
+      mrn: patient.mrn,
+      scheme: patient.scheme,
+      dob: patient.dob,
+      gender: patient.gender,
+      patientStatus: patient.status,
+      facility: current.facility || patient.facility || globalFacility,
+    }));
+  }, [currentPatientId, globalFacility]);
+
   useEffect(() => {
     if (globalFacility && globalFacility !== "All facilities") {
-      setValues((s) => (s.facility ? s : { ...s, facility: globalFacility }));
+      setValues((current) => (current.facility ? current : { ...current, facility: globalFacility }));
     }
   }, [globalFacility]);
 
-  // Keep active step in view on stepper scroll
   useEffect(() => {
-    const el = stepperRef.current?.querySelector<HTMLElement>(`[data-step-idx="${index}"]`);
-    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    const element = stepperRef.current?.querySelector<HTMLElement>(`[data-step-idx="${index}"]`);
+    element?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, [index]);
 
-  const setValue = (name: string, v: string) => setValues((s) => ({ ...s, [name]: v }));
+  const groupedFields = useMemo(() => {
+    const groups = new Map<string, StepField[]>();
+    for (const field of step.fields ?? []) {
+      const key = field.group ?? "";
+      groups.set(key, [...(groups.get(key) ?? []), field]);
+    }
+    return [...groups.entries()];
+  }, [step.fields]);
 
   const missingRequired = useMemo(
-    () => (step.fields ?? []).filter((f) => f.required && !values[f.name]?.trim()),
+    () =>
+      (step.fields ?? []).filter((field) => {
+        if (!field.required) return false;
+        const value = values[field.name];
+        return value === undefined || value === null || String(value).trim() === "";
+      }),
     [step.fields, values],
   );
 
-  const validateStep = (): boolean => {
-    if (missingRequired.length) {
-      toast.error(`Complete required fields: ${missingRequired.map((m) => m.label).join(", ")}`);
-      return false;
+  const permission = step.permission ?? createPermission;
+  const facilityAllowed = !values.facility || canAccessFacility(principal, values.facility);
+  const quickBlockedReasons = [
+    ...missingRequired.map((field) => `${field.label} is required`),
+    ...(flow.patientRequired && !values.patient ? ["Select a patient"] : []),
+    ...(!hasPermission(principal, permission) ? [`Permission ${permission} is required`] : []),
+    ...(!facilityAllowed ? [`You are not authorised for ${values.facility}`] : []),
+  ];
+
+  function setValue(name: string, value: string) {
+    setValues((current) => ({ ...current, [name]: value }));
+    setFieldErrors((current) => {
+      if (!current[name]) return current;
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
+  }
+
+
+  async function validateCurrentStep(): Promise<RuleEvaluationSummary> {
+    const summary = await validateModuleInput({
+      moduleKey: flow.moduleKey,
+      action: `step:${step.key}`,
+      fields: (step.fields ?? []).map((field) => ({ name: field.name, label: field.label, type: field.type, required: field.required, stepIndex: index })),
+      values,
+      user: principal,
+      facility: values.facility || globalFacility,
+      patientId: values.patientId || currentPatientId,
+      patientRequired: flow.patientRequired,
+      permission,
+      completedSteps: [...completed].map((stepIndex) => flow.steps[stepIndex]?.key).filter(Boolean),
+      mandatorySteps: flow.steps.filter((candidate) => !candidate.optional).map((candidate) => candidate.key),
+      additionalRuleIds: [...(flow.globalRuleIds ?? []), ...(step.ruleIds ?? [])],
+      stepIndex: index,
+    });
+    setFieldErrors(summary.fieldErrors);
+    setRuleResults(summary.results);
+    if (!summary.allowed) toast.error(summary.errors[0]?.message ?? "The workflow step did not pass validation.");
+    else if (summary.warnings.length) toast.warning(summary.warnings[0].message);
+    return summary;
+  }
+
+  async function goNext() {
+    const validation = await validateCurrentStep();
+    if (!validation.allowed) return;
+    setCompleted((current) => new Set(current).add(index));
+    if (!isLast) setIndex((current) => current + 1);
+  }
+
+  function goPrevious() {
+    if (index > 0) setIndex((current) => current - 1);
+  }
+
+  function saveDraft() {
+    draftsService.save({
+      key: draftKey,
+      values,
+      stepIndex: index,
+      completedSteps: [...completed],
+      updatedAt: new Date().toISOString(),
+    });
+    toast.success("Draft saved for this session.");
+  }
+
+  async function submit() {
+    setBusy(true);
+    try {
+      const currentValidation = await validateCurrentStep();
+      if (!currentValidation.allowed) return;
+
+      const completedStepKeys = new Set([...completed, index].map((stepIndex) => flow.steps[stepIndex]?.key));
+      const completionPermission = managePermission;
+      const completion = await validateModuleInput({
+        moduleKey: flow.moduleKey,
+        action: "complete",
+        fields: flow.steps.flatMap((candidateStep, candidateIndex) => (candidateStep.fields ?? []).map((field) => ({ name: field.name, label: field.label, type: field.type, required: field.required, stepIndex: candidateIndex }))),
+        values,
+        user: principal,
+        facility: values.facility || globalFacility,
+        patientId: values.patientId || currentPatientId,
+        patientRequired: flow.patientRequired,
+        permission: completionPermission,
+        completedSteps: [...completedStepKeys].filter((value): value is string => Boolean(value)),
+        mandatorySteps: flow.steps.filter((candidate) => !candidate.optional).map((candidate) => candidate.key),
+        additionalRuleIds: ["common.all-steps-complete", ...(flow.globalRuleIds ?? [])],
+      });
+      setRuleResults(completion.results);
+      setFieldErrors(completion.fieldErrors);
+      if (!completion.allowed) {
+        toast.error(completion.errors[0]?.message ?? "The workflow cannot be completed.");
+        return;
+      }
+
+      const title =
+        flow.titleFrom?.(values) ?? values.patient ?? values.name ?? flow.completionLabel ?? flow.title;
+      const subtitle =
+        flow.subtitleFrom?.(values) ??
+        [values.facility, values.procedure, values.ward].filter(Boolean).join(" · ");
+      const fields: Record<string, string | number> = { Kind: flow.completionKind };
+      for (const candidateStep of flow.steps) {
+        for (const field of candidateStep.fields ?? []) {
+          if (values[field.name] !== undefined && values[field.name] !== "") {
+            fields[field.label] = field.type === "number" ? Number(values[field.name]) : values[field.name];
+          }
+        }
+      }
+
+      const result = await getModuleService(flow.moduleKey).createRecord({
+        title,
+        subtitle,
+        status: flow.completionStatus,
+        fields,
+      });
+      toast.success(`${flow.completionLabel ?? flow.title} completed`, {
+        description: `${result.data.id} · ${result.correlationId}`,
+      });
+      draftsService.remove(draftKey);
+      setValues({});
+      setCompleted(new Set());
+      setFieldErrors({});
+      setRuleResults([]);
+      setIndex(0);
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "The workflow could not be completed.");
+    } finally {
+      setBusy(false);
     }
-    return true;
-  };
+  }
 
-  const goNext = () => {
-    if (!validateStep()) return;
-    setCompleted((c) => new Set(c).add(index));
-    if (!isLast) setIndex(index + 1);
-  };
-
-  const goPrev = () => index > 0 && setIndex(index - 1);
-
-  const submit = () => {
-    if (!validateStep()) return;
-    const title = flow.titleFrom?.(values) ?? (values.patient || values.name || flow.completionLabel || flow.title);
-    const subtitle = flow.subtitleFrom?.(values) ?? [values.facility, values.procedure, values.ward].filter(Boolean).join(" · ");
-    const fields: Record<string, string | number> = { Kind: flow.completionKind };
-    for (const s of flow.steps) for (const f of s.fields ?? []) if (values[f.name]) fields[f.label] = f.type === "number" ? Number(values[f.name]) : values[f.name];
-    const rec = create(flow.moduleKey, { title, subtitle, status: flow.completionStatus, fields });
-    toast.success(`${flow.completionLabel ?? flow.title} completed`, { description: rec.id });
-    setValues({});
-    setCompleted(new Set());
-    setIndex(0);
-  };
-
-  const progress = useMemo(() => Math.round((completed.size / total) * 100), [completed, total]);
-
-  // Group fields by `group` (fallback single group)
-  const grouped = useMemo(() => {
-    const groups = new Map<string, StepField[]>();
-    for (const f of step.fields ?? []) {
-      const key = f.group ?? "";
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)!.push(f);
-    }
-    return Array.from(groups.entries());
-  }, [step.fields]);
-
-  const openPatientPicker = () => {
-    // simple prompt-free: pick first patient if none selected; otherwise clear then user chooses via topbar chip
-    if (!currentPatientId && availablePatients[0]) {
-      setPatient(availablePatients[0].id);
-      toast.success("Patient loaded", { description: availablePatients[0].name });
-    } else {
-      toast.info("Use the patient chip in the top bar to switch patient.");
-    }
-  };
+  const progress = Math.round((completed.size / total) * 100);
+  const canOverrideFacility = hasPermission(principal, Permissions.FacilityOverride);
+  const blockedText = quickBlockedReasons.join("; ");
 
   return (
-    <TooltipProvider delayDuration={200}>
-      {flow.patientRequired && <PatientBanner values={values} onSelectPatient={openPatientPicker} />}
+    <TooltipProvider>
+      <div className="space-y-4">
+        {flow.patientRequired && <PatientBanner values={values} onSelectPatient={() => setPatientPickerOpen(true)} />}
 
-      {/* Workflow summary row */}
-      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px]">
-        <span className="font-display text-sm font-semibold text-foreground">{flow.title}</span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-          Draft
-        </span>
-        <span className="text-muted-foreground">·</span>
-        <span className="font-medium text-foreground">Step {index + 1} of {total}</span>
-        <span className="text-muted-foreground">·</span>
-        <span className="text-muted-foreground">{progress}% complete</span>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="hidden h-1.5 w-40 overflow-hidden rounded-full bg-muted sm:block" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
-            <div className="h-full bg-gradient-primary transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${progress}%` }} />
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card/50 px-3 py-2">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="font-semibold">{flow.title}</span>
+            <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium">Draft</span>
+            <span className="text-muted-foreground">Step {index + 1} of {total}</span>
+            <span className="text-muted-foreground">{progress}% complete</span>
           </div>
+          <div className="flex items-center gap-2"><span className="text-[11px] text-muted-foreground">{completed.size} of {total} steps signed</span><CurrentStateModuleButton moduleKey={flow.moduleKey} compact /></div>
         </div>
-      </div>
 
-      {/* Single-row scrollable stepper */}
-      <div className="mb-5 overflow-hidden rounded-xl border border-border bg-card/40 backdrop-blur-sm">
-        <ol
-          ref={stepperRef}
-          className="scrollbar-hidden flex snap-x snap-mandatory items-center gap-1 overflow-x-auto px-2 py-2"
-          role="group"
-          aria-label="Workflow steps"
-        >
-          {flow.steps.map((s, i) => {
-            const done = completed.has(i);
-            const active = i === index;
-            const canJump = done || i <= Math.max(...Array.from(completed).concat([-1])) + 1;
+        <div ref={stepperRef} className="flex snap-x gap-2 overflow-x-auto pb-1 scrollbar-hidden" aria-label="Workflow steps">
+          {flow.steps.map((candidate, candidateIndex) => {
+            const done = completed.has(candidateIndex);
+            const active = candidateIndex === index;
+            const furthest = Math.max(...[...completed, -1]) + 1;
+            const canJump = done || candidateIndex <= furthest;
             return (
-              <li key={s.key} data-step-idx={i} className="flex shrink-0 snap-start items-center">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => canJump && setIndex(i)}
-                      disabled={!canJump}
-                      aria-current={active ? "step" : undefined}
-                      aria-label={`Step ${i + 1}: ${s.title}${done ? " (completed)" : active ? " (current)" : ""}`}
-                      className={
-                        "inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none " +
-                        (active
-                          ? "border-primary/60 bg-primary/10 text-foreground shadow-soft"
-                          : done
-                          ? "border-emerald-500/30 bg-emerald-500/5 text-foreground hover:border-emerald-500/50"
-                          : "border-transparent bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground")
-                      }
-                    >
-                      <span
-                        aria-hidden
-                        className={
-                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold " +
-                          (done
-                            ? "bg-emerald-500 text-white"
-                            : active
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground")
-                        }
-                      >
-                        {done ? <CheckCircle2 className="h-3 w-3" /> : i + 1}
-                      </span>
-                      <span className="max-w-[140px] truncate font-medium">{s.title}</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <div className="text-xs font-medium">{s.title}</div>
-                    <div className="mt-0.5 text-[11px] text-muted-foreground">{s.description}</div>
-                  </TooltipContent>
-                </Tooltip>
-                {i < flow.steps.length - 1 && (
-                  <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/60" aria-hidden />
-                )}
-              </li>
+              <Tooltip key={candidate.key}>
+                <TooltipTrigger asChild>
+                  <button
+                    data-step-idx={candidateIndex}
+                    type="button"
+                    disabled={!canJump}
+                    onClick={() => canJump && setIndex(candidateIndex)}
+                    aria-current={active ? "step" : undefined}
+                    className={
+                      "inline-flex shrink-0 snap-start items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 " +
+                      (active
+                        ? "border-primary/60 bg-primary/10 text-foreground shadow-soft"
+                        : done
+                          ? "border-success/30 bg-success/5 text-foreground"
+                          : "border-border bg-card text-muted-foreground hover:bg-muted/40")
+                    }
+                  >
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full border border-current/30 text-[10px] font-semibold">
+                      {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : candidateIndex + 1}
+                    </span>
+                    <span className="max-w-[180px] truncate">{candidate.title}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{candidate.title}: {candidate.description}</TooltipContent>
+              </Tooltip>
             );
           })}
-        </ol>
-      </div>
+        </div>
 
-      {/* Content grid: form + optional side panel */}
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <Card className="p-5 sm:p-6">
-          <div className="mb-4 flex items-start justify-between gap-3 border-b border-border pb-3">
-            <div className="min-w-0">
-              <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
-                Step {String(index + 1).padStart(2, "0")} · {flow.title}
-              </div>
-              <h3 className="mt-1 font-display text-xl font-semibold tracking-tight">{step.title}</h3>
-              <p className="mt-1 text-[13px] leading-snug text-muted-foreground">{step.description}</p>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+          <Card className="p-5 sm:p-6">
+            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
+              Step {String(index + 1).padStart(2, "0")} · {flow.title}
             </div>
-          </div>
+            <h2 className="mt-1 font-display text-xl font-semibold">{step.title}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
 
-          {grouped.length > 0 && (
-            <div className="space-y-5">
-              {grouped.map(([groupLabel, fields], gi) => (
-                <div key={groupLabel || `g-${gi}`}>
-                  {groupLabel && (
-                    <div className="mb-2 flex items-center gap-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/80">
-                        {groupLabel}
-                      </div>
-                      <div className="h-px flex-1 bg-border" />
-                    </div>
-                  )}
-                  <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
-                    {fields.map((f) => (
-                      <div key={f.name} className={"grid gap-1 " + (f.type === "textarea" ? "sm:col-span-2" : "")}>
-                        <Label htmlFor={f.name} className="text-[12px] font-medium">
-                          {f.label}
-                          {f.required && <span className="text-destructive"> *</span>}
+            {ruleResults.length > 0 && (
+              <div className="mt-4">
+                <RuleResults results={ruleResults} />
+              </div>
+            )}
+
+            {groupedFields.map(([groupLabel, fields], groupIndex) => (
+              <section key={groupLabel || groupIndex} className={groupIndex === 0 ? "mt-5" : "mt-6 border-t border-border pt-5"}>
+                {groupLabel && (
+                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    {groupLabel}
+                  </div>
+                )}
+                <div className="grid gap-4 md:grid-cols-2">
+                  {fields.map((field) => {
+                    const fieldAllowed = hasPermission(principal, field.permission);
+                    const facilityField = field.name === "facility";
+                    const disabled = field.readOnly || !fieldAllowed || (facilityField && !canOverrideFacility && Boolean(globalFacility));
+                    return (
+                      <div key={field.name} className={field.type === "textarea" ? "md:col-span-2" : ""}>
+                        <Label htmlFor={field.name}>
+                          {field.label}{field.required && <span className="text-destructive"> *</span>}
                         </Label>
-                        {f.type === "textarea" ? (
-                          <Textarea id={f.name} value={values[f.name] ?? ""} rows={3} placeholder={f.placeholder}
-                            onChange={(e) => setValue(f.name, e.target.value)} />
-                        ) : f.type === "select" ? (
-                          <select id={f.name} value={values[f.name] ?? ""}
-                            onChange={(e) => setValue(f.name, e.target.value)}
-                            className="h-10 rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        {field.type === "textarea" ? (
+                          <Textarea
+                            id={field.name}
+                            rows={4}
+                            value={values[field.name] ?? ""}
+                            placeholder={field.placeholder}
+                            disabled={disabled}
+                            aria-invalid={Boolean(fieldErrors[field.name])}
+                            onChange={(event) => setValue(field.name, event.target.value)}
+                          />
+                        ) : field.type === "select" ? (
+                          <select
+                            id={field.name}
+                            value={values[field.name] ?? ""}
+                            disabled={disabled}
+                            aria-invalid={Boolean(fieldErrors[field.name])}
+                            onChange={(event) => setValue(field.name, event.target.value)}
+                            className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
                             <option value="">Select…</option>
-                            {(f.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+                            {(facilityField && !(field.options?.length) ? [...FACILITIES] : field.options ?? []).map((option) => (
+                              <option key={option} value={option}>{option}</option>
+                            ))}
                           </select>
                         ) : (
-                          <Input id={f.name} type={f.type === "number" ? "number" : "text"} value={values[f.name] ?? ""}
-                            placeholder={f.placeholder} className="h-10"
-                            onChange={(e) => setValue(f.name, e.target.value)} />
+                          <Input
+                            id={field.name}
+                            type={field.type === "number" ? "number" : field.type === "date" ? "date" : field.type === "datetime-local" ? "datetime-local" : "text"}
+                            value={values[field.name] ?? ""}
+                            placeholder={field.placeholder}
+                            disabled={disabled}
+                            aria-invalid={Boolean(fieldErrors[field.name])}
+                            onChange={(event) => setValue(field.name, event.target.value)}
+                          />
                         )}
-                        {f.hint && <p className="text-[11px] text-muted-foreground">{f.hint}</p>}
+                        {fieldErrors[field.name] ? (
+                          <p className="mt-1 text-xs text-destructive">{fieldErrors[field.name]}</p>
+                        ) : field.hint ? (
+                          <p className="mt-1 text-[11px] text-muted-foreground">{field.hint}</p>
+                        ) : null}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          )}
+              </section>
+            ))}
 
-          {step.checklist && step.checklist.length > 0 && (
-            <div className="mt-5 rounded-xl border border-border bg-muted/30 p-3.5">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Verify before continuing
-              </div>
-              <ul className="mt-2 space-y-1">
-                {step.checklist.map((c) => (
-                  <li key={c} className="flex items-start gap-2 text-[13px]">
-                    <ClipboardCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span className="text-muted-foreground">{c}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {step.events && step.events.length > 0 && (
-            <div className="mt-4 rounded-xl border border-sky-500/20 bg-sky-500/5 p-3">
-              <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400">
-                <Radio className="h-3 w-3" /> Events on complete
-              </div>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {step.events.map((e) => (
-                  <span key={e} className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[11px] font-mono text-sky-700 dark:text-sky-300">
-                    {e}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* Contextual side panel */}
-        <aside className="hidden lg:block">
-          <Card className="sticky top-20 p-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Workflow status
-            </div>
-            <div className="mt-2 space-y-2 text-[12px]">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Progress</span>
-                <span className="font-medium">{progress}%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Signed steps</span>
-                <span className="font-medium">{completed.size} / {total}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Required</span>
-                <span className={"font-medium " + (missingRequired.length ? "text-destructive" : "text-emerald-600")}>
-                  {missingRequired.length ? `${missingRequired.length} missing` : "All complete"}
-                </span>
-              </div>
-            </div>
-            {step.rules && step.rules.length > 0 && (
-              <>
-                <div className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Rules
-                </div>
-                <ul className="mt-1.5 space-y-1">
-                  {step.rules.map((r) => (
-                    <li key={r} className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
-                      <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-primary/60" />
-                      {r}
+            {step.checklist && step.checklist.length > 0 && (
+              <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Verify before continuing</div>
+                <ul className="mt-2 space-y-1.5">
+                  {step.checklist.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {item}
                     </li>
                   ))}
                 </ul>
-              </>
+              </div>
+            )}
+
+            {step.events && step.events.length > 0 && (
+              <div className="mt-4 rounded-xl border border-info/20 bg-info/5 p-3">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-info">
+                  <Radio className="h-3 w-3" /> Events on completion
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {step.events.map((eventName) => (
+                    <span key={eventName} className="rounded-md border border-info/30 bg-info/10 px-2 py-0.5 font-mono text-[11px] text-info">
+                      {eventName}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
           </Card>
-        </aside>
-      </div>
 
-      {/* Sticky action bar */}
-      <div className="sticky bottom-3 z-10 mt-5">
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-elevated backdrop-blur">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={goPrev} disabled={index === 0}>
-              <ArrowLeft className="mr-1 h-3.5 w-3.5" /> Back
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => toast.success("Draft saved")} className="text-muted-foreground hover:text-foreground">
-              Save draft
-            </Button>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-[11px] text-muted-foreground sm:inline">
-              {completed.size} of {total} signed
-            </span>
-            {isLast ? (
+          <aside className="hidden lg:block">
+            <Card className="sticky top-20 p-4">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Workflow status</div>
+              <dl className="mt-3 space-y-2 text-xs">
+                <div className="flex justify-between"><dt className="text-muted-foreground">Progress</dt><dd className="font-medium">{progress}%</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">Signed steps</dt><dd className="font-medium">{completed.size} / {total}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">Required</dt><dd className={quickBlockedReasons.length ? "font-medium text-destructive" : "font-medium text-success"}>{quickBlockedReasons.length ? `${quickBlockedReasons.length} outstanding` : "All complete"}</dd></div>
+              </dl>
+              {(step.rules?.length || flow.globalRules.length) ? (
+                <div className="mt-5">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Business guidance</div>
+                  <ul className="mt-2 space-y-1.5">
+                    {[...flow.globalRules, ...(step.rules ?? [])].map((rule) => (
+                      <li key={rule} className="flex items-start gap-2 text-[11px] text-muted-foreground">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary" /> {rule}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {!facilityAllowed && (
+                <div className="mt-4 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Facility access is not authorised.
+                </div>
+              )}
+            </Card>
+          </aside>
+        </div>
+
+        <div className="sticky bottom-3 z-10">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card/95 px-4 py-3 shadow-elevated backdrop-blur">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={goPrevious} disabled={index === 0 || busy}>
+                <ArrowLeft className="mr-1 h-3.5 w-3.5" /> Back
+              </Button>
+              <Button variant="ghost" size="sm" onClick={saveDraft} disabled={busy}>Save draft</Button>
+            </div>
+            <div className="flex items-center gap-3">
+              {quickBlockedReasons.length > 0 && (
+                <span className="hidden max-w-[380px] truncate text-[11px] text-destructive sm:inline">{blockedText}</span>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
                     <Button
                       size="sm"
-                      onClick={submit}
-                      disabled={missingRequired.length > 0}
                       className="bg-gradient-primary hover:opacity-90"
+                      disabled={quickBlockedReasons.length > 0 || busy}
+                      onClick={() => void (isLast ? submit() : goNext())}
                     >
-                      <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Complete flow
+                      {isLast ? <><CheckCircle2 className="mr-1 h-3.5 w-3.5" /> {busy ? "Completing…" : "Complete flow"}</> : <>Next step <ArrowRight className="ml-1 h-3.5 w-3.5" /></>}
                     </Button>
                   </span>
                 </TooltipTrigger>
-                {missingRequired.length > 0 && (
-                  <TooltipContent side="top">
-                    Complete required fields: {missingRequired.map((m) => m.label).join(", ")}
-                  </TooltipContent>
-                )}
+                {quickBlockedReasons.length > 0 && <TooltipContent>{blockedText}</TooltipContent>}
               </Tooltip>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Button
-                      size="sm"
-                      onClick={goNext}
-                      disabled={missingRequired.length > 0}
-                      className="bg-gradient-primary hover:opacity-90"
-                    >
-                      Next step <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                {missingRequired.length > 0 && (
-                  <TooltipContent side="top">
-                    Complete required fields: {missingRequired.map((m) => m.label).join(", ")}
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            )}
+            </div>
           </div>
         </div>
       </div>
+
+      <Dialog open={patientPickerOpen} onOpenChange={setPatientPickerOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Select patient and active context</DialogTitle>
+            <DialogDescription>Choose the patient explicitly. Impilo will not silently select the first record.</DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[460px] space-y-2 overflow-y-auto pr-1">
+            {availablePatients.map((patient) => (
+              <button
+                key={patient.id}
+                type="button"
+                onClick={() => {
+                  setPatient(patient.id);
+                  setPatientPickerOpen(false);
+                  toast.success("Patient context loaded", { description: patient.name });
+                }}
+                className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left hover:border-primary/40 hover:bg-primary/[0.025]"
+              >
+                <span>
+                  <span className="block font-medium">{patient.name}</span>
+                  <span className="block text-xs text-muted-foreground">{patient.mrn} · {patient.dob} · {patient.scheme}</span>
+                </span>
+                <span className="text-xs text-muted-foreground">{patient.facility}</span>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 }

@@ -1,0 +1,71 @@
+import type { ConnectedApplication } from "@/contracts/connected-apps";
+
+const configuredApplications: ConnectedApplication[] = [
+  {
+    key: "pcms",
+    name: "PCMS",
+    description: "Product master data",
+    url: import.meta.env.VITE_PCMS_URL ?? "",
+    requiredPermission: "ConnectedApps.PCMS.Launch",
+    facilityScoped: false,
+    openMode: "new-tab",
+    healthUrl: import.meta.env.VITE_PCMS_HEALTH_URL,
+    category: "catalogue",
+  },
+  {
+    key: "multitouch-ward",
+    name: "MultiTouch Ward",
+    description: "Ward census and operational workflows",
+    url: import.meta.env.VITE_MULTITOUCH_WARD_URL ?? "",
+    requiredPermission: "ConnectedApps.MultiTouchWard.Launch",
+    facilityScoped: true,
+    openMode: "new-tab",
+    category: "multitouch",
+  },
+  {
+    key: "multitouch-theatre",
+    name: "MultiTouch Theatre",
+    description: "Theatre operational workflows",
+    url: import.meta.env.VITE_MULTITOUCH_THEATRE_URL ?? "",
+    requiredPermission: "ConnectedApps.MultiTouchTheatre.Launch",
+    facilityScoped: true,
+    openMode: "new-tab",
+    category: "multitouch",
+  },
+  {
+    key: "multitouch-pharmacy",
+    name: "MultiTouch Pharmacy",
+    description: "Pharmacy operational workflows",
+    url: import.meta.env.VITE_MULTITOUCH_PHARMACY_URL ?? "",
+    requiredPermission: "ConnectedApps.MultiTouchPharmacy.Launch",
+    facilityScoped: true,
+    openMode: "new-tab",
+    category: "multitouch",
+  },
+  {
+    key: "multitouch-reception",
+    name: "MultiTouch Reception",
+    description: "Front desk and reception operations",
+    url: import.meta.env.VITE_MULTITOUCH_RECEPTION_URL ?? "",
+    requiredPermission: "ConnectedApps.MultiTouchReception.Launch",
+    facilityScoped: true,
+    openMode: "new-tab",
+    category: "multitouch",
+  },
+  {
+    key: "multitouch-patient",
+    name: "MultiTouch Patient",
+    description: "Patient kiosk and self-service",
+    url: import.meta.env.VITE_MULTITOUCH_PATIENT_URL ?? "",
+    requiredPermission: "ConnectedApps.MultiTouchPatient.Launch",
+    facilityScoped: true,
+    openMode: "new-tab",
+    category: "multitouch",
+  },
+];
+
+export const connectedApplications = {
+  all: configuredApplications,
+  pcms: configuredApplications.find((app) => app.key === "pcms")!,
+  multiTouch: configuredApplications.filter((app) => app.category === "multitouch"),
+};

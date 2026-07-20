@@ -6,6 +6,7 @@ import {
   Users,
   BedDouble,
   ShieldCheck,
+  BadgeCheck,
   Building2,
   Stethoscope,
   Wallet,
@@ -66,6 +67,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronRight, LogOut, UserCog } from "lucide-react";
 import { usePatientContext, availablePatients } from "@/lib/patient-context";
+import { useAuth } from "@/security/auth-provider";
+import { getAuthorisedFacilityNames } from "@/security/facility-scope";
+import { canAccessRoute } from "@/security/route-guard";
+import { connectedApplications } from "@/configuration/connected-apps";
+import { appConfig } from "@/configuration/app-config";
+import { ConnectedApplicationsLauncher } from "@/components/connected-applications-launcher";
+import { CurrentStateModuleButton, CurrentStatePortfolioLauncher } from "@/components/current-state/module-specification";
+import { resolveCurrentStateModuleKey } from "@/current-state/module-manifest";
 
 
 
@@ -85,6 +94,7 @@ const navGroups: NavGroup[] = [
       { to: "/patients", label: "Patient Maintenance", icon: Users, badge: "320" },
       { to: "/triage", label: "Triage", icon: Triangle },
       { to: "/preadmissions", label: "Preadmissions", icon: ClipboardEdit },
+      { to: "/member-validation", label: "Member Validation", icon: BadgeCheck },
       { to: "/clinical-assessments", label: "Clinical Assessments", icon: ClipboardCheck },
       { to: "/admissions", label: "Admissions", icon: BedDouble, badge: "128" },
       { to: "/medical-events", label: "Medical Events", icon: ActivitySquare },
@@ -158,9 +168,17 @@ function isItemActive(pathname: string, to: string) {
 const OPEN_GROUPS_STORAGE_KEY = "impilo-sidebar-open-groups";
 
 function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  // Which group contains the current route — always keep that one open.
+  const { principal } = useAuth();
+  const visibleGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => canAccessRoute(principal, item.to)),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  // Which visible group contains the current route — always keep that one open.
   const activeGroupTitle =
-    navGroups.find((g) => g.items.some((i) => isItemActive(pathname, i.to)))?.title ?? null;
+    visibleGroups.find((g) => g.items.some((i) => isItemActive(pathname, i.to)))?.title ?? null;
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     if (typeof window !== "undefined") {
@@ -173,7 +191,7 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
     }
     // Default: only the active group is expanded; others collapsed.
     const initial: Record<string, boolean> = {};
-    for (const g of navGroups) initial[g.title] = g.title === activeGroupTitle;
+    for (const g of visibleGroups) initial[g.title] = g.title === activeGroupTitle;
     return initial;
   });
 
@@ -207,7 +225,7 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hidden">
-        {navGroups.map((group) => {
+        {visibleGroups.map((group) => {
           const isOpen = !!openGroups[group.title];
           const hasActive = group.items.some((i) => isItemActive(pathname, i.to));
           return (
@@ -285,7 +303,9 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
       <div className="shrink-0 border-t border-sidebar-border p-3">
         <a
-          href="#"
+          href={connectedApplications.pcms.url || undefined}
+          target={connectedApplications.pcms.openMode === "new-tab" ? "_blank" : undefined}
+          rel="noopener noreferrer"
           className="flex items-center justify-between rounded-lg border border-sidebar-border bg-sidebar-accent/40 px-3 py-2.5 text-xs text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
         >
           <div className="flex items-center gap-2">
@@ -298,12 +318,14 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
             </div>
           </div>
         </a>
+        <ConnectedApplicationsLauncher compact excludeKeys={["pcms"]} />
+        <CurrentStatePortfolioLauncher compact />
       </div>
     </>
   );
 }
 
-import { useFacilityContext, FACILITIES } from "@/lib/facility-context";
+import { useFacilityContext, FACILITIES, type Facility } from "@/lib/facility-context";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -311,6 +333,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const facility = useFacilityContext((s) => s.facility);
   const setFacility = useFacilityContext((s) => s.setFacility);
+  const { principal, logout } = useAuth();
+  const authorisedFacilities = getAuthorisedFacilityNames(principal, [...FACILITIES]);
+  const primaryRole = principal?.roles[0] ?? "Impilo User";
+  const currentStateModuleKey = resolveCurrentStateModuleKey(pathname);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -372,6 +398,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
           {/* Patient context chip */}
           <PatientContextChip />
+          {currentStateModuleKey && (
+            <div className="hidden xl:block">
+              <CurrentStateModuleButton moduleKey={currentStateModuleKey} compact />
+            </div>
+          )}
           {/* Facility selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -388,8 +419,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <DropdownMenuLabel className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                 Active facility
               </DropdownMenuLabel>
-              {FACILITIES.map((f) => (
-                <DropdownMenuItem key={f} onClick={() => setFacility(f)}>
+              {authorisedFacilities.map((f) => (
+                <DropdownMenuItem key={f} onClick={() => setFacility(f as Facility)}>
                   <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="truncate">{f}</span>
                 </DropdownMenuItem>
@@ -402,7 +433,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="hidden items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-accent lg:inline-flex"
             title="Environment"
           >
-            <Sparkles className="h-3 w-3" /> Demo
+            <Sparkles className="h-3 w-3" /> {appConfig.environment}
           </span>
           <Link
             to={"/system-health" as never}
@@ -417,6 +448,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             Healthy
           </Link>
 
+          {appConfig.dataMode === "mock" && (
           <button
             title="Reset demo data"
             aria-label="Reset demo data"
@@ -433,6 +465,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <RotateCcw className="h-4 w-4" />
           </button>
+          )}
           <Link
             to="/admissions"
             search={{ new: "1" }}
@@ -460,8 +493,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <CircleUser className="h-4 w-4" />
                 </div>
                 <div className="hidden text-left leading-tight md:block">
-                  <div className="text-xs font-medium">Dr. K. Naidoo</div>
-                  <div className="text-[10px] text-muted-foreground">Clinical Lead</div>
+                  <div className="text-xs font-medium">{principal?.displayName ?? "Impilo User"}</div>
+                  <div className="text-[10px] text-muted-foreground">{primaryRole}</div>
                 </div>
                 <ChevronDown className="ml-0.5 hidden h-3 w-3 text-muted-foreground md:block" />
               </button>
@@ -469,9 +502,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span className="text-sm">Dr. K. Naidoo</span>
+                  <span className="text-sm">{principal?.displayName ?? "Impilo User"}</span>
                   <span className="text-[11px] font-normal text-muted-foreground">
-                    Clinical Lead · {facility}
+                    {primaryRole} · {facility}
                   </span>
                 </div>
               </DropdownMenuLabel>
@@ -485,7 +518,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => void logout()}>
                 <LogOut className="h-4 w-4 text-muted-foreground" /> Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>

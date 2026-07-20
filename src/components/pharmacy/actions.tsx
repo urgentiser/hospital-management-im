@@ -14,6 +14,10 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { useWorkflow, type WorkflowItem } from "@/lib/workflow-store";
+import { useFacilityContext } from "@/lib/facility-context";
+import { useAuth } from "@/security/auth-provider";
+import { getDefaultModulePermissions } from "@/security/module-permissions";
+import { executeModuleAction } from "@/services/module-action.service";
 
 export type FieldSpec = {
   name: string;
@@ -197,24 +201,22 @@ export const SECTIONS: {
 ];
 
 export function useSubmitAction() {
-  const createItem = useWorkflow((s) => s.create);
-  return (a: ActionSpec, values: Record<string, string>) => {
-    const fields: Record<string, string | number> = { Kind: a.kind };
-    a.fields.forEach((f) => {
-      const raw = values[f.name] ?? "";
-      if (!raw) return;
-      fields[f.label] = f.type === "number" ? Number(raw) : raw;
-    });
+  const { principal } = useAuth();
+  const facility = useFacilityContext((state) => state.facility);
+  const permission = getDefaultModulePermissions("pharmacy").manage;
+  return async (action: ActionSpec, values: Record<string, string>) => {
     const title = String(
       values.medication || values.product || values.formula || values.items ||
-      values.originalProduct || values.account || values.customer || a.label,
+      values.originalProduct || values.account || values.customer || action.label,
     );
     const subtitle = [values.patient, values.ward, values.customer, values.account, values.location]
-      .filter(Boolean).join(" · ") || a.kind;
-
-    const rec = createItem("pharmacy", { title, subtitle, status: a.startStatus, fields });
-    toast.success(`${a.label} captured`, { description: `${rec.id} · ${title}` });
-    return rec;
+      .filter(Boolean).join(" · ") || action.kind;
+    const result = await executeModuleAction({
+      moduleKey: "pharmacy", actionKey: action.key, kind: action.kind, startStatus: action.startStatus,
+      fields: action.fields, values, title, subtitle, principal, facility: values.facility || facility, permission,
+    });
+    toast.success(`${action.label} captured`, { description: `${result.data.id} · ${result.correlationId}` });
+    return result.data;
   };
 }
 
@@ -223,9 +225,10 @@ export function ActionDialog({
 }: {
   spec: ActionSpec | null;
   onOpenChange: (o: boolean) => void;
-  onSubmit: (spec: ActionSpec, values: Record<string, string>) => void;
+  onSubmit: (spec: ActionSpec, values: Record<string, string>) => Promise<unknown>;
 }) {
   const [values, setValues] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
   const open = !!spec;
 
   const handleClose = (o: boolean) => {
@@ -233,16 +236,24 @@ export function ActionDialog({
     onOpenChange(o);
   };
 
-  const submit = () => {
-    if (!spec) return;
+  const submit = async () => {
+    if (!spec || busy) return;
     for (const f of spec.fields) {
       if (f.required && !values[f.name]?.trim()) {
         toast.error(`${f.label} is required`);
         return;
       }
     }
-    onSubmit(spec, values);
-    setValues({});
+    setBusy(true);
+    try {
+      await onSubmit(spec, values);
+      setValues({});
+      handleClose(false);
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "The action could not be completed.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (!spec) return null;
@@ -291,10 +302,11 @@ export function ActionDialog({
         <DialogFooter className="border-t border-border px-6 py-4">
           <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
           <Button
-            onClick={submit}
+            onClick={() => void submit()}
             className={spec.destructive ? "bg-destructive text-destructive-foreground hover:opacity-90" : "bg-gradient-primary hover:opacity-90"}
+            disabled={busy}
           >
-            Save {spec.label}
+            {busy ? "Validating…" : `Save ${spec.label}`}
           </Button>
         </DialogFooter>
       </DialogContent>

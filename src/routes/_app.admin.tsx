@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Shield, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/app-shell";
+import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
 import { SECTIONS } from "@/components/admin/actions";
 
 export const Route = createFileRoute("/_app/admin")({
@@ -29,9 +30,12 @@ function AdminLayout() {
             : "A single control plane for identity, facilities, reference data and platform operations. Choose a section below to dive in."
         }
         actions={
-          <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
-            <Shield className="h-3.5 w-3.5" /> Admin console
-          </div>
+          <>
+            <CurrentStateModuleButton moduleKey="admin" compact />
+            <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
+              <Shield className="h-3.5 w-3.5" /> Admin console
+            </div>
+          </>
         }
       />
 

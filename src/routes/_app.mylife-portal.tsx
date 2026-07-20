@@ -8,6 +8,7 @@ export const Route = createFileRoute("/_app/mylife-portal")({
       eyebrow="Organisation · MyLife Portal"
       title="MyLife Portal Instructions"
       description="Publish, review and manage patient-facing MyLife portal instructions."
+      moduleKey="mylife-portal"
     />
   ),
 });
