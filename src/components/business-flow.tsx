@@ -240,10 +240,35 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
     }
   }, [globalFacility]);
 
+  // Auto-mark patient-identity steps complete when a patient is already loaded,
+  // so users are not asked to "select a patient" twice when the banner already shows one.
+  useEffect(() => {
+    if (!values.patient) return;
+    const identityKeys = new Set(["patient", "identity", "context", "select-patient"]);
+    setCompleted((current) => {
+      let changed = false;
+      const next = new Set(current);
+      flow.steps.forEach((candidate, candidateIndex) => {
+        if (!identityKeys.has(candidate.key)) return;
+        const missing = (candidate.fields ?? []).filter((field) => {
+          if (!field.required) return false;
+          const value = values[field.name];
+          return value === undefined || value === null || String(value).trim() === "";
+        });
+        if (missing.length === 0 && !next.has(candidateIndex)) {
+          next.add(candidateIndex);
+          changed = true;
+        }
+      });
+      return changed ? next : current;
+    });
+  }, [values, flow.steps]);
+
   useEffect(() => {
     const element = stepperRef.current?.querySelector<HTMLElement>(`[data-step-idx="${index}"]`);
     element?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, [index]);
+
 
   const groupedFields = useMemo(() => {
     const groups = new Map<string, StepField[]>();
