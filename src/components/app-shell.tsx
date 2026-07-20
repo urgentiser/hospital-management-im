@@ -214,13 +214,14 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
   return (
     <>
-      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
-          <HeartPulse className="h-5 w-5 text-primary-foreground" />
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border/70 px-5">
+        <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-sidebar-primary/95 shadow-[0_8px_20px_-8px_rgba(231,28,32,0.6)]">
+          <HeartPulse className="h-[18px] w-[18px] text-primary-foreground" />
+          <span aria-hidden className="absolute -inset-px rounded-xl ring-1 ring-inset ring-white/10" />
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="font-display text-lg tracking-tight text-sidebar-foreground">Impilo</span>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Modern Platform</span>
+          <span className="font-display text-[17px] font-semibold tracking-tight text-sidebar-foreground">Impilo</span>
+          <span className="text-[9.5px] font-medium uppercase tracking-[0.22em] text-sidebar-foreground/50">Healthcare Platform</span>
         </div>
       </div>
 
@@ -229,25 +230,25 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
           const isOpen = !!openGroups[group.title];
           const hasActive = group.items.some((i) => isItemActive(pathname, i.to));
           return (
-            <div key={group.title} className="mb-2">
+            <div key={group.title} className="mb-1.5">
               <button
                 type="button"
                 onClick={() => toggleGroup(group.title)}
                 aria-expanded={isOpen}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45 transition-colors hover:text-sidebar-foreground"
               >
                 <ChevronRight
                   className={
-                    "h-3 w-3 shrink-0 transition-transform " + (isOpen ? "rotate-90" : "")
+                    "h-3 w-3 shrink-0 opacity-70 transition-transform " + (isOpen ? "rotate-90" : "")
                   }
                 />
                 <span className="flex-1 text-left">{group.title}</span>
                 {!isOpen && hasActive && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+                  <span className="h-1.5 w-1.5 rounded-full bg-sidebar-primary shadow-[0_0_6px_rgba(231,28,32,0.7)]" aria-hidden />
                 )}
               </button>
               {isOpen && (
-                <ul className="mt-1 space-y-0.5">
+                <ul className="mt-0.5 space-y-px">
                   {group.items.map((item) => {
                     const active = isItemActive(pathname, item.to);
                     const Icon = item.icon;
@@ -258,33 +259,33 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
                           onClick={onNavigate}
                           aria-current={active ? "page" : undefined}
                           className={
-                            "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 " +
+                            "group relative flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] outline-none transition-all focus-visible:ring-2 focus-visible:ring-sidebar-primary/50 " +
                             (active
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground")
+                              ? "bg-sidebar-accent/80 text-sidebar-accent-foreground shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
+                              : "text-sidebar-foreground/75 hover:bg-sidebar-accent/40 hover:text-sidebar-accent-foreground")
                           }
                         >
                           <span
                             aria-hidden
                             className={
-                              "absolute left-0 top-1/2 h-5 -translate-y-1/2 rounded-r-full bg-primary transition-all " +
+                              "absolute left-0 top-1/2 h-4 -translate-y-1/2 rounded-r-full bg-sidebar-primary transition-all " +
                               (active ? "w-[3px] opacity-100" : "w-0 opacity-0")
                             }
                           />
                           <Icon
                             className={
-                              "h-4 w-4 shrink-0 " +
-                              (active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")
+                              "h-4 w-4 shrink-0 transition-colors " +
+                              (active ? "text-sidebar-foreground" : "text-sidebar-foreground/50 group-hover:text-sidebar-foreground/90")
                             }
                           />
                           <span className="flex-1 truncate">{item.label}</span>
                           {item.badge && (
                             <span
                               className={
-                                "rounded-md px-1.5 py-0.5 text-[10px] font-medium " +
+                                "rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums " +
                                 (active
-                                  ? "bg-primary/15 text-primary"
-                                  : "bg-muted text-muted-foreground")
+                                  ? "bg-white/12 text-sidebar-foreground"
+                                  : "bg-sidebar-accent/50 text-sidebar-foreground/70")
                               }
                             >
                               {item.badge}
@@ -581,20 +582,21 @@ export function PageHeader({
   breadcrumbs?: Crumb[];
 }) {
   return (
-    <div className="mb-4">
+    <div className="mb-5">
       {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
         <div className="min-w-0">
           {eyebrow && (
-            <div className="mb-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
+            <div className="mb-1 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">
+              <span className="h-px w-6 bg-primary/40" aria-hidden />
               {eyebrow}
             </div>
           )}
-          <h1 className="truncate font-display text-[20px] font-semibold tracking-tight text-foreground sm:text-[22px] sm:leading-[1.2]">
+          <h1 className="truncate font-display text-[24px] font-semibold leading-[1.15] tracking-tight text-foreground sm:text-[26px]">
             {title}
           </h1>
           {description && (
-            <p className="mt-0.5 max-w-3xl truncate text-[12.5px] leading-snug text-muted-foreground">{description}</p>
+            <p className="mt-1 max-w-3xl truncate text-[13px] leading-snug text-muted-foreground">{description}</p>
           )}
         </div>
         {actions && <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">{actions}</div>}
@@ -640,11 +642,11 @@ export function StatusChip({ status }: { status: string }) {
   return (
     <span
       className={
-        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize " +
+        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize tabular-nums " +
         cls
       }
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
+      <span className="h-1.5 w-1.5 rounded-full bg-current" />
       {label}
     </span>
   );
@@ -654,7 +656,7 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   return (
     <div
       className={
-        "rounded-2xl border border-border bg-card/60 bg-gradient-surface shadow-soft backdrop-blur-sm " + className
+        "rounded-2xl border border-border/80 bg-card shadow-soft " + className
       }
     >
       {children}

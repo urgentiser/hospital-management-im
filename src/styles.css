@@ -12,10 +12,10 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
 
-  /* Life Healthcare brand typography: Helvetica Neue primary, Arial digital fallback */
-  --font-sans: "Helvetica Neue", "Helvetica", "Arial", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Helvetica Neue", "Helvetica", "Arial", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Premium typography — Sora (display) + Manrope (body) */
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Sora", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -51,71 +51,68 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --shadow-glow: 0 0 40px -8px color-mix(in oklab, var(--primary) 45%, transparent);
-  --shadow-elevated: 0 20px 60px -20px oklch(0 0 0 / 0.5), 0 8px 24px -12px oklch(0 0 0 / 0.35);
-  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.06), 0 8px 24px -12px oklch(0 0 0 / 0.15);
+  /* Refined elevation ramp — softer, more premium */
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 12%, transparent), 0 12px 40px -12px color-mix(in oklab, var(--primary) 35%, transparent);
+  --shadow-elevated: 0 24px 60px -24px oklch(0 0 0 / 0.28), 0 8px 20px -12px oklch(0 0 0 / 0.16);
+  --shadow-soft: 0 1px 0 0 color-mix(in oklab, var(--border) 60%, transparent), 0 2px 8px -4px oklch(0 0 0 / 0.06);
+  --shadow-inset-ring: inset 0 0 0 1px color-mix(in oklab, var(--border) 100%, transparent);
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.875rem;
 
-  /* Life Healthcare official brand palette
-     Corporate Blue #153152 (primary, 30%), Corporate Red #e71c20 (accent, 5%),
-     Light backgrounds (65%). Secondary supports: #B9D9EB, #A7BCD6, #BBBCBC, #D9D9D6, #49C5B1 */
-  --background: #f7f9fc;
-  --foreground: #153152;
+  /* Life Healthcare palette — locked; premium refinements to neutrals/surfaces only */
+  --background: #f4f6fb;
+  --foreground: #0f2544;
 
   --card: #ffffff;
-  --card-foreground: #153152;
+  --card-foreground: #0f2544;
 
   --popover: #ffffff;
-  --popover-foreground: #153152;
+  --popover-foreground: #0f2544;
 
-  /* Primary = Corporate Blue */
   --primary: #153152;
   --primary-foreground: #ffffff;
 
   --secondary: #B9D9EB;
   --secondary-foreground: #153152;
 
-  --muted: #eef2f7;
-  --muted-foreground: #5a6b82;
+  --muted: #eef2f8;
+  --muted-foreground: #5b6b83;
 
-  /* Accent = supportive light blue */
   --accent: #A7BCD6;
   --accent-foreground: #153152;
 
-  /* Destructive = Corporate Red (used sparingly, ~5%) */
   --destructive: #e71c20;
   --destructive-foreground: #ffffff;
 
-  --success: #49C5B1;
-  --success-foreground: #0b3b34;
+  --success: #2fa896;
+  --success-foreground: #052b26;
 
-  --warning: #e8a63a;
+  --warning: #d98e2b;
   --warning-foreground: #3a2a08;
 
-  --info: #B9D9EB;
-  --info-foreground: #153152;
+  --info: #4a7fbf;
+  --info-foreground: #ffffff;
 
-  --border: #dbe3ee;
-  --input: #dbe3ee;
+  --border: #e2e8f1;
+  --input: #e2e8f1;
   --ring: #153152;
 
-  /* Sidebar in Corporate Blue */
-  --sidebar: #153152;
-  --sidebar-foreground: #eaf1f9;
+  --sidebar: #0f2544;
+  --sidebar-foreground: #d9e3f0;
   --sidebar-primary: #e71c20;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1f4272;
+  --sidebar-accent: #1b3862;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #24467a;
+  --sidebar-border: #1e3d68;
   --sidebar-ring: #e71c20;
 
-  --gradient-primary: linear-gradient(135deg, #153152, #1f4272);
-  --gradient-surface: linear-gradient(180deg, #ffffff, #f2f6fb);
-  --gradient-hero: radial-gradient(1200px 600px at 10% -10%, rgba(21, 49, 82, 0.10), transparent 60%),
-                   radial-gradient(1000px 500px at 90% 10%, rgba(31, 66, 114, 0.12), transparent 60%);
+  --gradient-primary: linear-gradient(135deg, #153152 0%, #234e83 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f6f9fd 100%);
+  --gradient-hero:
+    radial-gradient(1200px 620px at 8% -12%, rgba(21, 49, 82, 0.08), transparent 60%),
+    radial-gradient(900px 480px at 92% 6%, rgba(35, 78, 131, 0.09), transparent 60%);
 }
 
 @layer base {
@@ -127,7 +124,17 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv02", "cv11";
+    letter-spacing: -0.005em;
+  }
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
+    letter-spacing: -0.018em;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 22%, transparent);
+    color: var(--foreground);
   }
 }
 
@@ -146,14 +153,17 @@
 @utility shadow-elevated {
   box-shadow: var(--shadow-elevated);
 }
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
 @utility font-display {
   font-family: var(--font-display);
 }
 @utility glass {
-  background-color: color-mix(in oklab, var(--card) 70%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  background-color: color-mix(in oklab, var(--card) 72%, transparent);
+  backdrop-filter: saturate(1.4) blur(18px);
+  -webkit-backdrop-filter: saturate(1.4) blur(18px);
+  border: 1px solid color-mix(in oklab, var(--border) 90%, transparent);
 }
 
 @utility scrollbar-hidden {
@@ -162,4 +172,18 @@
 }
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
+}
+
+/* Custom thin scrollbar for elements that show scroll */
+@utility scrollbar-fine {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent) transparent;
+}
+.scrollbar-fine::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-fine::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklab, var(--muted-foreground) 30%, transparent);
+  border-radius: 999px;
 }
