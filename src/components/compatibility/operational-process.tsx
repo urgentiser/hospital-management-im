@@ -484,7 +484,7 @@ function OperationalProcessDialog({
             <Button variant="outline" disabled={stepIndex === 0 || submitting} onClick={() => setStepIndex((current) => Math.max(0, current - 1))}>
               <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
             </Button>
-            <div className="text-xs text-muted-foreground">{quickMissing.length ? `${quickMissing.length} required ${quickMissing.length === 1 ? "field" : "fields"} missing` : `${completed.size} of ${activeOperation.steps.length} steps completed`}</div>
+            <div className="text-xs text-muted-foreground">{quickMissing.length ? `${quickMissing.length} required ${quickMissing.length === 1 ? "field" : "fields"} missing` : `${completed.size} of ${groups.length} steps completed`}</div>
             {isLast ? (
               <Button disabled={submitting || quickMissing.length > 0} onClick={() => void submit()} className="bg-gradient-primary hover:opacity-90">
                 {submitting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Send className="mr-1.5 h-4 w-4" />} Submit
