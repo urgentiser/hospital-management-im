@@ -218,19 +218,18 @@ function OperationalProcessDialog({
     setValidationResults([]);
   }, [operation, facility, patient]);
 
-  if (!operation) return null;
-  const activeOperation = operation;
-
   // Consolidate single-field steps into combined groups so the wizard doesn't
   // waste a stepper page on selections with only one dropdown or note field.
+  // NOTE: This hook must run on every render — do not place an early return above it.
   const groups = useMemo(() => {
-    const stepFieldMap = activeOperation.steps.map((_, index) =>
-      activeOperation.fields.filter((field) => field.stepIndex === index),
+    if (!operation) return [] as Array<{ title: string; stepIndices: number[]; fields: CompatibilityOperation["fields"] }>;
+    const stepFieldMap = operation.steps.map((_, index) =>
+      operation.fields.filter((field) => field.stepIndex === index),
     );
-    type Group = { title: string; stepIndices: number[]; fields: typeof activeOperation.fields };
+    type Group = { title: string; stepIndices: number[]; fields: CompatibilityOperation["fields"] };
     const result: Group[] = [];
     let bucket: Group | null = null;
-    activeOperation.steps.forEach((title, index) => {
+    operation.steps.forEach((title, index) => {
       const fields = stepFieldMap[index];
       const light = fields.length <= 1;
       if (light) {
@@ -246,12 +245,15 @@ function OperationalProcessDialog({
     return result.map((group) => ({
       ...group,
       title: group.stepIndices.length === 1
-        ? activeOperation.steps[group.stepIndices[0]]
+        ? operation.steps[group.stepIndices[0]]
         : group.stepIndices.length <= 3
-          ? group.stepIndices.map((i) => activeOperation.steps[i]).join(" · ")
+          ? group.stepIndices.map((i) => operation.steps[i]).join(" · ")
           : `Context & selections (${group.stepIndices.length} items)`,
     }));
-  }, [activeOperation]);
+  }, [operation]);
+
+  if (!operation) return null;
+  const activeOperation = operation;
 
   const group = groups[stepIndex] ?? groups[0];
   const isLast = stepIndex === groups.length - 1;
