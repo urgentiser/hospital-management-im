@@ -6,6 +6,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "failed-messages",
+  platformScoped: true,
   eyebrow: "Platform · Failed Messages",
   title: "Failed Messages",
   description: "Dead-letter queue triage — inspect payloads, replay after fix or discard poison with an audit note.",

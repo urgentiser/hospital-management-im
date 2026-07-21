@@ -8,6 +8,7 @@ import { IntegrationsDetailTable } from "@/components/integrations-detail";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "integrations",
+  platformScoped: true,
   eyebrow: "Platform · Integrations",
   title: "Integrations",
   description: "Live view of the event bus — inbound and outbound topics, retries, dead-letters and payload drill-downs.",

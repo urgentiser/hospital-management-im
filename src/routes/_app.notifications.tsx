@@ -6,6 +6,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "notifications",
+  platformScoped: true,
   eyebrow: "Platform · Notifications",
   title: "Notifications",
   description: "Templates, channels and delivery status for every SMS, email and in-app message the platform sends.",

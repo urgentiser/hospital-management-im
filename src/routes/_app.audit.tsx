@@ -7,6 +7,7 @@ import { AuditDetailTable } from "@/components/audit-detail";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "audit",
+  platformScoped: true,
   eyebrow: "Platform · Audit Trail",
   title: "Audit Trail",
   description: "Immutable log of every operator action, integration event and system decision — searchable, exportable, sealable.",

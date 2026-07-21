@@ -6,6 +6,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "system-health",
+  platformScoped: true,
   eyebrow: "Platform · System Health",
   title: "System Health",
   description: "Service uptime, dependency status, SLO burn and platform incidents — with runbook shortcuts.",
