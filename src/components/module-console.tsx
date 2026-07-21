@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { ArrowRight, ArrowUpRight, ChevronRight, Search, Sparkles, Workflow } from "lucide-react";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
 import { PatientBanner } from "@/components/patient-banner";
+import { PlatformStrip } from "@/components/platform-strip";
+import { AdminStrip } from "@/components/admin-strip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,6 +81,10 @@ export type ModuleConsoleConfig = {
   businessFlow?: BusinessFlow;
   /** When true a persistent patient banner is rendered at the top of the module. */
   patientScoped?: boolean;
+  /** When true a cross-module platform-operations strip is rendered at the top. */
+  platformScoped?: boolean;
+  /** When true an administration quick-nav strip is rendered at the top. */
+  adminScoped?: boolean;
 };
 
 // ---------------- Console ----------------
@@ -173,6 +179,8 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
       />
 
       {config.patientScoped && <PatientBanner />}
+      {config.platformScoped && <PlatformStrip activeKey={config.moduleKey} />}
+      {config.adminScoped && <AdminStrip activeKey={config.moduleKey} />}
 
       {/* Tab bar */}
       <nav className="mb-6 -mx-1 flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hidden">
