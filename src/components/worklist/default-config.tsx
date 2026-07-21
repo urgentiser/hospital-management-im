@@ -34,13 +34,13 @@ export function makeDefaultWorklist(
     failed: { label: "Failed", tone: "destructive" },
     error: { label: "Error", tone: "destructive" },
     review: { label: "Review", tone: "warning" },
-    ...overrides.statusMap,
+    ...merged.statusMap,
   };
 
   const toneFor = (status: string): WorklistTone =>
     statusMap[status]?.tone ?? "muted";
 
-  const columns: WorklistColumn[] = overrides.columns ?? [
+  const columns: WorklistColumn[] = merged.columns ?? [
     {
       key: "id",
       label: "Reference",
@@ -107,7 +107,7 @@ export function makeDefaultWorklist(
     },
   ];
 
-  const filters: WorklistFilter[] = overrides.filters ?? [
+  const filters: WorklistFilter[] = merged.filters ?? [
     {
       key: "status",
       label: "Status",
@@ -119,7 +119,7 @@ export function makeDefaultWorklist(
   ];
 
   const summary =
-    overrides.summary ??
+    merged.summary ??
     ((items: WorkflowItem[]) => {
       const open = items.filter(
         (i) => !["completed", "finalised", "resolved", "cancelled", "rejected"].includes(i.status),
@@ -150,13 +150,14 @@ export function makeDefaultWorklist(
     columns,
     filters,
     summary,
-    savedViews: [
+    savedViews: merged.savedViews ?? [
       { key: "open", label: "Open items", description: "Anything not yet closed.", filters: {} },
       { key: "attention", label: "Needs attention", description: "Failures, rejections and review flags.", filters: { status: "failed" } },
     ],
-    rowActions: [
+    rowActions: merged.rowActions ?? [
       { key: "open", label: "Open in guided workflow", launchesGuidedWorkflow: true, permission: "view" },
+      { key: "note", label: "Add note", permission: "note" },
     ],
-    ...overrides,
+    ...merged,
   };
 }
