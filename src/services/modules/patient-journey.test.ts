@@ -30,8 +30,8 @@ describe("patient journey (mock mode)", () => {
         status: "draft",
         fields: {},
       });
-      expect(result.succeeded, `${step.module} create should succeed`).toBe(true);
-      expect(result.value?.id).toBeTruthy();
+      expect(result.data?.id, `${step.module} create should produce an id`).toBeTruthy();
+      expect(result.correlationId).toBeTruthy();
     }
   });
 
@@ -42,19 +42,16 @@ describe("patient journey (mock mode)", () => {
       status: "draft",
       fields: {},
     });
-    expect(created.succeeded).toBe(true);
-    const id = created.value!.id;
+    const id = created.data.id;
 
     const transitioned = await service.transitionRecord(id, "pending-validation");
-    expect(transitioned.succeeded).toBe(true);
-    expect(transitioned.value?.status).toBe("pending-validation");
+    expect(transitioned.data.status).toBe("pending-validation");
 
     const withNote = await service.addNote(id, "Verified by desk agent");
-    expect(withNote.succeeded).toBe(true);
-    expect(withNote.value?.history.some((h) => h.note === "Verified by desk agent")).toBe(true);
+    expect(withNote.data.history.some((h) => h.note === "Verified by desk agent")).toBe(true);
   });
 
-  it("resolves a service for every registered navigation module", () => {
+  it("resolves a service for every revenue-critical module", () => {
     const keys = [
       "patient-maintenance", "triage", "clinical-assessment", "preadmission",
       "admissions", "medical-events", "authorisations", "billing", "funding",
