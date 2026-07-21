@@ -7,7 +7,6 @@ export const Route = createFileRoute("/_app/documents")({
     <WorkflowModule
       config={{
         moduleKey: "documents",
-        patientScoped: true,
         eyebrow: "Operational · Documents",
         title: "Documents",
         description: "Clinical and administrative document repository with review workflow.",
