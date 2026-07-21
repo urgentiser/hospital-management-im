@@ -27,7 +27,8 @@ type Props = {
  * created from the current filter set, renamed and deleted.
  */
 export function SavedViewsMenu({ config, currentFilters, onApply, onReset }: Props) {
-  const personal = useWorklistViewStore((s) => s.personalViews[config.moduleKey] ?? []);
+  const personalMap = useWorklistViewStore((s) => s.personalViews);
+  const personal = personalMap[config.moduleKey] ?? EMPTY_VIEWS;
   const saveView = useWorklistViewStore((s) => s.saveView);
   const renameView = useWorklistViewStore((s) => s.renameView);
   const deleteView = useWorklistViewStore((s) => s.deleteView);
