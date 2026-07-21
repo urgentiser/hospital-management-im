@@ -186,11 +186,8 @@ const config: ModuleConsoleConfig = {
         events: ["PatientDocumentLinked"] },
       { key: "validate", title: "Validate mandatory and duplicate rules", description: "The system re-runs mandatory and duplicate checks before you can confirm.",
         checklist: ["All mandatory fields captured", "Duplicate resolution decision recorded", "Facility scope respected"] },
-      { key: "confirm", title: "Confirm and save", description: "Confirm the record. On save the patient identifier is issued.",
+      { key: "confirm", title: "Confirm and save", description: "Confirm the record. On save the patient identifier is issued and the record becomes available across every module.",
         fields: [{ name: "confirm", label: "Confirmation note", type: "textarea", placeholder: "Any additional notes on this registration" }] },
-      { key: "publish", title: "Publish event and audit", description: "PatientCreated (or PatientUpdated) is published to the service bus and an immutable audit record is written.",
-        events: ["PatientCreated", "PatientUpdated"],
-        rules: ["Correlation ID must flow from browser request to API, audit and downstream integration events."] },
     ],
   },
 };
