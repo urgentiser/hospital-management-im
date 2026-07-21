@@ -6,6 +6,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "failed-messages",
+  platformScoped: true,
   eyebrow: "Platform · Failed Messages",
   title: "Failed Messages",
   description: "Dead-letter queue triage — inspect payloads, replay after fix or discard poison with an audit note.",
@@ -79,6 +80,7 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "failed-messages",
+  platformScoped: true,
     title: "DLQ Triage",
     purpose: "Turn poison messages into resolved incidents: inspect, categorise, fix upstream, replay or discard — with a defensible audit trail.",
     legacySource: "Rich/Platform/DeadLetter.Implet",

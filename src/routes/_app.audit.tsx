@@ -7,6 +7,7 @@ import { AuditDetailTable } from "@/components/audit-detail";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "audit",
+  platformScoped: true,
   eyebrow: "Platform · Audit Trail",
   title: "Audit Trail",
   description: "Immutable log of every operator action, integration event and system decision — searchable, exportable, sealable.",
@@ -78,6 +79,7 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "audit",
+  platformScoped: true,
     title: "Log · Review · Seal",
     purpose: "Every action produces a durable audit entry. Compliance reviews entries, then closed periods are sealed so the record is provably immutable.",
     legacySource: "Rich/Platform/AuditTrail.Implet",

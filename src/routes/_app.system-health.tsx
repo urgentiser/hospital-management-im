@@ -6,6 +6,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "system-health",
+  platformScoped: true,
   eyebrow: "Platform · System Health",
   title: "System Health",
   description: "Service uptime, dependency status, SLO burn and platform incidents — with runbook shortcuts.",
@@ -78,6 +79,7 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "system-health",
+  platformScoped: true,
     title: "Detect · Diagnose · Restore",
     purpose: "Detect service degradation early, diagnose with runbooks and dependency data, restore quickly and learn from every incident.",
     legacySource: "Rich/Platform/SystemHealth.Implet",

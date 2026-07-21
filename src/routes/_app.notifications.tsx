@@ -6,6 +6,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "notifications",
+  platformScoped: true,
   eyebrow: "Platform · Notifications",
   title: "Notifications",
   description: "Templates, channels and delivery status for every SMS, email and in-app message the platform sends.",
@@ -85,6 +86,7 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "notifications",
+  platformScoped: true,
     title: "Compose · Send · Deliver",
     purpose: "Notify the right person on the right channel at the right time — with consent, delivery guarantees and audit built in.",
     legacySource: "Rich/Platform/Notifications.Implet",

@@ -8,6 +8,7 @@ import { IntegrationsDetailTable } from "@/components/integrations-detail";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "integrations",
+  platformScoped: true,
   eyebrow: "Platform · Integrations",
   title: "Integrations",
   description: "Live view of the event bus — inbound and outbound topics, retries, dead-letters and payload drill-downs.",
@@ -85,6 +86,7 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "integrations",
+  platformScoped: true,
     title: "Publish · Retry · Resolve",
     purpose: "Every domain event travels the bus reliably. Publish, monitor, retry on transient failure, dead-letter on poison, then resolve or replay.",
     legacySource: "Rich/Integrations/ServiceBus.Implet; integrations.menu.xml",
