@@ -112,7 +112,7 @@ const config: ModuleConsoleConfig = {
           { name: "topic", label: "Topic" },
         ] },
       { key: "inspect", title: "Inspect payload", description: "Read the payload, failure reason and attempt history.",
-        checklist: ["Payload readable", "Failure reason understood", "Attempt count reviewed"],
+        checklist: ["Message readable", "Failure reason understood", "Attempt count reviewed"],
         events: ["MessageInspected"] },
       { key: "categorise", title: "Categorise fault", description: "Tag as Schema / Downstream / Poison / Config.",
         fields: [{ name: "category", label: "Category", type: "select", options: ["Schema", "Downstream", "Poison", "Config"] }],
