@@ -171,8 +171,6 @@ const config: ModuleConsoleConfig = {
       { key: "sign", title: "Countersign and finalise", description: "Sign the completed assessment. Signed records are immutable and audit-linked.",
         fields: [{ name: "signer", label: "Countersigner", required: true }],
         events: ["AssessmentCompleted", "AssessmentSigned"] },
-      { key: "publish", title: "Publish and audit", description: "Publish AssessmentCompleted to the service bus and write the audit record.",
-        events: ["AssessmentCompleted", "ClinicalResponseTriggered"] },
     ],
   },
 };

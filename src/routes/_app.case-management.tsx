@@ -258,8 +258,6 @@ const config: ModuleConsoleConfig = {
           { name: "handover", label: "Handover to", placeholder: "e.g. Primary care, self-management" },
         ],
         events: ["CaseClosed"] },
-      { key: "publish", title: "Publish and audit", description: "Publish CaseClosed and archive under audit. Timeline becomes read-only.",
-        events: ["CaseClosed"] },
     ],
   },
 };

@@ -88,8 +88,6 @@ const flow: BusinessFlow = {
         { name: "receivedBy", label: "Received by" },
       ],
       events: ["MedicationDelivered"] },
-    { key: "publish", title: "Publish and audit", description: "Publish MedicationDispensed and MedicationDelivered to the service bus; audit record is written.",
-      events: ["MedicationDispensed", "MedicationDelivered"] },
   ],
 };
 

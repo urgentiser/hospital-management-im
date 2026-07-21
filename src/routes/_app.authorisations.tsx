@@ -196,8 +196,6 @@ const config: ModuleConsoleConfig = {
           { name: "appealEvidence", label: "New evidence attached" },
         ],
         events: ["AuthorisationAppealed"] },
-      { key: "publish", title: "Publish & hand off", description: "Publish AuthorisationApproved / Declined to the service bus. Downstream: Admissions, Billing, Case.",
-        events: ["AuthorisationApproved", "AuthorisationDeclined"] },
     ],
   },
 };

@@ -207,8 +207,6 @@ const config: ModuleConsoleConfig = {
         events: ["FundingRuleReviewed"] },
       { key: "activate", title: "Activate", description: "Activate the rule from its effective date. Existing rule in the same scope is retired.",
         events: ["FundingRuleActivated", "FundingRuleRetired"] },
-      { key: "publish", title: "Publish & audit", description: "Publish FundingRuleActivated to the service bus. Downstream: Authorisations, Billing, Reports.",
-        events: ["FundingRuleActivated"] },
     ],
   },
 };

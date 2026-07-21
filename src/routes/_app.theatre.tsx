@@ -218,8 +218,6 @@ const config: ModuleConsoleConfig = {
         fields: [{ name: "billDecision", label: "Decision", type: "select", required: true, options: ["Approve", "Return for correction"] }],
         events: ["TheatreBillApproved"],
         rules: ["Bill approval must be separate from capture where segregation of duties applies."] },
-      { key: "publish", title: "Publish completed procedure and charge events", description: "Publish the completed procedure and charge events for downstream billing and reporting.",
-        events: ["TheatreProcedureCompleted", "TheatreBillApproved"] },
       { key: "cancel", title: "Cancellation path — reason and release", description: "If cancelled, capture reason and release theatre, team and reserved stock.",
         fields: [
           { name: "cancelled", label: "Cancelled?", type: "select", options: ["No", "Yes"] },

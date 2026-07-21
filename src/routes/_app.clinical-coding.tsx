@@ -201,8 +201,6 @@ const config: ModuleConsoleConfig = {
       { key: "sign", title: "Sign-off", description: "Sign the coded episode. Signed codes are the only ones allowed into claims.",
         fields: [{ name: "signer", label: "Coder / Countersigner", required: true }],
         events: ["CodesAssigned", "CodingSigned"] },
-      { key: "publish", title: "Publish and hand off", description: "Publish CodingSigned to the service bus and hand off to Billing and Funding.",
-        events: ["CodingSigned"] },
     ],
   },
 };

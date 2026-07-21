@@ -160,8 +160,6 @@ const config: ModuleConsoleConfig = {
       { key: "sign", title: "Sign the event", description: "Signed events are immutable and audit-linked.",
         fields: [{ name: "signer", label: "Recording clinician", required: true }],
         events: ["MedicalEventCaptured"] },
-      { key: "publish", title: "Publish and route", description: "Publish to the service bus and route to any downstream module marked for review.",
-        events: ["VitalsRecorded", "MedicationAdministered", "AdverseReactionFlagged"] },
     ],
   },
 };

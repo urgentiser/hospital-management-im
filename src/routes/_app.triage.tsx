@@ -173,8 +173,6 @@ const config: ModuleConsoleConfig = {
           { name: "notes", label: "Closing notes", type: "textarea" },
         ],
         events: ["TriageClosed"] },
-      { key: "publish", title: "Publish and audit", description: "Publish TriageClosed and hand off to Admissions/Ward/Case as needed.",
-        events: ["TriageClosed"] },
     ],
   },
 };

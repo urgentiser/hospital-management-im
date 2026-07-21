@@ -171,8 +171,6 @@ const config: ModuleConsoleConfig = {
           { name: "closeNotes", label: "Closing notes", type: "textarea" },
         ],
         events: ["EnquiryResolved", "EnquiryEscalated"] },
-      { key: "publish", title: "Publish & audit", description: "Publish EnquiryResolved to the service bus and archive under audit.",
-        events: ["EnquiryResolved"] },
     ],
   },
 };

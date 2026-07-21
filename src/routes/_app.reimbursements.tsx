@@ -162,8 +162,6 @@ const config: ModuleConsoleConfig = {
       { key: "reconcile", title: "Reconcile", description: "Match to the outgoing bank statement line and close.",
         checklist: ["Bank line matched", "GL posted", "Party notified"],
         events: ["RefundReconciled"] },
-      { key: "publish", title: "Publish & audit", description: "Publish RefundPaid to the service bus and archive under audit.",
-        events: ["RefundPaid"] },
     ],
   },
 };

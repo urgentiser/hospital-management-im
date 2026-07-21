@@ -188,8 +188,6 @@ const config: ModuleConsoleConfig = {
           "Fees match tariff",
           "Timestamps within admission window",
         ] },
-      { key: "send", title: "Send charges to Billing", description: "Publish the ward-treatment event; billing consumes and posts against the admission.",
-        events: ["WardTreatmentCaptured"] },
       { key: "correct-target", title: "Corrections — select original entry", description: "If a correction is needed, open the original treatment or accommodation entry.",
         fields: [
           { name: "correctionType", label: "Correction type", type: "select", options: ["None", "Treatment correction", "Accommodation correction", "Credit / reversal"] },
