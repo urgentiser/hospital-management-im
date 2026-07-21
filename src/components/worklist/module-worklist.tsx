@@ -176,13 +176,15 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
     [config.moduleKey, debouncedSearch, filters, page, pageSize, sortBy, sortDir, activeFacility],
   );
 
+  const scopedFacility = activeFacility && activeFacility !== "All facilities" ? activeFacility : undefined;
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey,
     queryFn: ({ signal }) => service.listRecords(
       {
         search: debouncedSearch || undefined,
         page, pageSize, sortBy, sortDirection: sortDir,
-        facilityId: activeFacility || undefined,
+        facilityId: scopedFacility,
+        filters: filters as Record<string, string | number | boolean | string[] | { from?: string; to?: string } | null | undefined>,
       },
       signal,
     ),
