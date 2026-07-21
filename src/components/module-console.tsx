@@ -21,6 +21,10 @@ import { getDefaultModulePermissions } from "@/security/module-permissions";
 import { hasPermission } from "@/security/permissions";
 import { getModuleService } from "@/services/modules/registry";
 import { validateModuleInput } from "@/validation/engine";
+import { ModuleWorklist, type WorklistConfig } from "@/components/worklist";
+import { useWorklistSelection } from "@/lib/worklist-selection";
+import { useEffect } from "react";
+import { ListChecks } from "lucide-react";
 
 // ---------------- Types ----------------
 
