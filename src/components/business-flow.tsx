@@ -521,7 +521,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                     <div
                       aria-hidden
                       className={
-                        "mt-[18px] h-[2px] flex-1 rounded-full transition-colors " +
+                        "mt-[18px] h-[2px] w-10 sm:w-14 rounded-full transition-colors " +
                         (done ? "bg-primary" : "bg-border")
                       }
                     />
