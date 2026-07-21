@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient, type UseMutationOptions, type Us
 import { getModuleService } from "@/services/modules/registry";
 import type { CreateRecordInput } from "@/services/modules/types";
 import type { WorkflowItem } from "@/lib/workflow-store";
+import type { PagedQuery, PagedResult } from "@/contracts/common/paged-result";
 import type { CompatibilityInvocationContext, CompatibilityInvocationResult, CompatibilityOperation } from "@/compatibility/types";
 import type { CommandResult } from "@/contracts/common/command-result";
 
@@ -20,11 +21,11 @@ export const moduleQueryKeys = {
 
 export function useModuleList(
   moduleKey: string,
-  query: Record<string, string | number | boolean | undefined> = {},
-  options?: Omit<UseQueryOptions<WorkflowItem[]>, "queryKey" | "queryFn">,
+  query: PagedQuery,
+  options?: Omit<UseQueryOptions<PagedResult<WorkflowItem>>, "queryKey" | "queryFn">,
 ) {
   return useQuery({
-    queryKey: moduleQueryKeys.list(moduleKey, query),
+    queryKey: moduleQueryKeys.list(moduleKey, query as Record<string, unknown>),
     queryFn: ({ signal }) => getModuleService(moduleKey).listRecords(query, signal),
     staleTime: 15_000,
     ...options,
