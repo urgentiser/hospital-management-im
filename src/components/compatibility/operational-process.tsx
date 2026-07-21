@@ -133,33 +133,70 @@ export function OperationalProcessConsole({
           </div>
         </Card>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((operation) => (
-            <button
-              key={operation.id}
-              type="button"
-              onClick={() => setSelected(operation)}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 bg-gradient-surface p-4 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 motion-reduce:hover:translate-y-0"
-            >
-              <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-gradient-to-br from-primary/20 via-accent/10 to-transparent blur-2xl" />
-              <div className="relative grid h-10 w-10 place-items-center rounded-xl border border-primary/25 bg-primary/10 text-primary">
-                <PlayCircle className="h-5 w-5" />
-              </div>
-              <div className="relative mt-3">
-                <div className="font-medium leading-tight">{operation.action}</div>
-                <div className="mt-1 text-[11px] text-muted-foreground">
-                  {operation.steps.length} steps · {friendlyContext(operation.contextType)}
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((operation) => {
+            const stepCount = operation.steps.length;
+            const firstSteps = operation.steps.slice(0, 3);
+            const remaining = Math.max(0, stepCount - firstSteps.length);
+            return (
+              <button
+                key={operation.id}
+                type="button"
+                onClick={() => setSelected(operation)}
+                className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-[0_1px_0_0_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_16px_40px_-20px_rgba(21,49,82,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 motion-reduce:hover:translate-y-0"
+              >
+                <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary/60 to-accent/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+
+                <div className="flex items-start gap-3 p-5 pb-3">
+                  <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-sm ring-1 ring-primary/20">
+                    <PlayCircle className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-display text-[15px] font-semibold leading-tight tracking-tight text-foreground">
+                      {operation.action}
+                    </div>
+                    <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-medium tabular-nums text-foreground/70">
+                        {stepCount} steps
+                      </span>
+                      <span className="h-1 w-1 rounded-full bg-border" />
+                      <span className="truncate">{friendlyContext(operation.contextType)}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-2 line-clamp-2 text-xs text-muted-foreground">
-                  {operation.steps.join(" → ")}
+
+                <div className="flex-1 px-5 pb-4">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {firstSteps.map((step, idx) => (
+                      <span
+                        key={`${operation.id}-${idx}`}
+                        className="inline-flex max-w-[180px] items-center gap-1 truncate rounded-md border border-border/60 bg-muted/40 px-2 py-1 text-[10.5px] font-medium text-foreground/70"
+                      >
+                        <span className="tabular-nums text-muted-foreground/70">{idx + 1}</span>
+                        <span className="truncate">{step}</span>
+                      </span>
+                    ))}
+                    {remaining > 0 && (
+                      <span className="inline-flex items-center rounded-md border border-dashed border-border/60 px-2 py-1 text-[10.5px] font-medium text-muted-foreground">
+                        +{remaining} more
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="relative mt-4 flex items-center justify-between border-t border-border pt-3 text-[11px]">
-                <span className="truncate text-muted-foreground">Available according to your assigned role</span>
-                <span className="inline-flex items-center gap-1 font-medium text-primary">Open <ArrowRight className="h-3.5 w-3.5" /></span>
-              </div>
-            </button>
-          ))}
+
+                <div className="mt-auto flex items-center justify-between border-t border-border/60 bg-muted/20 px-5 py-3">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.15)]" />
+                    Ready to run
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-primary transition-transform duration-200 group-hover:translate-x-0.5">
+                    Launch
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {filtered.length === 0 && <Card className="p-10 text-center text-sm text-muted-foreground">No process matches the current search.</Card>}
