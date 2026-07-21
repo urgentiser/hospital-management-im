@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
+import { ModuleWorklist, makeDefaultWorklist } from "@/components/worklist";
 import { useWorkflow } from "@/lib/workflow-store";
 import { useAuth } from "@/security/auth-provider";
 import { getDefaultModulePermissions } from "@/security/module-permissions";
