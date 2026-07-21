@@ -21,6 +21,10 @@ import { getDefaultModulePermissions } from "@/security/module-permissions";
 import { hasPermission } from "@/security/permissions";
 import { getModuleService } from "@/services/modules/registry";
 import { validateModuleInput } from "@/validation/engine";
+import { ModuleWorklist, type WorklistConfig } from "@/components/worklist";
+import { useWorklistSelection } from "@/lib/worklist-selection";
+import { useEffect } from "react";
+import { ListChecks } from "lucide-react";
 
 // ---------------- Types ----------------
 
@@ -77,6 +81,8 @@ export type ModuleConsoleConfig = {
   overviewExtras?: (items: WorkflowItem[]) => React.ReactNode;
   sections: SectionSpec[];
   businessFlow?: BusinessFlow;
+  /** Optional operational worklist rendered as a secondary tab. */
+  worklist?: WorklistConfig;
   /** When true a persistent patient banner is rendered at the top of the module. */
   patientScoped?: boolean;
   /** When true a cross-module platform-operations strip is rendered at the top. */
@@ -95,10 +101,17 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const moduleService = getModuleService(config.moduleKey);
   const canExecuteActions = hasPermission(principal, permissions.create ?? permissions.manage);
   const hasFlow = !!config.businessFlow;
-  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : "overview");
+  const hasWorklist = !!config.worklist;
+  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : hasWorklist ? "worklist" : "overview");
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
   const [feedQuery, setFeedQuery] = useState("");
   const [busy, setBusy] = useState(false);
+  const worklistSelection = useWorklistSelection((s) => s.current);
+  useEffect(() => {
+    if (worklistSelection && worklistSelection.moduleKey === config.moduleKey && hasFlow) {
+      setActiveTab("flow");
+    }
+  }, [worklistSelection, config.moduleKey, hasFlow]);
 
   const activeSection = useMemo(
     () => config.sections.find((s) => s.key === activeTab) ?? null,
@@ -185,6 +198,17 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
           />
         )}
         <TabPill label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+        {hasWorklist && (
+          <TabPill
+            label={
+              <span className="inline-flex items-center gap-1.5">
+                <ListChecks className="h-3.5 w-3.5" /> Worklist
+              </span>
+            }
+            active={activeTab === "worklist"}
+            onClick={() => setActiveTab("worklist")}
+          />
+        )}
         {config.sections.map((s) => (
           <TabPill key={s.key} label={s.title} active={activeTab === s.key} onClick={() => setActiveTab(s.key)} />
         ))}
@@ -203,6 +227,11 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
       {isFlow ? (
         <BusinessFlowWizard flow={config.businessFlow!} />
 
+      ) : hasWorklist && activeTab === "worklist" ? (
+        <ModuleWorklist
+          config={config.worklist!}
+          onOpenGuidedWorkflow={hasFlow ? () => setActiveTab("flow") : undefined}
+        />
       ) : !activeSection ? (
         <OverviewPane
           config={config}
