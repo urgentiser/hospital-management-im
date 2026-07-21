@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BadgeCheck } from "lucide-react";
 import { PageHeader } from "@/components/app-shell";
 import { ModuleStub } from "@/components/module-stub";
 
@@ -22,8 +21,8 @@ function MemberValidationPage() {
         description="Verify medical scheme membership, principal member, dependant and consent information."
       />
       <ModuleStub
-        icon={BadgeCheck}
         title="Membership and eligibility"
+        eyebrow="Patient Care"
         description="Capture scheme details, run eligibility checks and confirm consent before funding activities."
       />
     </div>
