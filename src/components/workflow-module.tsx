@@ -105,8 +105,6 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
   const { principal } = useAuth();
   const activeFacility = useFacilityContext((state) => state.facility);
   const moduleService = getModuleService(config.moduleKey);
-  const hasOperationalProcess = Boolean(getCurrentStateModuleSummary(config.moduleKey));
-  const [activeView, setActiveView] = useState<"operational" | "worklist">(hasOperationalProcess ? "operational" : "worklist");
   const items = useWorkflow((state) => state.items[config.moduleKey]);
   const search = useSearch({ strict: false }) as { new?: string };
   const navigate = useNavigate();
