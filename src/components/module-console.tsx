@@ -156,23 +156,15 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
     }
   };
 
-  const isOperational = hasOperationalProcess && activeTab === "operational";
   const isFlow = hasFlow && activeTab === "flow";
 
   return (
     <>
       <PageHeader
-        eyebrow={isOperational ? `${config.eyebrow} · Guided process` : isFlow ? `${config.eyebrow} · Guided workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
-        title={isOperational ? `${config.title} — Guided process` : isFlow ? `${config.businessFlow!.title} — Guided workflow` : activeSection ? activeSection.title : config.title}
-        description={isOperational ? "Familiar Impilo action names, access controls, step sequence and validations are preserved." : isFlow ? config.description : activeSection ? activeSection.description : config.description}
-        actions={
-          <>
-            <CurrentStateModuleButton moduleKey={config.moduleKey} compact />
-            <div className="hidden items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary sm:inline-flex">
-              <Sparkles className="h-3.5 w-3.5" /> Command centre
-            </div>
-          </>
-        }
+        eyebrow={isFlow ? `${config.eyebrow} · Guided workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
+        title={isFlow ? `${config.businessFlow!.title} — Guided workflow` : activeSection ? activeSection.title : config.title}
+        description={isFlow ? config.description : activeSection ? activeSection.description : config.description}
+        actions={<CurrentStateModuleButton moduleKey={config.moduleKey} compact />}
       />
 
       {config.patientScoped && <PatientBanner />}
@@ -181,17 +173,6 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
 
       {/* Tab bar */}
       <nav className="mb-6 -mx-1 flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hidden">
-        {hasOperationalProcess && (
-          <TabPill
-            label={
-              <span className="inline-flex items-center gap-1.5">
-                <Workflow className="h-3.5 w-3.5" /> Guided process
-              </span>
-            }
-            active={activeTab === "operational"}
-            onClick={() => setActiveTab("operational")}
-          />
-        )}
         {hasFlow && (
           <TabPill
             label={
@@ -219,10 +200,9 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
         </div>
       )}
 
-      {isOperational ? (
-        <OperationalProcessConsole moduleKey={config.moduleKey} embedded />
-      ) : isFlow ? (
+      {isFlow ? (
         <BusinessFlowWizard flow={config.businessFlow!} />
+
       ) : !activeSection ? (
         <OverviewPane
           config={config}
