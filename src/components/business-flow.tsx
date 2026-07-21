@@ -405,8 +405,19 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
         status: flow.completionStatus,
         fields,
       });
+
+      // Update global patient context so downstream modules (banner + handoffs) pick it up.
+      if (flow.moduleKey === "patients") {
+        setPatient(result.data.id);
+      } else if (values.patientId && values.patientId !== currentPatientId) {
+        setPatient(values.patientId);
+      }
+
+      const nextHandoff = flow.handoffs?.[0];
       toast.success(`${flow.completionLabel ?? flow.title} completed`, {
-        description: `${result.data.id} · ${result.correlationId}`,
+        description: nextHandoff
+          ? `${result.data.id} · Next: ${nextHandoff}`
+          : `${result.data.id} · ${result.correlationId}`,
       });
       draftsService.remove(draftKey);
       setValues({});
@@ -428,7 +439,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
   return (
     <TooltipProvider>
       <div className="space-y-4">
-        {flow.patientRequired && <PatientBanner values={values} onSelectPatient={() => setPatientPickerOpen(true)} />}
+        {flow.patientRequired && !currentPatientId && <PatientBanner values={values} onSelectPatient={() => setPatientPickerOpen(true)} />}
 
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card/50 px-3 py-2">
           <div className="flex flex-wrap items-center gap-2 text-xs">
