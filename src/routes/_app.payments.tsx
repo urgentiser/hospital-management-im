@@ -39,7 +39,7 @@ const config: ModuleConsoleConfig = {
         { key: "capture", label: "Capture Payment", icon: Banknote, hint: "Cash, card or EFT", kind: "Payment", startStatus: "captured",
           fields: [
             { name: "payer", label: "Payer", required: true },
-            { name: "method", label: "Method", type: "select", required: true, options: ["Cash", "Card", "EFT", "Scheme remittance"] },
+            { name: "method", label: "Method", required: true, placeholder: "Cash / Card / EFT / Scheme remittance" },
             { name: "amount", label: "Amount (R)", type: "number", required: true },
             { name: "reference", label: "Reference" },
           ]},
