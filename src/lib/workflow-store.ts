@@ -521,6 +521,8 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
     "workflow-inbox": workflowInbox,
     services,
     "member-validation": [],
+    payments: [],
+    claims: [],
   };
 }
 
