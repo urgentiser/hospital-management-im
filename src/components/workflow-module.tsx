@@ -16,8 +16,6 @@ import { toast } from "sonner";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
 import { RuleResults } from "@/components/workflow/rule-results";
 import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
-import { OperationalProcessConsole } from "@/components/compatibility/operational-process";
-import { getCurrentStateModuleSummary } from "@/current-state/module-manifest";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
