@@ -243,10 +243,8 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
         }
       />
 
-      {activeView === "operational" ? (
-        <OperationalProcessConsole moduleKey={config.moduleKey} embedded />
-      ) : (
-        <>
+      <>
+
       {config.kpis && (
         <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {config.kpis(items).map((kpi) => (
