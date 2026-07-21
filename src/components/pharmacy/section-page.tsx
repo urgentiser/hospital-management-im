@@ -24,6 +24,15 @@ export function PharmacySectionPage({ sectionKey }: { sectionKey: SectionKey }) 
   const [active, setActive] = useState<ActionSpec | null>(null);
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<"actions" | "worklist">("actions");
+
+  const worklistConfig = useMemo(
+    () =>
+      makeDefaultWorklist("pharmacy", `${section.title} worklist`, {
+        tagline: `${section.title} activity across the active facility.`,
+      }),
+    [section.title],
+  );
 
   const actionKinds = useMemo(
     () => new Set(section.actions.map((k) => ACTIONS[k].kind)),
