@@ -18,16 +18,14 @@ function item(over: Partial<WorkflowItem>): WorkflowItem {
   };
 }
 
-function query<T extends Record<string, unknown> = Record<string, unknown>>(
-  over: Partial<PagedQuery<T>> = {},
-): PagedQuery {
+function query(over: Partial<PagedQuery> = {}): PagedQuery {
   return {
     page: 1,
     pageSize: 25,
     sortDirection: "desc",
-    filters: {} as Record<string, never>,
+    filters: {},
     ...over,
-  } as PagedQuery;
+  };
 }
 
 describe("mock-pager filters", () => {
