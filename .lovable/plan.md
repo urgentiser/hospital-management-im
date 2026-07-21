@@ -1,55 +1,45 @@
-# Impilo Patient Journey — Like-for-Like Modernisation Plan
-
-This is a large body of work. To keep the app deployable at every step, I'll ship it in tight phases against the existing premium design and colour scheme — no visual rework, no route removals, no backend jargon on user-facing screens.
+This is a large scope. I'll deliver it in numbered phases so you can approve/steer between each. Nothing here changes the approved shell, sidebar, colours, typography, patient banner, guided workflow, stepper, or form-card designs.
 
 ## Guardrails (apply to every phase)
+- Keep guided-workflow-first behaviour on every transactional module.
+- Do not touch: shell, sidebar layout, colour tokens, fonts, banner, stepper, form-cards, dashboard style, working routes.
+- Strip user-facing technical metadata (Confirmed Contract, Service Interface, DTO, Topic, CQRS names, "Publish event/audit" steps, Legacy Evidence, backend service class names). Replace terminal wizard step with `Review → Confirm → Completed`.
+- No direct Service Bus calls from frontend. No hardcoded demo identity.
 
-- Keep current colours, typography, layout primitives, routes and module names.
-- Remove any remaining user-facing mentions of service names, endpoints, "backend contract", "legacy", "compatibility contract", payload modes.
-- Preserve Impilo action names, process order, field labels, validation sequence, status terminology.
-- Frontend enforces only safe validations (required, formats, date order, reasons, context). Authoritative rules (duplicates, beds, stock, eligibility, tariffs, adjudication, concurrency, entitlement) stay backend-owned — surfaced as guidance only.
-- Every state-changing action carries correlation ID + facility + patient context and appears on the module timeline.
+## Phase A — Structural cleanup & navigation (safe, no behaviour regressions)
+1. Add **Member Validation** to Patient Care nav (route already exists).
+2. Add **Payments** (`/payments`) and **Claims** (`/claims`) routes + nav entries under Funding & Revenue.
+3. Remove Confirmed Contract / backend metadata panels from `ModuleConsole`, `business-flow`, `operational-process`, `module-stub`. Replace "Publish Event / Publish Audit" wizard steps with a single "Completed" outcome step.
+4. Delete truly obsolete files once nothing imports them: `compatibility-api.service.ts`, `workflow.service.ts`, confirmed-contract / backend-contract / legacy-evidence components. Keep shared `http-client`, `correlation`, `problem-details`, `query-keys`, `auth-client`.
 
-## Global patterns to standardise first (Phase 0)
+## Phase B — Typed module service layer
+Introduce `src/services/modules/<module>.service.ts` with **named typed methods** (not generic CompatibilityOperation) for every module listed in the brief, including new: `payments`, `claims`, `member-validation`, `reporting`, `notifications`, `adhoc`, `supplier-invoices`, `multitouch-*`, `*-catalogue`.
+Each service:
+- Uses shared `apiRequest` + Problem Details + correlation ID.
+- Falls back to mock data while `appConfig.dataMode === 'mock'` so UI stays functional.
+- Exposes exactly the method names in the brief (e.g. Admissions: `searchAdmissions`, `admitPatient`, `transferPatient`, `dischargePatient`, `registerBirth`, `getAvailableActions`, ...).
 
-Foundations reused by every module — done once, inherited everywhere.
+## Phase C — Rule packs per module
+Create `src/rules/modules/<module>.rules.ts` for all 31 modules in §38. Each rule tagged `frontend-enforced | backend-enforced | frontend-warning | configuration | external-decision`. Only frontend-enforced/warning rules render; source metadata never shown. Register via existing rule registry.
 
-1. **Global Patient Banner** (`src/components/patient-banner.tsx`)
-   Name · MRN · DOB · age · sex · facility · visit/admission · ward/bed · scheme · member-validation status · authorisation status · allergies · clinical alerts · infection warnings · admission status. Rendered on every patient-scoped module. Blocks patient actions until a patient is selected (except "Register New Patient").
-2. **Consistent page skeleton** for transactional modules: header → breadcrumb → tabs → facility context → patient banner → worklist/search → familiar action → guided capture → validation summary → review → result & next actions → timeline. Wired through `ModuleConsole` so every module inherits it.
-3. **Validation summary + field-error mapping**: shared component that groups blocking vs advisory errors, disables submit while blocking errors exist, surfaces correlation ID on API failures, maps field errors to inputs.
-4. **Unsaved-changes guard** on all wizards.
-5. **Per-module service contracts**: keep the existing `src/services/modules/*` split, wire TanStack Query keys per module, standardise `AbortController` + correlation propagation + Problem Details mapping. No generic workflow service leaks into UI.
-6. **Copy sweep**: remove any remaining "legacy / compatibility / backend contract / endpoint / payload mode" strings from operational pages.
+## Phase D — Action-scoped guided workflows
+Introduce an **Action selector** inside each module console (chip row above the stepper, same visual language). Selecting an action swaps the wizard steps for that action's flow. Ship the action lists exactly as specified for:
+- Patient Maintenance, Member Validation, Triage, Clinical Assessments, Preadmission, Admissions, Authorisations, Medical Events, Ward, Theatre, Pharmacy, Case Management, Clinical Coding, Billing, Accounting, Payments, Claims, Reimbursements, COID, Adhoc, Supplier Invoices, Documents & Printing, Workflow Inbox, Notifications, Integrations, Audit, Administration, Facilities, Practitioners, Funding.
+Each action's steps, frontend validations, and "leave-to-backend" boundary follow the brief verbatim.
 
-## Phased module rollout
+## Phase E — TanStack Query wiring
+Per-module `queries/` + `mutations/` with module-scoped query keys, invalidation on write, loading/error/empty/stale states, cancellation, retry policy. Wire the guided workflow submit path through mutations; wire supporting worklist/history tabs through queries.
 
-Each phase = worklist-first landing + guided actions matching the spec + validation summary + result/next-actions + timeline. All existing modules stay in place; content is upgraded in place.
+## Phase F — Auth-driven identity & permission gating
+- Replace hardcoded "Dr. K. Naidoo / Clinical Lead / Demo" everywhere with `useAuth()` principal (name, role, permissions, facilities, active facility, session status).
+- Permission-gate nav entries, action chips, and submit buttons via existing `PermissionGate`.
+- Session-expiry banner + `/unauthorised` page. Disable mock auth in production build.
 
-**Phase 1 — Scheduled patient journey core**
-Patient Maintenance · Member Validation · Preadmission · Clinical Assessment · Authorisations · Admissions (standard + direct + no-auth + move + discharge + birth).
+## Phase G — Problem Details error UX
+Central handler: on 422, map `errors[field]` → inline field errors, focus first invalid, show validation summary, preserve input, surface `correlationId` in the support drawer. Never show stack traces.
 
-**Phase 2 — Clinical operations**
-Ward Management (bed board, ward treatment, nursing card, accommodation) · Theatre Management (schedule, register, preference card) · Pharmacy (inpatient, ward, compounding, take-home, retail, emergency cupboard) · Medical Events · Triage (emergency journey).
-
-**Phase 3 — Funding & revenue**
-Case Management · Clinical Coding · Funding · Billing · Accounting · Payments (receipt/refund/reversal/suspense) · Claims · Reimbursements · COID · AdHoc · Supplier Invoices.
-
-**Phase 4 — Organisation & platform**
-Facilities · Practitioners (+ sanction flow) · Workflow Inbox · Notifications · Documents & Printing · Integrations / Service Bus / Failed Messages (health-first, payload hidden) · Audit Trail (immutable, no edit) · Reporting · MyLife Portal · MultiTouch launchers · Catalogue launchers (PCMS stays external).
-
-**Phase 5 — Administration & acceptance**
-Admin sections (Users, Roles, Permissions, Facility access, Approvers, Unlocking, Workflow/Facility/Ward/Theatre config, Templates, Printers, Feature flags, Reference data, Integration settings) with permission + reason + confirmation + audit on high-risk changes.
-End-to-end acceptance walkthrough: login → facility → register → validate → preadmit → assess → authorise → admit → allocate bed → ward/theatre/pharmacy → case → coding → discharge → bill → payment/claim → documents → integration status → audit.
-
-## Technical notes
-
-- Reuse `ModuleConsole`, `BusinessFlow`, `OperationalProcessConsole`, `AdminSectionPage`, `UI kit` — extend, don't fork.
-- Add `PatientBanner` + `useSelectedPatient` guard hook; mount banner via `ModuleConsole` when config marks the module patient-scoped.
-- Add `ValidationSummary` + `useUnsavedGuard`; wire into `BusinessFlow`.
-- Standardise TanStack Query keys under `src/services/query-keys.ts` (already present) — one namespace per module service.
-- Copy sweep via `rg` for forbidden strings; replace with plain-language equivalents.
+## Phase H — Tests
+Unit tests for each rule pack. Component tests for wizard navigation, disabled submit, validation summary, API error mapping, unsaved-changes guard. E2E happy paths listed in §43 using Playwright (already available in sandbox).
 
 ## What I need from you
-
-Confirm to start, and tell me whether to begin at **Phase 0 (foundations)** — recommended, because every later phase depends on the banner, validation summary and copy sweep — or jump straight into **Phase 1** and retrofit foundations as we go.
+Confirm you want me to start with **Phase A** now (structural cleanup + nav for Member Validation, Payments, Claims + metadata stripping). Each subsequent phase (B → H) ships on your `go` command, same pattern as prior phases. Say **go A** to begin, or tell me to re-order / drop phases.
