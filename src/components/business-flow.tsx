@@ -469,13 +469,13 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                 <li
                   key={candidate.key}
                   data-step-idx={candidateIndex}
-                  className="flex min-w-[132px] flex-1 snap-start items-start"
+                  className="flex shrink-0 snap-start items-start"
                 >
                   {!isFirst && (
                     <div
                       aria-hidden
                       className={
-                        "mt-[18px] h-[2px] flex-1 rounded-full transition-colors " +
+                        "mt-[18px] h-[2px] w-10 sm:w-14 rounded-full transition-colors " +
                         (prevDone ? "bg-primary" : "bg-border")
                       }
                     />
