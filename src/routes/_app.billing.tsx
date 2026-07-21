@@ -120,7 +120,7 @@ const config: ModuleConsoleConfig = {
       "Every line must map to a scheme tariff or negotiated rate.",
       "Claims cannot exceed the approved authorisation amount without a co-payment note.",
       "Remittance short-payments open an account enquiry automatically.",
-      "Every action publishes to the service bus and writes an audit record.",
+      "Every action is automatically audited.",
     ],
     acceptance: [
       "Assemble a bill from a coded episode and see totals match tariff.",

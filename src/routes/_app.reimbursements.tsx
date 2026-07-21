@@ -113,7 +113,7 @@ const config: ModuleConsoleConfig = {
       "Approver may not be the raiser (segregation of duties).",
       "Amount cannot exceed available balance on the source.",
       "Bank details are verified via account-holder callback before first payout.",
-      "Every event is publish to service bus and written to audit trail.",
+      "Every event is automatically audited.",
     ],
     acceptance: [
       "Raise a refund with a matched source reference and see it pending.",

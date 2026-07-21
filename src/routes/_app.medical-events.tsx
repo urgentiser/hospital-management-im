@@ -122,7 +122,7 @@ const config: ModuleConsoleConfig = {
       "Time-of-event is captured separately from time-of-record.",
       "Adverse events auto-notify safety and pharmacovigilance.",
       "Editing after sign requires reason and preserves original.",
-      "Events flow into the audit trail and the service bus.",
+      "Every clinical event is automatically audited.",
     ],
     acceptance: [
       "Record a vitals set and see it on the patient's timeline.",
