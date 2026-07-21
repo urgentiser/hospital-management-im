@@ -95,7 +95,9 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const moduleService = getModuleService(config.moduleKey);
   const canExecuteActions = hasPermission(principal, permissions.create ?? permissions.manage);
   const hasFlow = !!config.businessFlow;
-  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : "overview");
+  // Worklist-first: every module opens on the Overview / worklist. The guided workflow
+  // remains available as a separate tab for users who want the step-by-step path.
+  const [activeTab, setActiveTab] = useState<string>("overview");
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
   const [feedQuery, setFeedQuery] = useState("");
   const [busy, setBusy] = useState(false);
