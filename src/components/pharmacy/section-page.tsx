@@ -193,6 +193,7 @@ export function PharmacySectionPage({ sectionKey }: { sectionKey: SectionKey }) 
           </Card>
         </div>
       </div>
+      )}
 
       <ActionDialog
         spec={active}
