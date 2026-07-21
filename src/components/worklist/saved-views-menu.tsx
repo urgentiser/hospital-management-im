@@ -14,6 +14,8 @@ import {
 import type { SavedView, WorklistConfig } from "./types";
 import { useWorklistViewStore } from "@/lib/worklist-view-store";
 
+const EMPTY_VIEWS: SavedView[] = [];
+
 type Props = {
   config: WorklistConfig;
   currentFilters: Record<string, unknown>;
