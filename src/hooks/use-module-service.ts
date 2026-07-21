@@ -52,9 +52,9 @@ export function useCreateModuleRecord(
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input) => getModuleService(moduleKey).createRecord(input),
-    onSuccess: (data, vars, ctx) => {
+    onSuccess: (data, vars, onMutateResult, ctx) => {
       qc.invalidateQueries({ queryKey: moduleQueryKeys.all(moduleKey) });
-      options?.onSuccess?.(data, vars, ctx);
+      options?.onSuccess?.(data, vars, onMutateResult, ctx);
     },
     ...options,
   });
@@ -68,9 +68,9 @@ export function useTransitionModuleRecord(
   return useMutation({
     mutationFn: ({ itemId, targetState, reason }) =>
       getModuleService(moduleKey).transitionRecord(itemId, targetState, reason),
-    onSuccess: (data, vars, ctx) => {
+    onSuccess: (data, vars, onMutateResult, ctx) => {
       qc.invalidateQueries({ queryKey: moduleQueryKeys.all(moduleKey) });
-      options?.onSuccess?.(data, vars, ctx);
+      options?.onSuccess?.(data, vars, onMutateResult, ctx);
     },
     ...options,
   });
@@ -88,9 +88,9 @@ export function useExecuteModuleProcess(
   return useMutation({
     mutationFn: ({ operation, payload, context }) =>
       getModuleService(moduleKey).executeProcess(operation, payload, context),
-    onSuccess: (data, vars, ctx) => {
+    onSuccess: (data, vars, onMutateResult, ctx) => {
       qc.invalidateQueries({ queryKey: moduleQueryKeys.all(moduleKey) });
-      options?.onSuccess?.(data, vars, ctx);
+      options?.onSuccess?.(data, vars, onMutateResult, ctx);
     },
     ...options,
   });
@@ -103,10 +103,10 @@ export function useAddModuleNote(
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ itemId, note }) => getModuleService(moduleKey).addNote(itemId, note),
-    onSuccess: (data, vars, ctx) => {
+    onSuccess: (data, vars, onMutateResult, ctx) => {
       qc.invalidateQueries({ queryKey: moduleQueryKeys.detail(moduleKey, vars.itemId) });
       qc.invalidateQueries({ queryKey: moduleQueryKeys.list(moduleKey) });
-      options?.onSuccess?.(data, vars, ctx);
+      options?.onSuccess?.(data, vars, onMutateResult, ctx);
     },
     ...options,
   });
