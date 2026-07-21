@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, BadgeCheck, HeartPulse, ShieldAlert, User, UserSearch, X } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { AlertTriangle, ArrowRight, BadgeCheck, HeartPulse, ShieldAlert, User, UserSearch, X } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
