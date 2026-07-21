@@ -27,6 +27,7 @@ import { Route as AppReimbursementsRouteImport } from './routes/_app.reimburseme
 import { Route as AppPreadmissionsRouteImport } from './routes/_app.preadmissions'
 import { Route as AppPractitionersRouteImport } from './routes/_app.practitioners'
 import { Route as AppPharmacyRouteImport } from './routes/_app.pharmacy'
+import { Route as AppPaymentsRouteImport } from './routes/_app.payments'
 import { Route as AppPatientsRouteImport } from './routes/_app.patients'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppMylifePortalRouteImport } from './routes/_app.mylife-portal'
@@ -40,6 +41,7 @@ import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
 import { Route as AppCoidRouteImport } from './routes/_app.coid'
 import { Route as AppClinicalCodingRouteImport } from './routes/_app.clinical-coding'
 import { Route as AppClinicalAssessmentsRouteImport } from './routes/_app.clinical-assessments'
+import { Route as AppClaimsRouteImport } from './routes/_app.claims'
 import { Route as AppCaseManagementRouteImport } from './routes/_app.case-management'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAuthorisationsRouteImport } from './routes/_app.authorisations'
@@ -161,6 +163,11 @@ const AppPharmacyRoute = AppPharmacyRouteImport.update({
   path: '/pharmacy',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPaymentsRoute = AppPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPatientsRoute = AppPatientsRouteImport.update({
   id: '/patients',
   path: '/patients',
@@ -224,6 +231,11 @@ const AppClinicalCodingRoute = AppClinicalCodingRouteImport.update({
 const AppClinicalAssessmentsRoute = AppClinicalAssessmentsRouteImport.update({
   id: '/clinical-assessments',
   path: '/clinical-assessments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClaimsRoute = AppClaimsRouteImport.update({
+  id: '/claims',
+  path: '/claims',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCaseManagementRoute = AppCaseManagementRouteImport.update({
@@ -401,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/claims': typeof AppClaimsRoute
   '/clinical-assessments': typeof AppClinicalAssessmentsRoute
   '/clinical-coding': typeof AppClinicalCodingRoute
   '/coid': typeof AppCoidRoute
@@ -414,6 +427,7 @@ export interface FileRoutesByFullPath {
   '/mylife-portal': typeof AppMylifePortalRoute
   '/notifications': typeof AppNotificationsRoute
   '/patients': typeof AppPatientsRoute
+  '/payments': typeof AppPaymentsRoute
   '/pharmacy': typeof AppPharmacyRouteWithChildren
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
@@ -462,6 +476,7 @@ export interface FileRoutesByTo {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/claims': typeof AppClaimsRoute
   '/clinical-assessments': typeof AppClinicalAssessmentsRoute
   '/clinical-coding': typeof AppClinicalCodingRoute
   '/coid': typeof AppCoidRoute
@@ -475,6 +490,7 @@ export interface FileRoutesByTo {
   '/mylife-portal': typeof AppMylifePortalRoute
   '/notifications': typeof AppNotificationsRoute
   '/patients': typeof AppPatientsRoute
+  '/payments': typeof AppPaymentsRoute
   '/practitioners': typeof AppPractitionersRoute
   '/preadmissions': typeof AppPreadmissionsRoute
   '/reimbursements': typeof AppReimbursementsRoute
@@ -526,6 +542,7 @@ export interface FileRoutesById {
   '/_app/authorisations': typeof AppAuthorisationsRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/case-management': typeof AppCaseManagementRoute
+  '/_app/claims': typeof AppClaimsRoute
   '/_app/clinical-assessments': typeof AppClinicalAssessmentsRoute
   '/_app/clinical-coding': typeof AppClinicalCodingRoute
   '/_app/coid': typeof AppCoidRoute
@@ -539,6 +556,7 @@ export interface FileRoutesById {
   '/_app/mylife-portal': typeof AppMylifePortalRoute
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/patients': typeof AppPatientsRoute
+  '/_app/payments': typeof AppPaymentsRoute
   '/_app/pharmacy': typeof AppPharmacyRouteWithChildren
   '/_app/practitioners': typeof AppPractitionersRoute
   '/_app/preadmissions': typeof AppPreadmissionsRoute
@@ -592,6 +610,7 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/claims'
     | '/clinical-assessments'
     | '/clinical-coding'
     | '/coid'
@@ -605,6 +624,7 @@ export interface FileRouteTypes {
     | '/mylife-portal'
     | '/notifications'
     | '/patients'
+    | '/payments'
     | '/pharmacy'
     | '/practitioners'
     | '/preadmissions'
@@ -653,6 +673,7 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/claims'
     | '/clinical-assessments'
     | '/clinical-coding'
     | '/coid'
@@ -666,6 +687,7 @@ export interface FileRouteTypes {
     | '/mylife-portal'
     | '/notifications'
     | '/patients'
+    | '/payments'
     | '/practitioners'
     | '/preadmissions'
     | '/reimbursements'
@@ -716,6 +738,7 @@ export interface FileRouteTypes {
     | '/_app/authorisations'
     | '/_app/billing'
     | '/_app/case-management'
+    | '/_app/claims'
     | '/_app/clinical-assessments'
     | '/_app/clinical-coding'
     | '/_app/coid'
@@ -729,6 +752,7 @@ export interface FileRouteTypes {
     | '/_app/mylife-portal'
     | '/_app/notifications'
     | '/_app/patients'
+    | '/_app/payments'
     | '/_app/pharmacy'
     | '/_app/practitioners'
     | '/_app/preadmissions'
@@ -904,6 +928,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPharmacyRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/payments': {
+      id: '/_app/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AppPaymentsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/patients': {
       id: '/_app/patients'
       path: '/patients'
@@ -993,6 +1024,13 @@ declare module '@tanstack/react-router' {
       path: '/clinical-assessments'
       fullPath: '/clinical-assessments'
       preLoaderRoute: typeof AppClinicalAssessmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/claims': {
+      id: '/_app/claims'
+      path: '/claims'
+      fullPath: '/claims'
+      preLoaderRoute: typeof AppClaimsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/case-management': {
@@ -1283,6 +1321,7 @@ interface AppRouteChildren {
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
   AppBillingRoute: typeof AppBillingRoute
   AppCaseManagementRoute: typeof AppCaseManagementRoute
+  AppClaimsRoute: typeof AppClaimsRoute
   AppClinicalAssessmentsRoute: typeof AppClinicalAssessmentsRoute
   AppClinicalCodingRoute: typeof AppClinicalCodingRoute
   AppCoidRoute: typeof AppCoidRoute
@@ -1296,6 +1335,7 @@ interface AppRouteChildren {
   AppMylifePortalRoute: typeof AppMylifePortalRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPatientsRoute: typeof AppPatientsRoute
+  AppPaymentsRoute: typeof AppPaymentsRoute
   AppPharmacyRoute: typeof AppPharmacyRouteWithChildren
   AppPractitionersRoute: typeof AppPractitionersRoute
   AppPreadmissionsRoute: typeof AppPreadmissionsRoute
@@ -1322,6 +1362,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAuthorisationsRoute: AppAuthorisationsRoute,
   AppBillingRoute: AppBillingRoute,
   AppCaseManagementRoute: AppCaseManagementRoute,
+  AppClaimsRoute: AppClaimsRoute,
   AppClinicalAssessmentsRoute: AppClinicalAssessmentsRoute,
   AppClinicalCodingRoute: AppClinicalCodingRoute,
   AppCoidRoute: AppCoidRoute,
@@ -1335,6 +1376,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMylifePortalRoute: AppMylifePortalRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPatientsRoute: AppPatientsRoute,
+  AppPaymentsRoute: AppPaymentsRoute,
   AppPharmacyRoute: AppPharmacyRouteWithChildren,
   AppPractitionersRoute: AppPractitionersRoute,
   AppPreadmissionsRoute: AppPreadmissionsRoute,
