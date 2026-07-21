@@ -350,8 +350,7 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
           )}
         </SheetContent>
       </Sheet>
-        </>
-      )}
+      </>
     </>
   );
 }
