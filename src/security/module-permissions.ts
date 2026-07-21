@@ -45,6 +45,8 @@ const mapping: Record<ModuleKey, DefaultModulePermissions> = {
   admin: { view: Permissions.AdministrationView, create: Permissions.AdministrationManage, manage: Permissions.AdministrationManage },
   reports: { view: Permissions.ReportView, create: Permissions.ReportView, manage: Permissions.ReportView },
   "workflow-inbox": { view: Permissions.WorkflowView, create: Permissions.WorkflowView, manage: Permissions.WorkflowView },
+  payments: { view: Permissions.AccountingView, create: Permissions.AccountingManage, manage: Permissions.AccountingManage },
+  claims: { view: Permissions.BillingView, create: Permissions.BillingManage, manage: Permissions.BillingManage },
 };
 
 export function getDefaultModulePermissions(moduleKey: ModuleKey): DefaultModulePermissions {
