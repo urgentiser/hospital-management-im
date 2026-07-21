@@ -199,6 +199,18 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
 
   useEffect(() => { if (page !== safePage) setPage(safePage); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [page, safePage]);
 
+  // When a guided workflow completes (selection cleared upstream), drop bulk
+  // selection and re-run the query so any transitioned rows re-materialise
+  // with fresh availableActions from the server.
+  const currentSelection = useWorklistSelection((s) => s.current);
+  useEffect(() => {
+    if (currentSelection === null) {
+      setSelection(new Set());
+      queryClient.invalidateQueries({ queryKey: ["worklist", config.moduleKey] });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSelection]);
+
   const summary = config.summary?.(paged) ?? [];
   const visibleColumns = config.columns.filter((c) => visibleCols.has(c.key));
 
