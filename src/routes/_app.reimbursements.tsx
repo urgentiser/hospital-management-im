@@ -4,6 +4,7 @@ import {
   ShieldCheck, AlertTriangle,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "reimbursements",
@@ -88,6 +89,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("reimbursements", "Reimbursements"),
+
   businessFlow: {
     moduleKey: "reimbursements",
     title: "Refund / Reimbursement",

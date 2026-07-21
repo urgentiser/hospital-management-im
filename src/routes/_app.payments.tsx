@@ -3,6 +3,7 @@ import {
   Banknote, HandCoins, RotateCcw, Printer, Wallet, CheckCircle2, Layers, Coins, ClipboardList,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "payments",
@@ -98,6 +99,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("payments", "Payments"),
+
   businessFlow: {
     moduleKey: "payments",
     title: "Capture Payment",

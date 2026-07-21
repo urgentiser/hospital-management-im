@@ -4,6 +4,7 @@ import {
   ShieldAlert, ListChecks, PenLine, Search, Radio,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "clinical-assessments",
@@ -95,6 +96,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("clinical-assessments", "Clinical Assessments"),
+
   businessFlow: {
     moduleKey: "clinical-assessments",
     title: "Clinical Assessment",

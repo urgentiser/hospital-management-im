@@ -4,6 +4,7 @@ import {
   ArrowUpCircle, FileText,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "account-enquiries",
@@ -94,6 +95,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("account-enquiries", "Account Enquiries"),
+
   businessFlow: {
     moduleKey: "account-enquiries",
     title: "Account Enquiry",

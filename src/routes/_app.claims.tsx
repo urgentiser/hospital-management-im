@@ -3,6 +3,7 @@ import {
   FileCheck, Send, ShieldCheck, RotateCcw, AlertTriangle, CheckCircle2, Layers, Coins, ClipboardList, XCircle,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "claims",
@@ -105,6 +106,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("claims", "Claims"),
+
   businessFlow: {
     moduleKey: "claims",
     title: "Create & Submit Claim",

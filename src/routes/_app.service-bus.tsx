@@ -3,6 +3,7 @@ import {
   Radio, Send, ClipboardCheck, ShieldAlert, RefreshCw, Pause, PlayCircle, Layers, Gauge,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "service-bus",
@@ -79,6 +80,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("service-bus", "Azure Service Bus Monitor"),
+
   businessFlow: {
     moduleKey: "service-bus",
     title: "Detect · Contain · Recover",

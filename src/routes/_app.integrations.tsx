@@ -4,6 +4,7 @@ import {
   Cable, Bug, Server,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 import { IntegrationsDetailTable } from "@/components/integrations-detail";
 
 const config: ModuleConsoleConfig = {
@@ -84,6 +85,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("integrations", "Integrations"),
+
   businessFlow: {
     moduleKey: "integrations",
     title: "Publish · Retry · Resolve",

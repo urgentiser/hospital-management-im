@@ -4,6 +4,7 @@ import {
   Clock, ShieldAlert, ChevronsUp,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "triage",
@@ -91,6 +92,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("triage", "Triage"),
+
   businessFlow: {
     moduleKey: "triage",
     title: "Emergency Triage",

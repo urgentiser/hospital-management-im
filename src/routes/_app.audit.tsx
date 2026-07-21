@@ -3,6 +3,7 @@ import {
   ScrollText, Search, ShieldCheck, Download, Lock, ClipboardCheck, FileSignature,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 import { AuditDetailTable } from "@/components/audit-detail";
 
 const config: ModuleConsoleConfig = {
@@ -77,6 +78,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("audit", "Audit Trail"),
+
   businessFlow: {
     moduleKey: "audit",
     title: "Log · Review · Seal",

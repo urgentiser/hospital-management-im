@@ -4,6 +4,7 @@ import {
   ClipboardList, Clock, ShieldAlert, CheckCircle2, HeartPulse,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "preadmissions",
@@ -122,6 +123,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("preadmissions", "Preadmission"),
+
   businessFlow: {
     moduleKey: "preadmissions",
     title: "Preadmission",

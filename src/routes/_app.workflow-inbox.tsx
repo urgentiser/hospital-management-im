@@ -3,6 +3,7 @@ import {
   Inbox, ClipboardCheck, UserPlus, Timer, Send, RotateCcw, AlertTriangle, PlayCircle,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "workflow-inbox",
@@ -79,6 +80,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("workflow-inbox", "Workflow Inbox"),
+
   businessFlow: {
     moduleKey: "workflow-inbox",
     title: "Claim · Complete · Route",

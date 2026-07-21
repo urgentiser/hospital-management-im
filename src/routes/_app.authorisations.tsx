@@ -4,6 +4,7 @@ import {
   FileSignature, AlertTriangle, ArrowRightLeft, RefreshCcw, CheckCircle2, Wrench, HelpCircle,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "authorisations",
@@ -112,6 +113,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("authorisations", "Authorisations"),
+
   businessFlow: {
     moduleKey: "authorisations",
     title: "Authorisation",

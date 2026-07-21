@@ -3,6 +3,7 @@ import {
   Activity, Gauge, ShieldAlert, ClipboardCheck, RotateCcw, PlayCircle, Bell, HeartPulse,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "system-health",
@@ -77,6 +78,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("system-health", "System Health"),
+
   businessFlow: {
     moduleKey: "system-health",
     title: "Detect · Diagnose · Restore",

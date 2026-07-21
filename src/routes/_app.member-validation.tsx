@@ -3,6 +3,7 @@ import {
   ShieldCheck, Search, UserCheck, FileSignature, AlertTriangle, RefreshCcw, CheckCircle2, Users,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "member-validation",
@@ -94,6 +95,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("member-validation", "Member Validation"),
+
   businessFlow: {
     moduleKey: "member-validation",
     title: "Member Validation",
