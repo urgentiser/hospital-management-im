@@ -9,7 +9,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 const config: ModuleConsoleConfig = {
   moduleKey: "admissions",
   patientScoped: true,
-  eyebrow: "Clinical · Admissions Service",
+  eyebrow: "Clinical · Admissions",
   title: "Admissions",
   description: "Admit, transfer, discharge and bill inpatients across every Life Healthcare facility.",
   heroHeadline: "One command centre for the entire inpatient journey.",
@@ -264,9 +264,9 @@ const config: ModuleConsoleConfig = {
       { key: "cancelled", label: "Cancel admission", destructive: true, requiresReason: true, permission: "manage",
         visibleWhen: (r) => r.status === "pending" || r.status === "admitted" },
     ],
-    bulkActions: [
-      { key: "discharge-bulk", label: "Discharge selected", permission: "manage" },
-    ],
+    // Bulk admission, discharge, finalisation, refund, reversal, patient merge,
+    // clinical sign-off and claim submission are prohibited by policy.
+    bulkActions: [],
   },
   businessFlow: {
     moduleKey: "admissions",
@@ -341,8 +341,6 @@ const config: ModuleConsoleConfig = {
         ],
         events: ["BedAllocated"],
         rules: ["A bed cannot be allocated to more than one active occupant for overlapping time."] },
-      { key: "publish", title: "Publish admission and occupancy events", description: "Downstream services (Ward, Billing, Case) receive admission and occupancy events.",
-        events: ["PatientAdmitted", "BedAllocated"] },
       { key: "changes", title: "Maintain location and practitioner changes", description: "During the stay, record ward moves and practitioner changes with a full accommodation history.",
         fields: [
           { name: "moveTo", label: "Move to ward / bed (if any)" },
