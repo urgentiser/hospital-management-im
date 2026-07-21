@@ -456,7 +456,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
           className="relative overflow-x-auto rounded-2xl border border-border bg-card/60 scrollbar-hidden"
           aria-label="Workflow steps"
         >
-          <ol className="flex min-w-full items-stretch gap-0 px-4 py-4">
+          <ol className="flex w-max min-w-full items-stretch gap-0 px-4 py-4">
             {flow.steps.map((candidate, candidateIndex) => {
               const done = completed.has(candidateIndex);
               const active = candidateIndex === index;
