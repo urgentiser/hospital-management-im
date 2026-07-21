@@ -176,13 +176,15 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
     [config.moduleKey, debouncedSearch, filters, page, pageSize, sortBy, sortDir, activeFacility],
   );
 
+  const scopedFacility = activeFacility && activeFacility !== "All facilities" ? activeFacility : undefined;
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey,
     queryFn: ({ signal }) => service.listRecords(
       {
         search: debouncedSearch || undefined,
         page, pageSize, sortBy, sortDirection: sortDir,
-        facilityId: activeFacility || undefined,
+        facilityId: scopedFacility,
+        filters: filters as Record<string, string | number | boolean | string[] | { from?: string; to?: string } | null | undefined>,
       },
       signal,
     ),
@@ -196,6 +198,18 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
   const safePage = Math.min(Math.max(1, page), totalPages);
 
   useEffect(() => { if (page !== safePage) setPage(safePage); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [page, safePage]);
+
+  // When a guided workflow completes (selection cleared upstream), drop bulk
+  // selection and re-run the query so any transitioned rows re-materialise
+  // with fresh availableActions from the server.
+  const currentSelection = useWorklistSelection((s) => s.current);
+  useEffect(() => {
+    if (currentSelection === null) {
+      setSelection(new Set());
+      queryClient.invalidateQueries({ queryKey: ["worklist", config.moduleKey] });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSelection]);
 
   const summary = config.summary?.(paged) ?? [];
   const visibleColumns = config.columns.filter((c) => visibleCols.has(c.key));
@@ -239,13 +253,21 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
   };
 
   const rowActionsFor = (row: WorkflowItem): WorklistAction[] => {
+    // Facility scope: if the row is scoped to a facility the user cannot
+    // access, expose no actions at all — the row is view-only.
+    const facilityAccessible = !row.facilityId
+      || !principal
+      || principal.facilities.some((f) => f.id === row.facilityId || f.name === row.facilityId);
+    if (!facilityAccessible) return [];
     return (config.rowActions ?? []).filter((a) => {
       if (a.visibleWhen && !a.visibleWhen(row)) return false;
       if (a.permission && !hasPermission(principal, perms[a.permission])) return false;
-      // Backend-provided authoritative gate: if the record advertises an
-      // availableActions list, the client must intersect with it.
-      if (row.availableActions && !a.launchesGuidedWorkflow
-          && !row.availableActions.includes(a.key)) return false;
+      // Backend-authoritative gate: an action is only available when the row
+      // advertises it in availableActions. Applies to every action, including
+      // actions that launch a guided workflow. Absent or empty list = no
+      // state-changing actions.
+      const allowed = row.availableActions ?? [];
+      if (!allowed.includes(a.key)) return false;
       return true;
     });
   };

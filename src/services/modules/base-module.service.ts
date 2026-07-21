@@ -34,13 +34,36 @@ export function createModuleService(config: ModuleServiceConfig): ModuleService 
     if (appConfig.dataMode === "api") {
       const search = new URLSearchParams();
       for (const [key, value] of Object.entries(query)) {
-        if (value !== undefined && value !== "" && value !== null) search.set(key, String(value));
+        if (key === "filters" || value === undefined || value === "" || value === null) continue;
+        search.set(key, String(value));
+      }
+      for (const [key, value] of Object.entries(query.filters ?? {})) {
+        if (value === undefined || value === null || value === "") continue;
+        if (Array.isArray(value)) {
+          if (value.length === 0) continue;
+          for (const v of value) search.append(`filter.${key}`, String(v));
+        } else if (typeof value === "object") {
+          const range = value as { from?: string; to?: string };
+          if (range.from) search.set(`filter.${key}.from`, range.from);
+          if (range.to) search.set(`filter.${key}.to`, range.to);
+        } else {
+          search.set(`filter.${key}`, String(value));
+        }
       }
       const suffix = search.size ? `?${search.toString()}` : "";
       return apiRequest<PagedResult<WorkflowItem>>(`${config.basePath}${suffix}`, { method: "GET", signal });
     }
     const source = workflowKey ? (useWorkflow.getState().items[workflowKey] ?? []) : [];
-    return pageMock(source, query);
+    const result = pageMock(source, query);
+    // Mock mode: inject a default availableActions list when seed data omits
+    // it, so demo pages continue to expose the guided workflow and standard
+    // verbs. In API mode the backend owns this field authoritatively.
+    result.items = result.items.map((item) =>
+      item.availableActions
+        ? item
+        : { ...item, availableActions: ["open", "note", "transition"] },
+    );
+    return result;
   }
 
   async function getRecord(itemId: string, signal?: AbortSignal): Promise<WorkflowItem | null> {
