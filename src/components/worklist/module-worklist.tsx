@@ -242,6 +242,10 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
     return (config.rowActions ?? []).filter((a) => {
       if (a.visibleWhen && !a.visibleWhen(row)) return false;
       if (a.permission && !hasPermission(principal, perms[a.permission])) return false;
+      // Backend-provided authoritative gate: if the record advertises an
+      // availableActions list, the client must intersect with it.
+      if (row.availableActions && !a.launchesGuidedWorkflow
+          && !row.availableActions.includes(a.key)) return false;
       return true;
     });
   };
