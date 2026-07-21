@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
+import { AdminStrip } from "@/components/admin-strip";
 import { useWorkflow } from "@/lib/workflow-store";
 import { useAuth } from "@/security/auth-provider";
 import { getDefaultModulePermissions } from "@/security/module-permissions";
@@ -42,6 +43,7 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
 
   return (
     <>
+      <AdminStrip activeKey={sectionKey} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* Actions grid */}
         <div>
