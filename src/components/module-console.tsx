@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { useWorkflow, type ModuleKey, type WorkflowItem } from "@/lib/workflow-store";
 import { BusinessFlowWizard, type BusinessFlow } from "@/components/business-flow";
-import { OperationalProcessConsole } from "@/components/compatibility/operational-process";
-import { getCurrentStateModuleSummary } from "@/current-state/module-manifest";
 import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
 import { useFacilityContext } from "@/lib/facility-context";
 import { useAuth } from "@/security/auth-provider";
