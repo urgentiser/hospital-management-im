@@ -173,8 +173,13 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
       {config.platformScoped && <PlatformStrip activeKey={config.moduleKey} />}
       {config.adminScoped && <AdminStrip activeKey={config.moduleKey} />}
 
-      {/* Tab bar */}
+      {/* Tab bar — Worklist / Overview is the primary landing view for every module.
+          Guided workflow (if defined) is offered last as an optional step-by-step path. */}
       <nav className="mb-6 -mx-1 flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hidden">
+        <TabPill label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+        {config.sections.map((s) => (
+          <TabPill key={s.key} label={s.title} active={activeTab === s.key} onClick={() => setActiveTab(s.key)} />
+        ))}
         {hasFlow && (
           <TabPill
             label={
@@ -186,10 +191,6 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
             onClick={() => setActiveTab("flow")}
           />
         )}
-        <TabPill label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
-        {config.sections.map((s) => (
-          <TabPill key={s.key} label={s.title} active={activeTab === s.key} onClick={() => setActiveTab(s.key)} />
-        ))}
       </nav>
 
       {activeSection && (
