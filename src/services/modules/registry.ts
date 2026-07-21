@@ -78,6 +78,8 @@ const services: Record<string, ModuleService> = {
   "reimbursements-catalogue": reimbursementsCatalogueService,
   "nonconsumables-catalogue": nonconsumablesCatalogueService,
   "vivo-security": vivoSecurityService,
+  "payments": paymentsService,
+  "claims": claimsService,
 };
 
 export function getModuleService(moduleKey: string): ModuleService {
