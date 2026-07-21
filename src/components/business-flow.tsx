@@ -73,8 +73,8 @@ export type BusinessFlow = {
   moduleKey: ModuleKey;
   title: string;
   purpose: string;
-  routeFamily: string[];
-  legacySource: string;
+  routeFamily?: string[];
+  legacySource?: string;
   patientRequired?: boolean;
   steps: FlowStep[];
   globalRules: string[];

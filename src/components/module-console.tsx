@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ArrowRight, ArrowUpRight, ChevronRight, Search, Sparkles, Workflow } from "lucide-react";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
+import { PatientBanner } from "@/components/patient-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,6 +77,8 @@ export type ModuleConsoleConfig = {
   overviewExtras?: (items: WorkflowItem[]) => React.ReactNode;
   sections: SectionSpec[];
   businessFlow?: BusinessFlow;
+  /** When true a persistent patient banner is rendered at the top of the module. */
+  patientScoped?: boolean;
 };
 
 // ---------------- Console ----------------
@@ -156,9 +159,9 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   return (
     <>
       <PageHeader
-        eyebrow={isOperational ? `${config.eyebrow} · Operational process` : isFlow ? `${config.eyebrow} · Assisted workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
-        title={isOperational ? `${config.title} — Operational process` : isFlow ? `${config.businessFlow!.title} — Assisted flow` : activeSection ? activeSection.title : config.title}
-        description={isOperational ? "The standard Impilo action names, access controls, step sequence and validation flow are preserved." : isFlow ? config.description : activeSection ? activeSection.description : config.description}
+        eyebrow={isOperational ? `${config.eyebrow} · Guided process` : isFlow ? `${config.eyebrow} · Guided workflow` : activeSection ? `${config.eyebrow} · ${activeSection.title}` : config.eyebrow}
+        title={isOperational ? `${config.title} — Guided process` : isFlow ? `${config.businessFlow!.title} — Guided workflow` : activeSection ? activeSection.title : config.title}
+        description={isOperational ? "Familiar Impilo action names, access controls, step sequence and validations are preserved." : isFlow ? config.description : activeSection ? activeSection.description : config.description}
         actions={
           <>
             <CurrentStateModuleButton moduleKey={config.moduleKey} compact />
@@ -168,6 +171,8 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
           </>
         }
       />
+
+      {config.patientScoped && <PatientBanner />}
 
       {/* Tab bar */}
       <nav className="mb-6 -mx-1 flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hidden">
