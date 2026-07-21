@@ -86,7 +86,6 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "notifications",
-  platformScoped: true,
     title: "Compose · Send · Deliver",
     purpose: "Notify the right person on the right channel at the right time — with consent, delivery guarantees and audit built in.",
     legacySource: "Rich/Platform/Notifications.Implet",

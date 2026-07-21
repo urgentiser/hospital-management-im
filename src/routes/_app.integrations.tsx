@@ -86,7 +86,6 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "integrations",
-  platformScoped: true,
     title: "Publish · Retry · Resolve",
     purpose: "Every domain event travels the bus reliably. Publish, monitor, retry on transient failure, dead-letter on poison, then resolve or replay.",
     legacySource: "Rich/Integrations/ServiceBus.Implet; integrations.menu.xml",

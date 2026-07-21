@@ -79,7 +79,6 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "audit",
-  platformScoped: true,
     title: "Log · Review · Seal",
     purpose: "Every action produces a durable audit entry. Compliance reviews entries, then closed periods are sealed so the record is provably immutable.",
     legacySource: "Rich/Platform/AuditTrail.Implet",

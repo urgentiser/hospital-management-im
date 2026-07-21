@@ -79,7 +79,6 @@ const config: ModuleConsoleConfig = {
   ],
   businessFlow: {
     moduleKey: "system-health",
-  platformScoped: true,
     title: "Detect · Diagnose · Restore",
     purpose: "Detect service degradation early, diagnose with runbooks and dependency data, restore quickly and learn from every incident.",
     legacySource: "Rich/Platform/SystemHealth.Implet",
