@@ -159,6 +159,115 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: {
+    moduleKey: "admissions",
+    name: "Admissions worklist",
+    tagline: "Current inpatients, transfers pending and discharge-ready cases.",
+    exportable: true,
+    defaultSortBy: "updatedAt",
+    defaultSortDir: "desc",
+    pageSize: 25,
+    statusMap: {
+      admitted: { label: "Admitted", tone: "success" },
+      pending: { label: "Pending", tone: "warning" },
+      transferred: { label: "Transferred", tone: "info" },
+      discharged: { label: "Discharged", tone: "muted" },
+      cancelled: { label: "Cancelled", tone: "destructive" },
+      discontinued: { label: "Discontinued", tone: "destructive" },
+    },
+    columns: [
+      { key: "id", label: "Admission #", sortable: true, width: "140px",
+        render: (r) => <span className="font-mono text-xs">{r.id}</span> },
+      { key: "title", label: "Patient", sortable: true,
+        render: (r) => (
+          <div className="min-w-0">
+            <div className="truncate font-medium">{r.title}</div>
+            {r.subtitle && <div className="truncate text-[11px] text-muted-foreground">{r.subtitle}</div>}
+          </div>
+        ) },
+      { key: "Ward", label: "Ward / Bed",
+        render: (r) => <span>{String(r.fields["Ward"] ?? r.fields["To Ward"] ?? "—")}{r.fields["Bed"] ? ` · ${r.fields["Bed"]}` : ""}</span> },
+      { key: "Admitting practitioner", label: "Practitioner",
+        render: (r) => String(r.fields["Admitting practitioner"] ?? r.fields["Practitioner"] ?? "—") },
+      { key: "Auth", label: "Auth",
+        render: (r) => {
+          const auth = String(r.fields["Auth"] ?? r.fields["Authorisation ref"] ?? "").trim();
+          if (!auth || auth.toLowerCase() === "none") {
+            return <span className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] text-rose-600 dark:text-rose-400">No-auth</span>;
+          }
+          return <span className="font-mono text-[11px]">{auth}</span>;
+        } },
+      { key: "status", label: "Status",
+        render: (r) => {
+          const map: Record<string, { label: string; tone: "success" | "warning" | "info" | "muted" | "destructive" }> = {
+            admitted: { label: "Admitted", tone: "success" },
+            pending: { label: "Pending", tone: "warning" },
+            transferred: { label: "Transferred", tone: "info" },
+            discharged: { label: "Discharged", tone: "muted" },
+            cancelled: { label: "Cancelled", tone: "destructive" },
+            discontinued: { label: "Discontinued", tone: "destructive" },
+          };
+          const cfg = map[r.status] ?? { label: r.status, tone: "muted" as const };
+          const tones = {
+            success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+            warning: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+            info: "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400",
+            muted: "border-border bg-muted/60 text-muted-foreground",
+            destructive: "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400",
+          };
+          return <span className={"inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium " + tones[cfg.tone]}>{cfg.label}</span>;
+        } },
+      { key: "updatedAt", label: "Updated", sortable: true, defaultVisible: false,
+        render: (r) => <span className="text-[11px] text-muted-foreground">{new Date(r.updatedAt || r.createdAt).toLocaleString("en-ZA")}</span> },
+    ],
+    filters: [
+      { key: "status", label: "Status", kind: "select", options: [
+        { value: "admitted", label: "Admitted" },
+        { value: "pending", label: "Pending" },
+        { value: "transferred", label: "Transferred" },
+        { value: "discharged", label: "Discharged" },
+        { value: "cancelled", label: "Cancelled" },
+      ] },
+      { key: "Auth", label: "Authorisation", kind: "select", options: [
+        { value: "none", label: "No-auth only" },
+      ] },
+      { key: "Ward", label: "Ward", kind: "text", placeholder: "e.g. Ward 3B" },
+      { key: "updated", label: "Updated between", kind: "date-range" },
+      { key: "noAuthOnly", label: "No-auth flagged only", kind: "boolean" },
+    ],
+    summary: (items) => {
+      const admitted = items.filter((i) => i.status === "admitted").length;
+      const pending = items.filter((i) => i.status === "pending").length;
+      const noAuth = items.filter((i) => String(i.fields["Auth"] ?? "").toLowerCase() === "none").length;
+      const discharged = items.filter((i) => i.status === "discharged").length;
+      return [
+        { label: "Currently admitted", value: admitted, tone: "success" as const },
+        { label: "Pending admission", value: pending, tone: "warning" as const },
+        { label: "No-auth flagged", value: noAuth, tone: "destructive" as const },
+        { label: "Discharged", value: discharged, tone: "muted" as const },
+      ];
+    },
+    savedViews: [
+      { key: "no-auth", label: "No-auth admissions", description: "All admissions flagged as no-authorisation.",
+        filters: { noAuthOnly: true } },
+      { key: "discharge-ready", label: "Discharge ready", description: "Admitted cases ready for discharge review.",
+        filters: { status: "admitted" } },
+      { key: "pending-in", label: "Pending admissions", description: "Preadmissions awaiting bed allocation.",
+        filters: { status: "pending" } },
+    ],
+    rowActions: [
+      { key: "open", label: "Open in guided workflow", launchesGuidedWorkflow: true, permission: "view" },
+      { key: "transferred", label: "Transfer / move ward", targetStep: "changes", launchesGuidedWorkflow: true, permission: "manage",
+        visibleWhen: (r) => r.status === "admitted" },
+      { key: "discharged", label: "Discharge patient", targetStep: "discharge", launchesGuidedWorkflow: true, permission: "manage",
+        visibleWhen: (r) => r.status === "admitted" },
+      { key: "cancelled", label: "Cancel admission", destructive: true, requiresReason: true, permission: "manage",
+        visibleWhen: (r) => r.status === "pending" || r.status === "admitted" },
+    ],
+    bulkActions: [
+      { key: "discharge-bulk", label: "Discharge selected", permission: "manage" },
+    ],
+  },
   businessFlow: {
     moduleKey: "admissions",
     title: "Admissions",
