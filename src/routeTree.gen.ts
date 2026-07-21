@@ -41,6 +41,7 @@ import { Route as AppDocumentsRouteImport } from './routes/_app.documents'
 import { Route as AppCoidRouteImport } from './routes/_app.coid'
 import { Route as AppClinicalCodingRouteImport } from './routes/_app.clinical-coding'
 import { Route as AppClinicalAssessmentsRouteImport } from './routes/_app.clinical-assessments'
+import { Route as AppClaimsRouteImport } from './routes/_app.claims'
 import { Route as AppCaseManagementRouteImport } from './routes/_app.case-management'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAuthorisationsRouteImport } from './routes/_app.authorisations'
@@ -232,6 +233,11 @@ const AppClinicalAssessmentsRoute = AppClinicalAssessmentsRouteImport.update({
   path: '/clinical-assessments',
   getParentRoute: () => AppRoute,
 } as any)
+const AppClaimsRoute = AppClaimsRouteImport.update({
+  id: '/claims',
+  path: '/claims',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCaseManagementRoute = AppCaseManagementRouteImport.update({
   id: '/case-management',
   path: '/case-management',
@@ -407,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/claims': typeof AppClaimsRoute
   '/clinical-assessments': typeof AppClinicalAssessmentsRoute
   '/clinical-coding': typeof AppClinicalCodingRoute
   '/coid': typeof AppCoidRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
   '/case-management': typeof AppCaseManagementRoute
+  '/claims': typeof AppClaimsRoute
   '/clinical-assessments': typeof AppClinicalAssessmentsRoute
   '/clinical-coding': typeof AppClinicalCodingRoute
   '/coid': typeof AppCoidRoute
@@ -534,6 +542,7 @@ export interface FileRoutesById {
   '/_app/authorisations': typeof AppAuthorisationsRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/case-management': typeof AppCaseManagementRoute
+  '/_app/claims': typeof AppClaimsRoute
   '/_app/clinical-assessments': typeof AppClinicalAssessmentsRoute
   '/_app/clinical-coding': typeof AppClinicalCodingRoute
   '/_app/coid': typeof AppCoidRoute
@@ -601,6 +610,7 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/claims'
     | '/clinical-assessments'
     | '/clinical-coding'
     | '/coid'
@@ -663,6 +673,7 @@ export interface FileRouteTypes {
     | '/authorisations'
     | '/billing'
     | '/case-management'
+    | '/claims'
     | '/clinical-assessments'
     | '/clinical-coding'
     | '/coid'
@@ -727,6 +738,7 @@ export interface FileRouteTypes {
     | '/_app/authorisations'
     | '/_app/billing'
     | '/_app/case-management'
+    | '/_app/claims'
     | '/_app/clinical-assessments'
     | '/_app/clinical-coding'
     | '/_app/coid'
@@ -1012,6 +1024,13 @@ declare module '@tanstack/react-router' {
       path: '/clinical-assessments'
       fullPath: '/clinical-assessments'
       preLoaderRoute: typeof AppClinicalAssessmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/claims': {
+      id: '/_app/claims'
+      path: '/claims'
+      fullPath: '/claims'
+      preLoaderRoute: typeof AppClaimsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/case-management': {
@@ -1302,6 +1321,7 @@ interface AppRouteChildren {
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
   AppBillingRoute: typeof AppBillingRoute
   AppCaseManagementRoute: typeof AppCaseManagementRoute
+  AppClaimsRoute: typeof AppClaimsRoute
   AppClinicalAssessmentsRoute: typeof AppClinicalAssessmentsRoute
   AppClinicalCodingRoute: typeof AppClinicalCodingRoute
   AppCoidRoute: typeof AppCoidRoute
@@ -1342,6 +1362,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAuthorisationsRoute: AppAuthorisationsRoute,
   AppBillingRoute: AppBillingRoute,
   AppCaseManagementRoute: AppCaseManagementRoute,
+  AppClaimsRoute: AppClaimsRoute,
   AppClinicalAssessmentsRoute: AppClinicalAssessmentsRoute,
   AppClinicalCodingRoute: AppClinicalCodingRoute,
   AppCoidRoute: AppCoidRoute,
