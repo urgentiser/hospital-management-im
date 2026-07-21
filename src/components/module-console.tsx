@@ -101,10 +101,18 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const moduleService = getModuleService(config.moduleKey);
   const canExecuteActions = hasPermission(principal, permissions.create ?? permissions.manage);
   const hasFlow = !!config.businessFlow;
-  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : "overview");
+  const hasWorklist = !!config.worklist;
+  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : hasWorklist ? "worklist" : "overview");
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
   const [feedQuery, setFeedQuery] = useState("");
   const [busy, setBusy] = useState(false);
+  const worklistSelection = useWorklistSelection((s) => s.current);
+  const clearWorklistSelection = useWorklistSelection((s) => s.clear);
+  useEffect(() => {
+    if (worklistSelection && worklistSelection.moduleKey === config.moduleKey && hasFlow) {
+      setActiveTab("flow");
+    }
+  }, [worklistSelection, config.moduleKey, hasFlow]);
 
   const activeSection = useMemo(
     () => config.sections.find((s) => s.key === activeTab) ?? null,
