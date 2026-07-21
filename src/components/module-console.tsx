@@ -199,6 +199,17 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
           />
         )}
         <TabPill label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+        {hasWorklist && (
+          <TabPill
+            label={
+              <span className="inline-flex items-center gap-1.5">
+                <ListChecks className="h-3.5 w-3.5" /> Worklist
+              </span>
+            }
+            active={activeTab === "worklist"}
+            onClick={() => setActiveTab("worklist")}
+          />
+        )}
         {config.sections.map((s) => (
           <TabPill key={s.key} label={s.title} active={activeTab === s.key} onClick={() => setActiveTab(s.key)} />
         ))}
