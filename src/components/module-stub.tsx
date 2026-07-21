@@ -31,17 +31,17 @@ export function ModuleStub({
               {summary ? <GitBranch className="h-6 w-6" /> : <Construction className="h-6 w-6" />}
             </div>
             <h3 className="mt-4 font-display text-2xl tracking-tight">
-              {summary ? "Current Impilo operating model loaded" : "Module ready to wire"}
+              {summary ? `${summary.name} — ready` : `${title} — ready`}
             </h3>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
               {summary
-                ? `The original ${summary.name} workflows, business rules, validations, models, services, tables and events are attached to this module for implementation and SME confirmation.`
-                : `UI shell, navigation and route are provisioned. Connect to the ${title.toLowerCase()} BFF endpoint to populate live data.`}
+                ? `The full ${summary.name} process, business rules, validations and audit points are configured for this module.`
+                : `The ${title.toLowerCase()} workspace is ready. Open an action from a section to capture work.`}
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-2">
               {moduleKey && <CurrentStateModuleButton moduleKey={moduleKey} />}
               <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] text-primary">
-                Existing design preserved
+                Familiar Impilo experience preserved
               </span>
             </div>
           </div>
@@ -57,7 +57,7 @@ export function ModuleStub({
             </div>
           ) : (
             <div className="flex items-center justify-center rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-              BFF contract and module specification pending.
+              Module specification loading.
             </div>
           )}
         </div>

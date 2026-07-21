@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "patients",
+  patientScoped: true,
   eyebrow: "Front Office · Patient Maintenance",
   title: "Patient Maintenance",
   description: "Register patients, keep demographics and contact details current and reprint prior documents.",

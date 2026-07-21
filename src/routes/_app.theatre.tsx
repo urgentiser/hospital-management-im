@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "theatre",
+  patientScoped: true,
   eyebrow: "Clinical · Theatre",
   title: "Theatre Management",
   description: "Preference cards, stock templates, trolley prep, procedures, register and billing sign-off.",

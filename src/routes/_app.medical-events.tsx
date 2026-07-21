@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "medical-events",
+  patientScoped: true,
   eyebrow: "Patient Care · Medical Events",
   title: "Medical Events",
   description: "Capture, timeline and review clinical events across an episode of care — vitals, medications given, procedures, ADRs and incidents.",

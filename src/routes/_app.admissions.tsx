@@ -8,6 +8,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "admissions",
+  patientScoped: true,
   eyebrow: "Clinical · Admissions Service",
   title: "Admissions",
   description: "Admit, transfer, discharge and bill inpatients across every Life Healthcare facility.",

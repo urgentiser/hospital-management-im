@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "clinical-assessments",
+  patientScoped: true,
   eyebrow: "Patient Care · Clinical Assessments",
   title: "Clinical Assessments",
   description: "Structured assessment forms, acuity scores and clinical decision support attached to an episode of care.",

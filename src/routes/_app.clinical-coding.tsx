@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "clinical-coding",
+  patientScoped: true,
   eyebrow: "Clinical Operations · Clinical Coding",
   title: "Clinical Coding",
   description: "Assign ICD-10, CPT and NHRPL codes to episodes of care. Coder review queues, audit and re-coding under sign-off.",

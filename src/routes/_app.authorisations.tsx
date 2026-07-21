@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "authorisations",
+  patientScoped: true,
   eyebrow: "Funding · Authorisations",
   title: "Authorisations",
   description: "Submit, track and appeal scheme authorisations for planned and unplanned admissions.",

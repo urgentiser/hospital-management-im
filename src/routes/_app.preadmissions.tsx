@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "preadmissions",
+  patientScoped: true,
   eyebrow: "Front Office · Preadmission",
   title: "Preadmission",
   description: "Preadmit patients ahead of arrival, verify scheme cover, complete clinical pre-assessments and hand-over to Admissions.",

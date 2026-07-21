@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "billing",
+  patientScoped: true,
   eyebrow: "Revenue · Billing",
   title: "Billing",
   description: "Bill preparation, claim submission, remittance handling and reconciliation for every payer.",
