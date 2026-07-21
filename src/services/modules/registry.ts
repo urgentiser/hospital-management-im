@@ -35,6 +35,8 @@ import { funderCatalogueService } from "@/services/modules/funder-catalogue.serv
 import { reimbursementsCatalogueService } from "@/services/modules/reimbursements-catalogue.service";
 import { nonconsumablesCatalogueService } from "@/services/modules/nonconsumables-catalogue.service";
 import { vivoSecurityService } from "@/services/modules/vivo-security.service";
+import { paymentsService } from "@/services/modules/payments.service";
+import { claimsService } from "@/services/modules/claims.service";
 import { resolveCurrentStateModuleKey } from "@/current-state/module-manifest";
 import type { ModuleService } from "@/services/modules/types";
 
