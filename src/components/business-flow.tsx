@@ -453,70 +453,83 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
 
         <div
           ref={stepperRef}
-          className="relative flex snap-x gap-0 overflow-x-auto rounded-2xl border border-border bg-card/60 px-4 py-4 scrollbar-hidden"
+          className="relative overflow-x-auto rounded-2xl border border-border bg-card/60 scrollbar-hidden"
           aria-label="Workflow steps"
         >
-          {flow.steps.map((candidate, candidateIndex) => {
-            const done = completed.has(candidateIndex);
-            const active = candidateIndex === index;
-            const furthest = Math.max(...[...completed, -1]) + 1;
-            const canJump = done || candidateIndex <= furthest;
-            const isFirst = candidateIndex === 0;
-            const prevDone = completed.has(candidateIndex - 1);
-            return (
-              <div key={candidate.key} data-step-idx={candidateIndex} className="flex min-w-[140px] flex-1 snap-start items-start">
-                {!isFirst && (
-                  <div
-                    aria-hidden
-                    className={
-                      "mt-4 h-[2px] flex-1 rounded-full transition-colors " +
-                      (prevDone ? "bg-primary" : "bg-border")
-                    }
-                  />
-                )}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      disabled={!canJump}
-                      onClick={() => canJump && setIndex(candidateIndex)}
-                      aria-current={active ? "step" : undefined}
+          <ol className="flex min-w-full items-stretch gap-0 px-4 py-4">
+            {flow.steps.map((candidate, candidateIndex) => {
+              const done = completed.has(candidateIndex);
+              const active = candidateIndex === index;
+              const furthest = Math.max(...[...completed, -1]) + 1;
+              const canJump = done || candidateIndex <= furthest;
+              const isFirst = candidateIndex === 0;
+              const isLast = candidateIndex === flow.steps.length - 1;
+              const prevDone = completed.has(candidateIndex - 1);
+              return (
+                <li
+                  key={candidate.key}
+                  data-step-idx={candidateIndex}
+                  className="flex min-w-[132px] flex-1 snap-start items-start"
+                >
+                  {!isFirst && (
+                    <div
+                      aria-hidden
                       className={
-                        "group flex min-w-[140px] flex-col items-center gap-1.5 px-2 text-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 " +
-                        (isFirst ? "" : "-ml-2")
+                        "mt-[18px] h-[2px] flex-1 rounded-full transition-colors " +
+                        (prevDone ? "bg-primary" : "bg-border")
                       }
-                    >
-                      <span
-                        className={
-                          "flex h-9 w-9 items-center justify-center rounded-full border-2 text-[12px] font-semibold transition-all group-focus-visible:ring-2 group-focus-visible:ring-primary/40 " +
-                          (done
-                            ? "border-primary bg-primary text-primary-foreground shadow-soft"
-                            : active
-                              ? "border-primary bg-background text-primary ring-4 ring-primary/15"
-                              : "border-border bg-background text-muted-foreground group-hover:border-primary/40")
-                        }
+                    />
+                  )}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        disabled={!canJump}
+                        onClick={() => canJump && setIndex(candidateIndex)}
+                        aria-current={active ? "step" : undefined}
+                        className="group flex w-[132px] shrink-0 flex-col items-center gap-1.5 px-1 text-center focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {done ? <Check className="h-4 w-4" /> : candidateIndex + 1}
-                      </span>
-                      <span
-                        className={
-                          "line-clamp-2 max-w-[140px] text-[11px] leading-tight transition-colors " +
-                          (active
-                            ? "font-semibold text-foreground"
-                            : done
-                              ? "font-medium text-foreground/80"
-                              : "text-muted-foreground")
-                        }
-                      >
-                        {candidate.title}
-                      </span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">{candidate.description}</TooltipContent>
-                </Tooltip>
-              </div>
-            );
-          })}
+                        <span
+                          className={
+                            "flex h-9 w-9 items-center justify-center rounded-full border-2 text-[12px] font-semibold transition-all group-focus-visible:ring-2 group-focus-visible:ring-primary/40 " +
+                            (done
+                              ? "border-primary bg-primary text-primary-foreground shadow-soft"
+                              : active
+                                ? "border-primary bg-background text-primary ring-4 ring-primary/15"
+                                : "border-border bg-background text-muted-foreground group-hover:border-primary/40")
+                          }
+                        >
+                          {done ? <Check className="h-4 w-4" /> : candidateIndex + 1}
+                        </span>
+                        <span
+                          className={
+                            "line-clamp-2 max-w-[120px] text-[11px] leading-tight transition-colors " +
+                            (active
+                              ? "font-semibold text-foreground"
+                              : done
+                                ? "font-medium text-foreground/80"
+                                : "text-muted-foreground")
+                          }
+                        >
+                          {candidate.title}
+                        </span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">{candidate.description}</TooltipContent>
+                  </Tooltip>
+                  {!isLast && (
+                    <div
+                      aria-hidden
+                      className={
+                        "mt-[18px] h-[2px] flex-1 rounded-full transition-colors " +
+                        (done ? "bg-primary" : "bg-border")
+                      }
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ol>
         </div>
 
 
