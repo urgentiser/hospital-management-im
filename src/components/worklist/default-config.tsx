@@ -1,16 +1,25 @@
 import type { WorkflowItem, ModuleKey } from "@/lib/workflow-store";
 import type { WorklistConfig, WorklistColumn, WorklistFilter, WorklistTone, WorklistStatusMap } from "./types";
+import { getBespokeOverrides } from "./bespoke-overrides";
 
 /**
- * Generates a sensible, production-oriented default worklist config for any
- * module that doesn't need bespoke columns/filters. Modules can override any
- * property by spreading this result and setting their own values.
+ * Generates a production-oriented worklist config for any module.
+ * Bespoke per-module overrides (columns, filters, summary tiles, saved views,
+ * status map) are auto-merged from `bespoke-overrides` when registered so
+ * every call site picks up the same tailored config without changing routes.
+ *
+ * `overrideKey` lets callers request a sub-variant (e.g. a pharmacy queue) —
+ * pass `"pharmacy:dispensing"` etc.
  */
 export function makeDefaultWorklist(
   moduleKey: ModuleKey,
   name: string,
   overrides: Partial<WorklistConfig> = {},
+  overrideKey?: string,
 ): WorklistConfig {
+  const bespoke = getBespokeOverrides(overrideKey ?? moduleKey) ?? {};
+  const merged: Partial<WorklistConfig> = { ...bespoke, ...overrides };
+
   const statusMap: WorklistStatusMap = {
     draft: { label: "Draft", tone: "muted" },
     pending: { label: "Pending", tone: "warning" },
