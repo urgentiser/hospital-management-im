@@ -16,6 +16,14 @@ export type WorkflowItem = {
   history: { at: string; action: string; by: string; note?: string }[];
   createdAt: string;
   updatedAt: string;
+  /**
+   * Backend-provided list of action keys the current user may perform on this row.
+   * When present the UI must intersect with permissions before showing an action.
+   * Absent = backend has not projected actions for this record type.
+   */
+  availableActions?: string[];
+  /** Facility this record belongs to; used for facility-scope filtering. */
+  facilityId?: string;
 };
 
 export type ModuleKey =
