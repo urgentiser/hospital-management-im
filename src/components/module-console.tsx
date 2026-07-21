@@ -228,6 +228,11 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
       {isFlow ? (
         <BusinessFlowWizard flow={config.businessFlow!} />
 
+      ) : hasWorklist && activeTab === "worklist" ? (
+        <ModuleWorklist
+          config={config.worklist!}
+          onOpenGuidedWorkflow={hasFlow ? () => setActiveTab("flow") : undefined}
+        />
       ) : !activeSection ? (
         <OverviewPane
           config={config}
