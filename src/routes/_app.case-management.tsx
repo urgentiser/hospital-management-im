@@ -8,6 +8,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "case-management",
+  patientScoped: true,
   eyebrow: "Operational · Cases",
   title: "Case Management",
   description: "Long-running case timelines with multi-party workflows, SLA tracking and escalation.",

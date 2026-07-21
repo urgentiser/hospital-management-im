@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "coid",
+  patientScoped: true,
   eyebrow: "Statutory · COID",
   title: "COID",
   description: "Compensation for Occupational Injuries and Diseases — register cases, submit to the Compensation Commissioner and track through payment.",

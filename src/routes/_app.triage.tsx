@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "triage",
+  patientScoped: true,
   eyebrow: "Clinical · Emergency Unit",
   title: "Triage",
   description: "Rapid ESI-based triage, acuity board and treatment hand-off for the Emergency Unit.",

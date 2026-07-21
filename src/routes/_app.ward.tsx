@@ -7,6 +7,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 
 const config: ModuleConsoleConfig = {
   moduleKey: "ward",
+  patientScoped: true,
   eyebrow: "Clinical · Ward",
   title: "Ward Management",
   description: "Bed occupancy, nursing operations, ward billing and printed ward documentation.",
