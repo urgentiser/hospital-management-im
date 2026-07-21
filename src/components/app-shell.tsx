@@ -52,6 +52,8 @@ import {
   FileStack,
   ActivitySquare,
   UserRound,
+  Banknote,
+  FileCheck,
   X,
 } from "lucide-react";
 import { CommandPalette } from "@/components/command-palette";
