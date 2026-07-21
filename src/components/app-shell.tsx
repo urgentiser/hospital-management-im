@@ -117,6 +117,8 @@ const navGroups: NavGroup[] = [
       { to: "/authorisations", label: "Authorisations", icon: ShieldCheck, badge: "42" },
       { to: "/funding", label: "Funding", icon: Wallet },
       { to: "/billing", label: "Billing", icon: Receipt },
+      { to: "/payments", label: "Payments", icon: Banknote },
+      { to: "/claims", label: "Claims", icon: FileCheck },
       { to: "/accounting", label: "Accounting", icon: Calculator },
       { to: "/coid", label: "COID", icon: HardHat },
       { to: "/reimbursements", label: "Reimbursements", icon: Coins },
