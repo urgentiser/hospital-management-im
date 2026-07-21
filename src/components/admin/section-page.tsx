@@ -4,6 +4,7 @@ import { ArrowUpRight, ChevronRight, Search, Sparkles } from "lucide-react";
 import { Card, StatusChip } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
 import { AdminStrip } from "@/components/admin-strip";
+import { ModuleWorklist, makeDefaultWorklist } from "@/components/worklist";
 import { useWorkflow } from "@/lib/workflow-store";
 import { useAuth } from "@/security/auth-provider";
 import { getDefaultModulePermissions } from "@/security/module-permissions";
@@ -22,6 +23,18 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
   const canExecute = hasPermission(principal, permissions.manage ?? permissions.create);
   const [active, setActive] = useState<ActionSpec | null>(null);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<"actions" | "worklist">("actions");
+
+  const worklistConfig = useMemo(
+    () =>
+      makeDefaultWorklist(
+        "admin",
+        `${section.title} worklist`,
+        { tagline: `${section.title} activity across the platform.` },
+        `admin:${sectionKey}`,
+      ),
+    [section.title, sectionKey],
+  );
 
   const actionKinds = useMemo(
     () => new Set(section.actions.map((k) => ACTIONS[k].kind)),
@@ -44,6 +57,24 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
   return (
     <>
       <AdminStrip activeKey={sectionKey} />
+      <div className="mb-4 inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs">
+        {(["actions", "worklist"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={
+              "rounded-md px-3 py-1.5 font-medium transition " +
+              (tab === t ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            {t === "actions" ? "Actions" : "Worklist"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "worklist" ? (
+        <ModuleWorklist config={worklistConfig} onOpenGuidedWorkflow={() => setTab("actions")} />
+      ) : (
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* Actions grid */}
         <div>
@@ -161,6 +192,7 @@ export function AdminSectionPage({ sectionKey }: { sectionKey: SectionKey }) {
           </Card>
         </div>
       </div>
+      )}
 
       <ActionDialog
         spec={active}
