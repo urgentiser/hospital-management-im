@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowRight, BadgeCheck, HeartPulse, ShieldAlert, User, UserSearch, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, BadgeCheck, HeartPulse, Receipt, ShieldAlert, User, UserSearch, Wallet, X } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePatientContext } from "@/lib/patient-context";
 import { useFacilityContext } from "@/lib/facility-context";
-import { patients, admissions, type Patient } from "@/lib/mock-data";
+import { patients, admissions, authorisations, type Patient } from "@/lib/mock-data";
+
+function formatRand(v: number): string {
+  return `R${v.toLocaleString("en-ZA")}`;
+}
 
 function calcAge(dob: string): number {
   const then = new Date(dob).getTime();
