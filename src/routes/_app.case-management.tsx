@@ -5,6 +5,7 @@ import {
   AlertTriangle, Flag, Briefcase, Search,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "case-management",
@@ -169,6 +170,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("case-management", "Case Management"),
+
   businessFlow: {
     moduleKey: "case-management",
     title: "Case Management",

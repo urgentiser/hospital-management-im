@@ -4,6 +4,7 @@ import {
   FileText, Search, AlertTriangle,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "coid",
@@ -94,6 +95,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("coid", "COID"),
+
   businessFlow: {
     moduleKey: "coid",
     title: "COID Claim",

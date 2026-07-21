@@ -4,6 +4,7 @@ import {
   ShieldCheck, FileCog, Landmark, Layers,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "funding",
@@ -144,6 +145,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("funding", "Funding"),
+
   businessFlow: {
     moduleKey: "funding",
     title: "Funding Rule Change",

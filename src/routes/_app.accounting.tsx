@@ -5,6 +5,7 @@ import {
   ShieldCheck, FileCog, Building2, Sparkles,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "accounting",
@@ -221,6 +222,7 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("accounting", "Accounting"),
 };
 
 export const Route = createFileRoute("/_app/accounting")({

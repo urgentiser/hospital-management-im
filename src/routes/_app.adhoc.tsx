@@ -4,6 +4,7 @@ import {
   Layers, CheckCircle2, FileCog, RotateCcw, Send, HandCoins, Building2,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "adhoc",
@@ -147,6 +148,7 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("adhoc", "AdHoc"),
 };
 
 export const Route = createFileRoute("/_app/adhoc")({

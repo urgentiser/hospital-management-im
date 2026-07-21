@@ -4,6 +4,7 @@ import {
   Sparkles, RotateCcw, Database, MessageCircleQuestion,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "clinical-coding",
@@ -141,6 +142,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("clinical-coding", "Clinical Coding"),
+
   businessFlow: {
     moduleKey: "clinical-coding",
     title: "Clinical Coding",

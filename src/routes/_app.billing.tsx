@@ -4,6 +4,7 @@ import {
   Coins, XCircle, ShieldAlert,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "billing",
@@ -95,6 +96,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("billing", "Billing"),
+
   businessFlow: {
     moduleKey: "billing",
     title: "Bill-to-Payment",

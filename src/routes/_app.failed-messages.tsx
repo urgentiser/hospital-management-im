@@ -3,6 +3,7 @@ import {
   ShieldAlert, RotateCcw, ClipboardCheck, Trash2, Search, FileWarning, Send,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "failed-messages",
@@ -78,6 +79,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("failed-messages", "Failed Messages"),
+
   businessFlow: {
     moduleKey: "failed-messages",
     title: "DLQ Triage",

@@ -3,6 +3,7 @@ import {
   Bell, Send, ClipboardCheck, RotateCcw, Ban, FileText, MailCheck, Mail, MessageSquare,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "notifications",
@@ -84,6 +85,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("notifications", "Notifications"),
+
   businessFlow: {
     moduleKey: "notifications",
     title: "Compose · Send · Deliver",

@@ -4,6 +4,7 @@ import {
   Ban, Receipt, Activity, ShieldCheck, Timer, Sparkles,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "theatre",
@@ -122,6 +123,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("theatre", "Theatre Management"),
+
   businessFlow: {
     moduleKey: "theatre",
     title: "Theatre Management",

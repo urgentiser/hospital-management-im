@@ -4,6 +4,7 @@ import {
   Radio, ShieldAlert, Search, ClipboardList,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "medical-events",
@@ -97,6 +98,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("medical-events", "Medical Events"),
+
   businessFlow: {
     moduleKey: "medical-events",
     title: "Record a Medical Event",

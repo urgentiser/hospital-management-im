@@ -4,6 +4,7 @@ import {
   FileText, UserCheck, ShieldAlert,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "patients",
@@ -97,6 +98,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("patients", "Patient Maintenance"),
+
   businessFlow: {
     moduleKey: "patients",
     title: "Patient Maintenance",

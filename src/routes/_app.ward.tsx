@@ -4,6 +4,7 @@ import {
   Printer, Receipt, ClipboardList, Stethoscope, Building2, Activity,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "ward",
@@ -126,6 +127,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("ward", "Ward Management"),
+
   businessFlow: {
     moduleKey: "ward",
     title: "Ward Management",

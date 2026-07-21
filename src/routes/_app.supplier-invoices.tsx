@@ -4,6 +4,7 @@ import {
   XCircle, AlertTriangle,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { makeDefaultWorklist } from "@/components/worklist";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "supplier-invoices",
@@ -95,6 +96,8 @@ const config: ModuleConsoleConfig = {
       ],
     },
   ],
+  worklist: makeDefaultWorklist("supplier-invoices", "Supplier Invoices"),
+
   businessFlow: {
     moduleKey: "supplier-invoices",
     title: "Supplier Invoice",
