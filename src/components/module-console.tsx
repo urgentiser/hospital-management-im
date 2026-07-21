@@ -95,8 +95,7 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const moduleService = getModuleService(config.moduleKey);
   const canExecuteActions = hasPermission(principal, permissions.create ?? permissions.manage);
   const hasFlow = !!config.businessFlow;
-  const hasOperationalProcess = Boolean(getCurrentStateModuleSummary(config.moduleKey));
-  const [activeTab, setActiveTab] = useState<string>(hasOperationalProcess ? "operational" : hasFlow ? "flow" : "overview");
+  const [activeTab, setActiveTab] = useState<string>(hasFlow ? "flow" : "overview");
   const [activeAction, setActiveAction] = useState<ActionSpec | null>(null);
   const [feedQuery, setFeedQuery] = useState("");
   const [busy, setBusy] = useState(false);
