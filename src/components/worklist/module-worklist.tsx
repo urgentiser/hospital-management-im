@@ -241,13 +241,21 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
   };
 
   const rowActionsFor = (row: WorkflowItem): WorklistAction[] => {
+    // Facility scope: if the row is scoped to a facility the user cannot
+    // access, expose no actions at all — the row is view-only.
+    const facilityAccessible = !row.facilityId
+      || !principal
+      || principal.facilities.some((f) => f.id === row.facilityId || f.name === row.facilityId);
+    if (!facilityAccessible) return [];
     return (config.rowActions ?? []).filter((a) => {
       if (a.visibleWhen && !a.visibleWhen(row)) return false;
       if (a.permission && !hasPermission(principal, perms[a.permission])) return false;
-      // Backend-provided authoritative gate: if the record advertises an
-      // availableActions list, the client must intersect with it.
-      if (row.availableActions && !a.launchesGuidedWorkflow
-          && !row.availableActions.includes(a.key)) return false;
+      // Backend-authoritative gate: an action is only available when the row
+      // advertises it in availableActions. Applies to every action, including
+      // actions that launch a guided workflow. Absent or empty list = no
+      // state-changing actions.
+      const allowed = row.availableActions ?? [];
+      if (!allowed.includes(a.key)) return false;
       return true;
     });
   };
