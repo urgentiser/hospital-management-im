@@ -13,14 +13,14 @@ type Tile = {
 };
 
 const tiles: Tile[] = [
-  { key: "users",         label: "Users & permissions", hint: "Roles · access",     icon: Users,      to: "/admin/users" },
-  { key: "facilities",    label: "Facility config",     hint: "Sites · billing",    icon: Building2,  to: "/admin/facilities" },
-  { key: "workflow",      label: "Workflow config",     hint: "Rules · routing",    icon: Wrench,     to: "/admin/workflow" },
-  { key: "documents",     label: "Document config",     hint: "Templates · tags",   icon: FileText,   to: "/admin/documents" },
-  { key: "feature-flags", label: "Feature flags",       hint: "Toggle · govern",    icon: Flag,       to: "/admin/feature-flags" },
-  { key: "printing",      label: "Printing",            hint: "Devices · queues",   icon: Printer,    to: "/admin/printing" },
-  { key: "reference",     label: "Reference data",      hint: "Code sets · lookups",icon: FileCog,    to: "/admin/reference" },
-  { key: "support",       label: "Support tools",       hint: "Diagnostics",        icon: ToolCase,   to: "/admin/support" },
+  { key: "users",        label: "Users & permissions", hint: "Roles · access",      icon: Users,      to: "/admin/users" },
+  { key: "facilities",   label: "Facility config",     hint: "Sites · billing",     icon: Building2,  to: "/admin/facilities" },
+  { key: "workflow",     label: "Workflow config",     hint: "Rules · routing",     icon: Wrench,     to: "/admin/workflow" },
+  { key: "documents",    label: "Document config",     hint: "Templates · tags",    icon: FileText,   to: "/admin/documents" },
+  { key: "featureFlags", label: "Feature flags",       hint: "Toggle · govern",     icon: Flag,       to: "/admin/feature-flags" },
+  { key: "printing",     label: "Printing",            hint: "Devices · queues",    icon: Printer,    to: "/admin/printing" },
+  { key: "reference",    label: "Reference data",      hint: "Code sets · lookups", icon: FileCog,    to: "/admin/reference" },
+  { key: "support",      label: "Support tools",       hint: "Diagnostics",         icon: ToolCase,   to: "/admin/support" },
 ];
 
 export function AdminStrip({ activeKey }: { activeKey?: string }) {
