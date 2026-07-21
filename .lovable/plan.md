@@ -1,107 +1,55 @@
-## Goal
+# Impilo Patient Journey — Like-for-Like Modernisation Plan
 
-Elevate the existing Impilo Modern Platform frontend to a premium, enterprise-grade healthcare experience — without changing brand colours, routes, business rules, mock data, or functionality. Purely a design-system and shell refinement pass, applied consistently across every module.
+This is a large body of work. To keep the app deployable at every step, I'll ship it in tight phases against the existing premium design and colour scheme — no visual rework, no route removals, no backend jargon on user-facing screens.
 
-## Non-negotiables (locked)
+## Guardrails (apply to every phase)
 
-- Preserve existing colour palette, gradients, logo, brand identity (tokens in `src/styles.css` untouched semantically).
-- No route removed, no module removed, no business rule altered.
-- PCMS stays external (sidebar link only, no rebuild).
-- All existing mock data, workflow store, and business-flow wizards remain functional.
+- Keep current colours, typography, layout primitives, routes and module names.
+- Remove any remaining user-facing mentions of service names, endpoints, "backend contract", "legacy", "compatibility contract", payload modes.
+- Preserve Impilo action names, process order, field labels, validation sequence, status terminology.
+- Frontend enforces only safe validations (required, formats, date order, reasons, context). Authoritative rules (duplicates, beds, stock, eligibility, tariffs, adjudication, concurrency, entitlement) stay backend-owned — surfaced as guidance only.
+- Every state-changing action carries correlation ID + facility + patient context and appears on the module timeline.
 
-## Scope (in order)
+## Global patterns to standardise first (Phase 0)
 
-### Phase A — Foundations (shared components, cascades everywhere)
+Foundations reused by every module — done once, inherited everywhere.
 
-1. **`src/components/app-shell.tsx`** — premium shell
-   - Collapsible sidebar with grouped nav sections (already present, refine spacing, typography, dividers, active-state rail indicator, group headers).
-   - Top bar: global search, facility selector (new), patient context chip (new, shows when a patient route is active), notification bell w/ unread dot, environment indicator ("Demo/Prod"), system-health dot, user menu.
-   - Breadcrumbs slot beneath top bar for section pages.
-   - Consistent 64px header, refined shadows, calmer borders.
+1. **Global Patient Banner** (`src/components/patient-banner.tsx`)
+   Name · MRN · DOB · age · sex · facility · visit/admission · ward/bed · scheme · member-validation status · authorisation status · allergies · clinical alerts · infection warnings · admission status. Rendered on every patient-scoped module. Blocks patient actions until a patient is selected (except "Register New Patient").
+2. **Consistent page skeleton** for transactional modules: header → breadcrumb → tabs → facility context → patient banner → worklist/search → familiar action → guided capture → validation summary → review → result & next actions → timeline. Wired through `ModuleConsole` so every module inherits it.
+3. **Validation summary + field-error mapping**: shared component that groups blocking vs advisory errors, disables submit while blocking errors exist, surfaces correlation ID on API failures, maps field errors to inputs.
+4. **Unsaved-changes guard** on all wizards.
+5. **Per-module service contracts**: keep the existing `src/services/modules/*` split, wire TanStack Query keys per module, standardise `AbortController` + correlation propagation + Problem Details mapping. No generic workflow service leaks into UI.
+6. **Copy sweep**: remove any remaining "legacy / compatibility / backend contract / endpoint / payload mode" strings from operational pages.
 
-2. **`src/components/app-shell.tsx` — `PageHeader`, `Card`, `StatusChip`** refined
-   - Tighter type scale, consistent 24px section rhythm, eyebrow → title → description → actions.
-   - StatusChip: unify all module statuses (delivered/pending/failed/etc.) into one map with dot + label + subtle bg.
-   - Card variants: `elevated`, `flat`, `interactive`.
+## Phased module rollout
 
-3. **New shared primitives** (small additions, no new deps):
-   - `src/components/ui-kit/kpi-card.tsx` — icon + label + value + delta + accent bar
-   - `src/components/ui-kit/patient-banner.tsx` — persistent banner shown on patient-scoped routes (name, MRN, DOB/age/sex, facility, admission, ward/bed, funding, allergies pill, alerts)
-   - `src/components/ui-kit/data-table-shell.tsx` — table chrome: toolbar (search, filter chips, column visibility, export), sticky header, row hover, empty/loading/error states
-   - `src/components/ui-kit/section.tsx` — titled section wrapper with description + actions
-   - `src/components/ui-kit/timeline.tsx` — event timeline (reused by audit, admissions, authorisations, service bus)
-   - `src/components/ui-kit/empty-state.tsx`, `error-state.tsx`, `skeleton-table.tsx`
-   - `src/lib/format.ts` — `formatZAR`, `formatDateZA` (dd/MM/yyyy), `formatDateTimeZA` — used across tables
+Each phase = worklist-first landing + guided actions matching the spec + validation summary + result/next-actions + timeline. All existing modules stay in place; content is upgraded in place.
 
-### Phase B — Dashboard (`src/routes/_app.index.tsx`)
+**Phase 1 — Scheduled patient journey core**
+Patient Maintenance · Member Validation · Preadmission · Clinical Assessment · Authorisations · Admissions (standard + direct + no-auth + move + discharge + birth).
 
-Rebuild as an operations command centre using the new primitives:
-- Top row: 4 executive KPIs (Admissions today, Pending Authorisations, Theatre Utilisation, Failed Messages)
-- Second row: Ward Occupancy card, Pharmacy Activity card, Billing/Funding snapshot, Case Management alerts
-- Third row: Service Bus health mini-panel, Recent patient activity feed, SLA breaches list
-- Every card has drill-through link to its module.
+**Phase 2 — Clinical operations**
+Ward Management (bed board, ward treatment, nursing card, accommodation) · Theatre Management (schedule, register, preference card) · Pharmacy (inpatient, ward, compounding, take-home, retail, emergency cupboard) · Medical Events · Triage (emergency journey).
 
-### Phase C — Module chrome pass (consistent look, no logic change)
+**Phase 3 — Funding & revenue**
+Case Management · Clinical Coding · Funding · Billing · Accounting · Payments (receipt/refund/reversal/suspense) · Claims · Reimbursements · COID · AdHoc · Supplier Invoices.
 
-Sweep every route file in `src/routes/_app.*.tsx` and swap raw markup for the new primitives. This is mechanical:
-- Wrap page in `<PageHeader />` + breadcrumb
-- Replace ad-hoc kpi divs with `<KpiCard />`
-- Replace ad-hoc tables with `<DataTableShell />` (keeps existing row rendering)
-- Add empty/loading states everywhere they're missing
-- Standardise section spacing to `space-y-6`
+**Phase 4 — Organisation & platform**
+Facilities · Practitioners (+ sanction flow) · Workflow Inbox · Notifications · Documents & Printing · Integrations / Service Bus / Failed Messages (health-first, payload hidden) · Audit Trail (immutable, no edit) · Reporting · MyLife Portal · MultiTouch launchers · Catalogue launchers (PCMS stays external).
 
-Priority order (highest value first):
-1. Patient Maintenance, Admissions, Preadmissions, Triage, Clinical Assessments, Medical Events, Documents
-2. Ward, Theatre, Pharmacy, Case Management, Clinical Coding
-3. Authorisations, Funding, Billing, Accounting, COID, Reimbursements, Supplier Invoices, Account Enquiries, AdHoc
-4. Facilities, Practitioners, Workflow Inbox, MyLife Portal
-5. Integrations, Service Bus, Failed Messages, Audit, Notifications, System Health
-6. Admin/* pages
-
-### Phase D — Business-flow wizard refinements (`src/components/business-flow.tsx`, `module-console.tsx`)
-
-Already improved earlier — this pass:
-- Tighten stepper pill sizing, ensure wrap on narrow widths
-- Consistent field grid (2-col on ≥sm)
-- Sticky action bar (Back / Save Draft / Continue)
-- Confirmation dialogs on destructive actions (already wired via `AlertDialog`)
-
-### Phase E — Patient context
-
-- Add `src/lib/patient-context.ts` (zustand) — currently-selected patient
-- Selector in top bar; banner auto-shows on `/patients/*`, `/admissions/*`, `/triage`, `/clinical-assessments`, `/medical-events`, `/pharmacy/dispensing`, `/case-management`, `/authorisations`, `/billing`
-- Uses existing mock patients from `src/lib/mock-data.ts`
-
-### Phase F — Accessibility & interactions polish
-
-- Focus rings on all interactive elements (`focus-visible:ring-2 ring-primary/40 ring-offset-2 ring-offset-background`)
-- `aria-label` on every icon-only button (sidebar toggles, top-bar actions, table row menus)
-- `<main>` singleton in shell, semantic `<nav>` groups with `aria-labelledby`
-- Respect `prefers-reduced-motion` — motion utilities already OK, just add `motion-reduce:transition-none` where relevant
-
-## Out of scope
-
-- No new business logic, no schema, no backend changes.
-- No new routes, no route deletions.
-- No colour token changes (palette locked).
-- No PCMS internalisation.
+**Phase 5 — Administration & acceptance**
+Admin sections (Users, Roles, Permissions, Facility access, Approvers, Unlocking, Workflow/Facility/Ward/Theatre config, Templates, Printers, Feature flags, Reference data, Integration settings) with permission + reason + confirmation + audit on high-risk changes.
+End-to-end acceptance walkthrough: login → facility → register → validate → preadmit → assess → authorise → admit → allocate bed → ward/theatre/pharmacy → case → coding → discharge → bill → payment/claim → documents → integration status → audit.
 
 ## Technical notes
 
-- Colours: keep using existing tokens (`bg-primary`, `text-muted-foreground`, `bg-gradient-primary`, `shadow-glow`, `bg-gradient-surface`) — do NOT hardcode hex/tailwind arbitrary colours.
-- Currency: `Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" })`.
-- Dates: `Intl.DateTimeFormat("en-ZA")` → dd/MM/yyyy.
-- Tables retain existing data shapes; only chrome changes.
-- Workflow store (`src/lib/workflow-store.ts`) untouched.
+- Reuse `ModuleConsole`, `BusinessFlow`, `OperationalProcessConsole`, `AdminSectionPage`, `UI kit` — extend, don't fork.
+- Add `PatientBanner` + `useSelectedPatient` guard hook; mount banner via `ModuleConsole` when config marks the module patient-scoped.
+- Add `ValidationSummary` + `useUnsavedGuard`; wire into `BusinessFlow`.
+- Standardise TanStack Query keys under `src/services/query-keys.ts` (already present) — one namespace per module service.
+- Copy sweep via `rg` for forbidden strings; replace with plain-language equivalents.
 
-## Deliverable cadence
+## What I need from you
 
-Given the size, I'll ship in this order and stop for your review after each phase:
-1. Phase A + B (shell + dashboard) — biggest visual impact, sets the pattern.
-2. Phase C batch 1 (Patient Care modules).
-3. Phase C batch 2 (Clinical Ops).
-4. Phase C batch 3 (Funding & Revenue).
-5. Phase C batch 4 (Organisation + Platform Ops + Admin).
-6. Phase D–F polish.
-
-Reply "go" to start with Phase A + B, or tell me which phase to prioritise / skip.
+Confirm to start, and tell me whether to begin at **Phase 0 (foundations)** — recommended, because every later phase depends on the banner, validation summary and copy sweep — or jump straight into **Phase 1** and retrofit foundations as we go.
