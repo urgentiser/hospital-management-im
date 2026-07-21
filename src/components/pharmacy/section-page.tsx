@@ -28,10 +28,13 @@ export function PharmacySectionPage({ sectionKey }: { sectionKey: SectionKey }) 
 
   const worklistConfig = useMemo(
     () =>
-      makeDefaultWorklist("pharmacy", `${section.title} worklist`, {
-        tagline: `${section.title} activity across the active facility.`,
-      }),
-    [section.title],
+      makeDefaultWorklist(
+        "pharmacy",
+        `${section.title} worklist`,
+        { tagline: `${section.title} activity across the active facility.` },
+        `pharmacy:${sectionKey}`,
+      ),
+    [section.title, sectionKey],
   );
 
   const actionKinds = useMemo(

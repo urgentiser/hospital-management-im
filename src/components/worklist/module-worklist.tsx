@@ -30,8 +30,9 @@ import { getDefaultModulePermissions } from "@/security/module-permissions";
 import { hasPermission } from "@/security/permissions";
 import { useWorklistSelection } from "@/lib/worklist-selection";
 import { useWorklistViewStore } from "@/lib/worklist-view-store";
+import { SavedViewsMenu } from "./saved-views-menu";
 import type { WorkflowItem } from "@/lib/workflow-store";
-import type { WorklistAction, WorklistConfig, WorklistFilter, WorklistTone } from "./types";
+import type { SavedView, WorklistAction, WorklistConfig, WorklistFilter, WorklistTone } from "./types";
 
 // -------- utilities --------
 
@@ -297,31 +298,16 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
           {config.tagline && <p className="text-xs text-muted-foreground">{config.tagline}</p>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {config.savedViews && config.savedViews.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <Bookmark className="h-3.5 w-3.5" /> Saved views <ChevronDown className="h-3.5 w-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel>Apply a view</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {config.savedViews.map((v) => (
-                  <DropdownMenuItem key={v.key} onSelect={() => applySavedView(v.key)}>
-                    <div>
-                      <div className="text-sm">{v.label}</div>
-                      {v.description && <div className="text-[11px] text-muted-foreground">{v.description}</div>}
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => { setFilters({}); setPage(1); toast.success("Filters reset"); }}>
-                  <X className="mr-2 h-3.5 w-3.5" /> Reset filters
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          <SavedViewsMenu
+            config={config}
+            currentFilters={filters}
+            onApply={(view: SavedView) => {
+              setFilters(view.filters as Record<string, unknown>);
+              setPage(1);
+              toast.success(`Applied view: ${view.label}`);
+            }}
+            onReset={() => { setFilters({}); setPage(1); toast.success("Filters reset"); }}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1.5">
