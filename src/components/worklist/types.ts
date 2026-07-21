@@ -38,7 +38,7 @@ export type WorklistAction = {
   /** Optional step key to jump the guided workflow to. */
   targetStep?: string;
   /** Permission verb from module permissions. */
-  permission?: "view" | "create" | "manage" | "approve";
+  permission?: "view" | "create" | "manage" | "export" | "note";
 };
 
 export type SavedView = {
