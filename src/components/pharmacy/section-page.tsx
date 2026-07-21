@@ -59,6 +59,23 @@ export function PharmacySectionPage({ sectionKey }: { sectionKey: SectionKey }) 
 
   return (
     <>
+      <div className="mb-4 inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs">
+        {(["actions", "worklist"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={
+              "rounded-md px-3 py-1.5 font-medium transition " +
+              (tab === t ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            {t === "actions" ? "Actions" : "Worklist"}
+          </button>
+        ))}
+      </div>
+      {tab === "worklist" ? (
+        <ModuleWorklist config={worklistConfig} onOpenGuidedWorkflow={() => setTab("actions")} />
+      ) : (
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div>
           <div className="mb-3 flex items-end justify-between">
