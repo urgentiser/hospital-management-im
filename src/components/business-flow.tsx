@@ -456,7 +456,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
           className="relative overflow-x-auto rounded-2xl border border-border bg-card/60 scrollbar-hidden"
           aria-label="Workflow steps"
         >
-          <ol className="flex min-w-full items-stretch gap-0 px-4 py-4">
+          <ol className="flex w-max min-w-full items-stretch gap-0 px-4 py-4">
             {flow.steps.map((candidate, candidateIndex) => {
               const done = completed.has(candidateIndex);
               const active = candidateIndex === index;
@@ -469,13 +469,13 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                 <li
                   key={candidate.key}
                   data-step-idx={candidateIndex}
-                  className="flex min-w-[132px] flex-1 snap-start items-start"
+                  className="flex shrink-0 snap-start items-start"
                 >
                   {!isFirst && (
                     <div
                       aria-hidden
                       className={
-                        "mt-[18px] h-[2px] flex-1 rounded-full transition-colors " +
+                        "mt-[18px] h-[2px] w-10 sm:w-14 rounded-full transition-colors " +
                         (prevDone ? "bg-primary" : "bg-border")
                       }
                     />
@@ -521,7 +521,7 @@ export function BusinessFlowWizard({ flow }: { flow: BusinessFlow }) {
                     <div
                       aria-hidden
                       className={
-                        "mt-[18px] h-[2px] flex-1 rounded-full transition-colors " +
+                        "mt-[18px] h-[2px] w-10 sm:w-14 rounded-full transition-colors " +
                         (done ? "bg-primary" : "bg-border")
                       }
                     />
