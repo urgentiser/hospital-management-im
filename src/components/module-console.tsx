@@ -107,8 +107,6 @@ export function ModuleConsole({ config }: { config: ModuleConsoleConfig }) {
   const [feedQuery, setFeedQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const worklistSelection = useWorklistSelection((s) => s.current);
-  const worklistSelection = useWorklistSelection((s) => s.current);
-  void useWorklistSelection((s) => s.clear);
   useEffect(() => {
     if (worklistSelection && worklistSelection.moduleKey === config.moduleKey && hasFlow) {
       setActiveTab("flow");
