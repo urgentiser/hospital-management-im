@@ -52,7 +52,9 @@ export type ModuleKey =
   | "system-health"
   | "workflow-inbox"
   | "services"
-  | "member-validation";
+  | "member-validation"
+  | "payments"
+  | "claims";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
