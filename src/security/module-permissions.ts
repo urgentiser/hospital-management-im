@@ -14,6 +14,7 @@ const mapping: Record<ModuleKey, DefaultModulePermissions> = {
   patients: { view: Permissions.PatientView, create: Permissions.PatientCreate, manage: Permissions.PatientUpdate, note: Permissions.PatientUpdate },
   triage: { view: Permissions.TriageView, create: Permissions.AssessmentCreate, manage: Permissions.AssessmentCreate },
   preadmissions: { view: Permissions.PreadmissionView, create: Permissions.PreadmissionCreate, manage: Permissions.PreadmissionCreate },
+  "member-validation": { view: Permissions.FundingView, create: Permissions.FundingManage, manage: Permissions.FundingManage },
   "clinical-assessments": { view: Permissions.AssessmentView, create: Permissions.AssessmentCreate, manage: Permissions.AssessmentCreate },
   admissions: { view: Permissions.AdmissionView, create: Permissions.AdmissionCreate, manage: Permissions.AdmissionUpdate, note: Permissions.AdmissionUpdate },
   "medical-events": { view: Permissions.MedicalEventView, create: Permissions.AssessmentCreate, manage: Permissions.AssessmentCreate },

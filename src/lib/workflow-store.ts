@@ -51,7 +51,8 @@ export type ModuleKey =
   | "notifications"
   | "system-health"
   | "workflow-inbox"
-  | "services";
+  | "services"
+  | "member-validation";
 
 type State = {
   items: Record<ModuleKey, WorkflowItem[]>;
@@ -517,6 +518,7 @@ function seed(): Record<ModuleKey, WorkflowItem[]> {
     "system-health": systemHealth,
     "workflow-inbox": workflowInbox,
     services,
+    "member-validation": [],
   };
 }
 
