@@ -22,7 +22,7 @@ const config: ModuleConsoleConfig = {
     { label: "Pending checks", value: items.filter((i) => i.status === "pending").length, icon: Search, accent: "from-amber-500/30 to-transparent", tone: "warning" },
     { label: "Verified today", value: items.filter((i) => i.status === "approved").length, icon: ShieldCheck, accent: "from-emerald-500/30 to-transparent", tone: "success" },
     { label: "Failed / mismatched", value: items.filter((i) => i.status === "declined").length, icon: AlertTriangle, accent: "from-rose-500/30 to-transparent", tone: "destructive" },
-    { label: "Consents captured", value: items.filter((i) => i.kind === "Consent").length, icon: FileSignature, accent: "from-sky-500/30 to-transparent" },
+    { label: "Consents captured", value: items.filter((i) => (i.fields?.["financialConsent"] === "Yes") || (i.fields?.["popia"] === "Yes")).length, icon: FileSignature, accent: "from-sky-500/30 to-transparent" },
   ],
   sections: [
     {
@@ -97,6 +97,10 @@ const config: ModuleConsoleConfig = {
   businessFlow: {
     moduleKey: "member-validation",
     title: "Member Validation",
+    purpose: "Verify medical scheme cover, principal member and dependant details, and capture consent before any funded activity.",
+    globalRules: [],
+    events: [],
+    acceptance: [],
     patientRequired: true,
     completionKind: "Validation",
     completionStatus: "approved",
