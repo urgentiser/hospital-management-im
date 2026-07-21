@@ -168,7 +168,7 @@ const config: ModuleConsoleConfig = {
       "Effective dates cannot overlap for the same scope.",
       "Retiring a rule requires a replacement or explicit end-date reason.",
       "Tariff imports are versioned and reversible.",
-      "Every rule change publishes to the service bus and is audit-logged.",
+      "Every rule change is automatically audited.",
     ],
     acceptance: [
       "Draft a claim rule, get it reviewed and activate for a future date.",
@@ -198,7 +198,7 @@ const config: ModuleConsoleConfig = {
       { key: "impact", title: "Impact preview", description: "Preview the impact on outstanding authorisations, in-flight bills and reports.",
         checklist: ["Impact simulated against live authorisations", "Impact simulated against in-flight bills", "Impact on reports acknowledged"] },
       { key: "attachments", title: "Supporting documents", description: "Attach scheme contract clause, communication, or tariff spreadsheet.",
-        fields: [{ name: "attachments", label: "Attached documents", placeholder: "Contract clause, tariff CSV, comms" }] },
+        fields: [{ name: "attachments", label: "Attached documents", placeholder: "Agreement clause, tariff CSV, comms" }] },
       { key: "review", title: "Reviewer sign-off", description: "Assign a reviewer. Draft cannot be activated without their sign-off.",
         fields: [
           { name: "reviewer", label: "Reviewer", required: true },
@@ -207,8 +207,6 @@ const config: ModuleConsoleConfig = {
         events: ["FundingRuleReviewed"] },
       { key: "activate", title: "Activate", description: "Activate the rule from its effective date. Existing rule in the same scope is retired.",
         events: ["FundingRuleActivated", "FundingRuleRetired"] },
-      { key: "publish", title: "Publish & audit", description: "Publish FundingRuleActivated to the service bus. Downstream: Authorisations, Billing, Reports.",
-        events: ["FundingRuleActivated"] },
     ],
   },
 };

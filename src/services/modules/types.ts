@@ -1,4 +1,5 @@
 import type { CommandResult } from "@/contracts/common/command-result";
+import type { PagedQuery, PagedResult } from "@/contracts/common/paged-result";
 import type { CompatibilityInvocationContext, CompatibilityInvocationResult, CompatibilityOperation } from "@/compatibility/types";
 import type { ModuleKey, WorkflowItem } from "@/lib/workflow-store";
 
@@ -8,7 +9,13 @@ export type ModuleService = {
   moduleKey: string;
   basePath: string;
   workflowKey?: ModuleKey;
-  listRecords(query?: Record<string, string | number | boolean | undefined>, signal?: AbortSignal): Promise<WorkflowItem[]>;
+  /**
+   * Returns a page of records. In API mode the backend performs paging,
+   * sorting, filtering, facility scope and permission scope authoritatively
+   * and the client must not re-slice. In mock mode a local pager provides
+   * equivalent behaviour.
+   */
+  listRecords(query: PagedQuery, signal?: AbortSignal): Promise<PagedResult<WorkflowItem>>;
   getRecord(itemId: string, signal?: AbortSignal): Promise<WorkflowItem | null>;
   executeProcess(
     operation: CompatibilityOperation,

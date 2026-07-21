@@ -191,8 +191,6 @@ const config: ModuleConsoleConfig = {
           { name: "paidAt", label: "Paid on", placeholder: "YYYY-MM-DD" },
         ],
         events: ["COIDPaid"] },
-      { key: "publish", title: "Publish & close", description: "Publish COIDPaid to the service bus and close the case.",
-        events: ["COIDPaid"] },
     ],
   },
 };

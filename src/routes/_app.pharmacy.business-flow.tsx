@@ -24,7 +24,7 @@ const flow: BusinessFlow = {
     "Interaction, allergy and dose-range checks run before dispense.",
     "Schedule 5 / Schedule 6 items require witnessed sign-off.",
     "Stock is deducted at dispense, not at label print.",
-    "Every dispense action publishes to the audit trail and the service bus.",
+    "Every dispense action is automatically audited.",
   ],
   acceptance: [
     "Receive a prescription, screen it, dispense and observe stock decrement.",
@@ -88,8 +88,6 @@ const flow: BusinessFlow = {
         { name: "receivedBy", label: "Received by" },
       ],
       events: ["MedicationDelivered"] },
-    { key: "publish", title: "Publish and audit", description: "Publish MedicationDispensed and MedicationDelivered to the service bus; audit record is written.",
-      events: ["MedicationDispensed", "MedicationDelivered"] },
   ],
 };
 

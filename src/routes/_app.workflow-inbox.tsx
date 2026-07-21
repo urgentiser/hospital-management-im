@@ -123,8 +123,6 @@ const config: ModuleConsoleConfig = {
         events: ["TaskCompleted", "TaskReturned", "TaskReassigned"] },
       { key: "escalate", title: "Escalate if needed", description: "Breached tasks escalate one management level up.",
         events: ["TaskEscalated"] },
-      { key: "publish", title: "Publish outcome", description: "Outcome flows back to the originating module and audit.",
-        events: ["TaskCompleted"] },
     ],
   },
 };

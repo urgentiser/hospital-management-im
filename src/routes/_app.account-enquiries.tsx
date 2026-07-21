@@ -119,7 +119,7 @@ const config: ModuleConsoleConfig = {
       "Ownership is enforced — a party sees a single point of contact.",
       "Responses to the party are logged as customer-facing communications.",
       "Financial changes flow to Billing or Reimbursements — never edited here directly.",
-      "All actions publish to audit trail and service bus.",
+      "All actions are automatically audited.",
     ],
     acceptance: [
       "Log an enquiry from a call, assign owner and respond within SLA.",
@@ -171,8 +171,6 @@ const config: ModuleConsoleConfig = {
           { name: "closeNotes", label: "Closing notes", type: "textarea" },
         ],
         events: ["EnquiryResolved", "EnquiryEscalated"] },
-      { key: "publish", title: "Publish & audit", description: "Publish EnquiryResolved to the service bus and archive under audit.",
-        events: ["EnquiryResolved"] },
     ],
   },
 };

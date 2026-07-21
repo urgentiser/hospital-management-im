@@ -174,8 +174,6 @@ const config: ModuleConsoleConfig = {
         events: ["InvoicePaid"] },
       { key: "reconcile", title: "Reconcile to bank", description: "Match to the outgoing bank statement line.",
         events: ["InvoiceReconciled"] },
-      { key: "publish", title: "Publish & audit", description: "Publish InvoicePaid to service bus and write the audit record.",
-        events: ["InvoicePaid"] },
     ],
   },
 };

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useDeferredValue } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -29,6 +29,7 @@ import { useAuth } from "@/security/auth-provider";
 import { getDefaultModulePermissions } from "@/security/module-permissions";
 import { hasPermission } from "@/security/permissions";
 import { useWorklistSelection } from "@/lib/worklist-selection";
+import { useWorklistViewStore } from "@/lib/worklist-view-store";
 import type { WorkflowItem } from "@/lib/workflow-store";
 import type { WorklistAction, WorklistConfig, WorklistFilter, WorklistTone } from "./types";
 
@@ -118,21 +119,55 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
   const selectSelection = useWorklistSelection((s) => s.select);
 
   const pageSize = config.pageSize ?? 25;
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const viewState = useWorklistViewStore((s) => s.byModule[config.moduleKey]);
+  const updateView = useWorklistViewStore((s) => s.update);
+  const resetView = useWorklistViewStore((s) => s.reset);
+
+  const search = viewState?.search ?? "";
+  const filters = viewState?.filters ?? {};
+  const page = viewState?.page ?? 1;
+  const sortBy = viewState?.sortBy ?? config.defaultSortBy;
+  const sortDir: "asc" | "desc" = viewState?.sortDir ?? config.defaultSortDir ?? "desc";
+  const density: "comfortable" | "compact" = viewState?.density ?? "comfortable";
+
   const debouncedSearch = useDebounced(search, 300);
-  const [sortBy, setSortBy] = useState<string | undefined>(config.defaultSortBy);
-  const [sortDir, setSortDir] = useState<"asc" | "desc">(config.defaultSortDir ?? "desc");
-  const [filters, setFilters] = useState<Record<string, unknown>>({});
+
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [detailRow, setDetailRow] = useState<WorkflowItem | null>(null);
   const [selection, setSelection] = useState<Set<string>>(new Set());
-  const [density, setDensity] = useState<"comfortable" | "compact">("comfortable");
   const [pendingAction, setPendingAction] = useState<{ row: WorkflowItem; action: WorklistAction } | null>(null);
 
   const [visibleCols, setVisibleCols] = useState<Set<string>>(
-    () => new Set(config.columns.filter((c) => c.defaultVisible !== false).map((c) => c.key)),
+    () => new Set(
+      viewState?.visibleCols
+        ?? config.columns.filter((c) => c.defaultVisible !== false).map((c) => c.key),
+    ),
   );
+
+  const setSearch = (v: string) => updateView(config.moduleKey, { search: v, page: 1 });
+  const setPage = (updater: number | ((p: number) => number)) => {
+    const next = typeof updater === "function" ? (updater as (p: number) => number)(page) : updater;
+    updateView(config.moduleKey, { page: next });
+  };
+  const setSortBy = (v: string | undefined) => updateView(config.moduleKey, { sortBy: v, page: 1 });
+  const setSortDir = (updater: "asc" | "desc" | ((d: "asc" | "desc") => "asc" | "desc")) => {
+    const next = typeof updater === "function" ? (updater as (d: "asc" | "desc") => "asc" | "desc")(sortDir) : updater;
+    updateView(config.moduleKey, { sortDir: next });
+  };
+  const setFilters = (
+    updater: Record<string, unknown> | ((prev: Record<string, unknown>) => Record<string, unknown>),
+  ) => {
+    const next = typeof updater === "function" ? (updater as (p: Record<string, unknown>) => Record<string, unknown>)(filters) : updater;
+    updateView(config.moduleKey, { filters: next, page: 1 });
+  };
+  const setDensity = (updater: "comfortable" | "compact" | ((d: "comfortable" | "compact") => "comfortable" | "compact")) => {
+    const next = typeof updater === "function" ? (updater as (d: "comfortable" | "compact") => "comfortable" | "compact")(density) : updater;
+    updateView(config.moduleKey, { density: next });
+  };
+
+  useEffect(() => {
+    updateView(config.moduleKey, { visibleCols: Array.from(visibleCols) });
+  }, [visibleCols, config.moduleKey, updateView]);
 
   const queryKey = useMemo(
     () => ["worklist", config.moduleKey, {
@@ -155,33 +190,14 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
     placeholderData: (prev) => prev,
   });
 
-  const allRows = data ?? [];
+  const paged: WorkflowItem[] = data?.items ?? [];
+  const totalItems = data?.totalItems ?? 0;
+  const totalPages = data?.totalPages ?? 1;
+  const safePage = Math.min(Math.max(1, page), totalPages);
 
-  // Client-side facet filtering on top of server results (mock mode returns everything).
-  const filtered = useMemo(() => {
-    let rows = allRows.filter((r) => matchesText(r, debouncedSearch));
-    if (config.filters?.length) rows = rows.filter((r) => matchesFilters(r, filters, config.filters!));
-    if (sortBy) {
-      rows = [...rows].sort((a, b) => {
-        const av = String(a.fields[sortBy] ?? a[sortBy as keyof WorkflowItem] ?? "");
-        const bv = String(b.fields[sortBy] ?? b[sortBy as keyof WorkflowItem] ?? "");
-        return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
-      });
-    }
-    return rows;
-  }, [allRows, debouncedSearch, filters, config.filters, sortBy, sortDir]);
+  useEffect(() => { if (page !== safePage) setPage(safePage); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [page, safePage]);
 
-  const totalItems = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-  const safePage = Math.min(page, totalPages);
-  const paged = useMemo(
-    () => filtered.slice((safePage - 1) * pageSize, safePage * pageSize),
-    [filtered, safePage, pageSize],
-  );
-
-  useEffect(() => { if (page !== safePage) setPage(safePage); }, [page, safePage]);
-
-  const summary = config.summary?.(allRows) ?? [];
+  const summary = config.summary?.(paged) ?? [];
   const visibleColumns = config.columns.filter((c) => visibleCols.has(c.key));
 
   const toggleSort = (key: string) => {
@@ -226,6 +242,10 @@ export function ModuleWorklist({ config, onOpenGuidedWorkflow }: Props) {
     return (config.rowActions ?? []).filter((a) => {
       if (a.visibleWhen && !a.visibleWhen(row)) return false;
       if (a.permission && !hasPermission(principal, perms[a.permission])) return false;
+      // Backend-provided authoritative gate: if the record advertises an
+      // availableActions list, the client must intersect with it.
+      if (row.availableActions && !a.launchesGuidedWorkflow
+          && !row.availableActions.includes(a.key)) return false;
       return true;
     });
   };

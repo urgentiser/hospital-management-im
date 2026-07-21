@@ -137,7 +137,7 @@ const config: ModuleConsoleConfig = {
       "PMB conditions are auto-flagged and cannot be declined without motivation.",
       "Emergency authorisations may be captured retrospectively within 48h.",
       "Declines can be appealed once at scheme level, then escalated to CMS.",
-      "Every event publishes to the service bus and writes an audit record.",
+      "Every event is automatically audited.",
     ],
     acceptance: [
       "Submit an elective auth and receive an approval with a benefit reference.",
@@ -196,8 +196,6 @@ const config: ModuleConsoleConfig = {
           { name: "appealEvidence", label: "New evidence attached" },
         ],
         events: ["AuthorisationAppealed"] },
-      { key: "publish", title: "Publish & hand off", description: "Publish AuthorisationApproved / Declined to the service bus. Downstream: Admissions, Billing, Case.",
-        events: ["AuthorisationApproved", "AuthorisationDeclined"] },
     ],
   },
 };

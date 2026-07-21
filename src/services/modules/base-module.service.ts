@@ -1,7 +1,9 @@
 import { appConfig } from "@/configuration/app-config";
 import type { CommandResult } from "@/contracts/common/command-result";
+import type { PagedQuery, PagedResult } from "@/contracts/common/paged-result";
 import { useWorkflow, type WorkflowItem } from "@/lib/workflow-store";
 import { apiRequest } from "@/services/http-client";
+import { pageMock } from "@/services/modules/mock-pager";
 import type { ModuleService, ModuleServiceConfig, CreateRecordInput } from "@/services/modules/types";
 import type { CompatibilityInvocationContext, CompatibilityInvocationResult, CompatibilityOperation } from "@/compatibility/types";
 import { createCorrelationId } from "@/services/correlation";
@@ -28,19 +30,17 @@ function headers(context: CompatibilityInvocationContext): Record<string, string
 export function createModuleService(config: ModuleServiceConfig): ModuleService {
   const workflowKey = config.workflowKey;
 
-
-  async function listRecords(
-    query: Record<string, string | number | boolean | undefined> = {},
-    signal?: AbortSignal,
-  ): Promise<WorkflowItem[]> {
+  async function listRecords(query: PagedQuery, signal?: AbortSignal): Promise<PagedResult<WorkflowItem>> {
     if (appConfig.dataMode === "api") {
       const search = new URLSearchParams();
-      for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") search.set(key, String(value));
+      for (const [key, value] of Object.entries(query)) {
+        if (value !== undefined && value !== "" && value !== null) search.set(key, String(value));
+      }
       const suffix = search.size ? `?${search.toString()}` : "";
-      return apiRequest<WorkflowItem[]>(`${config.basePath}${suffix}`, { method: "GET", signal });
+      return apiRequest<PagedResult<WorkflowItem>>(`${config.basePath}${suffix}`, { method: "GET", signal });
     }
-    if (!workflowKey) return [];
-    return [...(useWorkflow.getState().items[workflowKey] ?? [])];
+    const source = workflowKey ? (useWorkflow.getState().items[workflowKey] ?? []) : [];
+    return pageMock(source, query);
   }
 
   async function getRecord(itemId: string, signal?: AbortSignal): Promise<WorkflowItem | null> {
