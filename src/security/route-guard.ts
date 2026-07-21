@@ -25,6 +25,8 @@ const routePermissions: Array<[string, Permission]> = [
   ["/authorisations", Permissions.AuthorisationView],
   ["/funding", Permissions.FundingView],
   ["/billing", Permissions.BillingView],
+  ["/payments", Permissions.AccountingView],
+  ["/claims", Permissions.BillingView],
   ["/accounting", Permissions.AccountingView],
   ["/reimbursements", Permissions.AccountingView],
   ["/supplier-invoices", Permissions.AccountingView],
