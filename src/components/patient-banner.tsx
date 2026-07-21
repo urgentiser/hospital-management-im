@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowRight, BadgeCheck, HeartPulse, ShieldAlert, User, UserSearch, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, BadgeCheck, HeartPulse, Receipt, ShieldAlert, User, UserSearch, Wallet, X } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePatientContext } from "@/lib/patient-context";
 import { useFacilityContext } from "@/lib/facility-context";
-import { patients, admissions, type Patient } from "@/lib/mock-data";
+import { patients, admissions, authorisations, type Patient } from "@/lib/mock-data";
+
+function formatRand(v: number): string {
+  return `R${v.toLocaleString("en-ZA")}`;
+}
 
 function calcAge(dob: string): number {
   const then = new Date(dob).getTime();
@@ -77,6 +81,21 @@ export function PatientBanner() {
   const alerts = patient.status === "failed" ? "Falls risk" : null;
   const infection = patient.mrn.endsWith("14") ? "MRSA precaution" : null;
 
+  const patientAuths = authorisations.filter((a) => a.patient === patient.name);
+  const authCover = patientAuths.filter((a) => a.status === "approved").reduce((sum, a) => sum + a.amount, 0);
+  const authPending = patientAuths.filter((a) => a.status === "pending" || a.status === "review").reduce((sum, a) => sum + a.amount, 0);
+  const authDeclined = patientAuths.filter((a) => a.status === "declined").reduce((sum, a) => sum + a.amount, 0);
+  const chargesToDate = admission ? Math.round((admission.los + 1) * 4850 + authCover * 0.15) : 0;
+  const outstanding = Math.max(0, chargesToDate - authCover);
+  const claimStatus: { label: string; tone: "success" | "warning" | "muted" | "destructive" } =
+    patient.status === "closed"
+      ? { label: "Claim finalised", tone: "success" }
+      : admission
+        ? outstanding > 0
+          ? { label: `Claim pending · ${formatRand(outstanding)} exposure`, tone: "warning" }
+          : { label: "Claim within cover", tone: "success" }
+        : { label: "No claim in progress", tone: "muted" };
+
   return (
     <>
       <div className="mb-4 overflow-hidden rounded-2xl border border-border bg-card/70 shadow-soft">
@@ -118,6 +137,14 @@ export function PatientBanner() {
             label={admission ? `Admission ${admission.status}` : "No active admission"}
             tone={admission ? "success" : "muted"}
           />
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-border/60 bg-muted/20 px-4 py-2 text-[11px]">
+          <span className="pr-1 font-medium text-muted-foreground">Funding &amp; revenue:</span>
+          <StatusPill icon={Wallet} label={`Auth cover: ${formatRand(authCover)}`} tone={authCover > 0 ? "success" : "muted"} />
+          {authPending > 0 && <StatusPill icon={ShieldAlert} label={`Auth pending: ${formatRand(authPending)}`} tone="warning" />}
+          {authDeclined > 0 && <StatusPill icon={AlertTriangle} label={`Auth declined: ${formatRand(authDeclined)}`} tone="destructive" />}
+          {admission && <StatusPill icon={Receipt} label={`Charges to date: ${formatRand(chargesToDate)}`} tone="muted" />}
+          <StatusPill icon={Receipt} label={claimStatus.label} tone={claimStatus.tone} />
         </div>
         <HandoffStrip hasAdmission={Boolean(admission)} />
       </div>
