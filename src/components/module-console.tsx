@@ -81,6 +81,8 @@ export type ModuleConsoleConfig = {
   overviewExtras?: (items: WorkflowItem[]) => React.ReactNode;
   sections: SectionSpec[];
   businessFlow?: BusinessFlow;
+  /** Optional operational worklist rendered as a secondary tab. */
+  worklist?: WorklistConfig;
   /** When true a persistent patient banner is rendered at the top of the module. */
   patientScoped?: boolean;
   /** When true a cross-module platform-operations strip is rendered at the top. */
