@@ -188,26 +188,8 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
         description={config.description}
         actions={
           <>
-            {hasOperationalProcess && (
-              <>
-                <Button
-                  variant={activeView === "operational" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActiveView("operational")}
-                  className={activeView === "operational" ? "bg-gradient-primary shadow-glow hover:opacity-90" : undefined}
-                >
-                  Operational process
-                </Button>
-                <Button
-                  variant={activeView === "worklist" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActiveView("worklist")}
-                  className={activeView === "worklist" ? "bg-gradient-primary shadow-glow hover:opacity-90" : undefined}
-                >
-                  Worklist
-                </Button>
-              </>
-            )}
+            {null}
+
             <CurrentStateModuleButton moduleKey={config.moduleKey} compact />
             <Button variant="outline" size="sm" onClick={() => toast.info("Saved filter presets are prepared for the API worklist.")}>
               <Filter className="mr-1.5 h-3.5 w-3.5" /> Filters
