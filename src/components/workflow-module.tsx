@@ -16,8 +16,6 @@ import { toast } from "sonner";
 import { Card, PageHeader, StatusChip } from "@/components/app-shell";
 import { RuleResults } from "@/components/workflow/rule-results";
 import { CurrentStateModuleButton } from "@/components/current-state/module-specification";
-import { OperationalProcessConsole } from "@/components/compatibility/operational-process";
-import { getCurrentStateModuleSummary } from "@/current-state/module-manifest";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -105,8 +103,6 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
   const { principal } = useAuth();
   const activeFacility = useFacilityContext((state) => state.facility);
   const moduleService = getModuleService(config.moduleKey);
-  const hasOperationalProcess = Boolean(getCurrentStateModuleSummary(config.moduleKey));
-  const [activeView, setActiveView] = useState<"operational" | "worklist">(hasOperationalProcess ? "operational" : "worklist");
   const items = useWorkflow((state) => state.items[config.moduleKey]);
   const search = useSearch({ strict: false }) as { new?: string };
   const navigate = useNavigate();
@@ -188,26 +184,8 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
         description={config.description}
         actions={
           <>
-            {hasOperationalProcess && (
-              <>
-                <Button
-                  variant={activeView === "operational" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActiveView("operational")}
-                  className={activeView === "operational" ? "bg-gradient-primary shadow-glow hover:opacity-90" : undefined}
-                >
-                  Operational process
-                </Button>
-                <Button
-                  variant={activeView === "worklist" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActiveView("worklist")}
-                  className={activeView === "worklist" ? "bg-gradient-primary shadow-glow hover:opacity-90" : undefined}
-                >
-                  Worklist
-                </Button>
-              </>
-            )}
+            {null}
+
             <CurrentStateModuleButton moduleKey={config.moduleKey} compact />
             <Button variant="outline" size="sm" onClick={() => toast.info("Saved filter presets are prepared for the API worklist.")}>
               <Filter className="mr-1.5 h-3.5 w-3.5" /> Filters
@@ -243,10 +221,8 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
         }
       />
 
-      {activeView === "operational" ? (
-        <OperationalProcessConsole moduleKey={config.moduleKey} embedded />
-      ) : (
-        <>
+      <>
+
       {config.kpis && (
         <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {config.kpis(items).map((kpi) => (
@@ -352,8 +328,7 @@ export function WorkflowModule({ config }: { config: ModuleConfig }) {
           )}
         </SheetContent>
       </Sheet>
-        </>
-      )}
+      </>
     </>
   );
 }
