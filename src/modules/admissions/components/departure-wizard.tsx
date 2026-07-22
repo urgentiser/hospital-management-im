@@ -37,9 +37,9 @@ import { FACILITIES } from "@/lib/facility-context";
 import { admissionsService } from "@/services/modules/admissions.service";
 import type {
   AddAdmissionNoteRequest, AmendAdmissionRequest, AttachAdmissionDocumentRequest,
-  CancelAdmissionRequest, DischargeAdmissionRequest, DiscontinueAdmissionRequest,
-  Disposition, PreDischargeReviewItem, PreDischargeReviewResult,
-  UndischargeAdmissionRequest,
+  CancelAdmissionRequest, DischargeAdmissionRequest, DischargeOverride,
+  DiscontinueAdmissionRequest, Disposition, PreDischargeReviewItem,
+  PreDischargeReviewResult, UndischargeAdmissionRequest,
 } from "@/modules/admissions/contracts";
 
 export type DepartureVariant =
@@ -60,6 +60,8 @@ const DISPOSITIONS: Disposition[] = ["Home", "Step-down facility", "Transfer out
 const DOC_KINDS = ["Discharge summary", "Consent", "Referral letter", "Investigation result", "Script", "Sick note", "Other"];
 const NOTE_CATEGORIES = ["Clinical", "Administrative", "Billing", "CaseManagement", "Other"] as const;
 
+type OverrideEntry = { itemId: string; reason: string; approverId: string };
+
 type Draft = {
   admissionId: string;
   facilityId: string;
@@ -71,7 +73,12 @@ type Draft = {
   dischargeReason: string;
   responsiblePractitionerId: string;
   clinicalSummary: string;
-  overrideChecks: string[];
+  overrideChecks: OverrideEntry[];
+  transferToFacility: string;
+  transferToWard: string;
+  deathDateOfDeath: string;
+  deathCauseOfDeath: string;
+  deathCertifiedBy: string;
 
   // predischarge (review)
   review: PreDischargeReviewResult | null;
@@ -118,6 +125,8 @@ const EMPTY: Draft = {
   admissionId: "", facilityId: FACILITIES[0] ?? "",
   dischargeAt: today(), disposition: "Home", destination: "", dischargeReason: "",
   responsiblePractitionerId: "", clinicalSummary: "", overrideChecks: [],
+  transferToFacility: "", transferToWard: "",
+  deathDateOfDeath: today(), deathCauseOfDeath: "", deathCertifiedBy: "",
   review: null, reviewLoading: false,
   approverId: "", correctionAt: today(), receivingWardId: "", receivingBedId: "",
   effectiveAt: today(),
@@ -178,9 +187,18 @@ function stepsFor(variant: DepartureVariant): StepDef[] {
   }
 }
 
-type Props = { variant: DepartureVariant | null; open: boolean; onOpenChange: (v: boolean) => void; onCompleted?: () => void };
+type Props = {
+  variant: DepartureVariant | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onCompleted?: () => void;
+  /** When opened from an Admission Workspace, prefill the admission id. */
+  initialAdmissionId?: string;
+  /** Latest server version token; sent as ifMatchVersion for optimistic concurrency. */
+  ifMatchVersion?: string;
+};
 
-export function AdmissionDepartureWizard({ variant, open, onOpenChange, onCompleted }: Props) {
+export function AdmissionDepartureWizard({ variant, open, onOpenChange, onCompleted, initialAdmissionId, ifMatchVersion }: Props) {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [stepIdx, setStepIdx] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -189,7 +207,13 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
   const steps = useMemo(() => (variant ? stepsFor(variant) : []), [variant]);
   const meta = variant ? META[variant] : null;
 
-  useEffect(() => { if (open) { setDraft(EMPTY); setStepIdx(0); setProblem(null); } }, [open, variant]);
+  useEffect(() => {
+    if (open) {
+      setDraft({ ...EMPTY, admissionId: initialAdmissionId ?? "" });
+      setStepIdx(0);
+      setProblem(null);
+    }
+  }, [open, variant, initialAdmissionId]);
 
   if (!variant || !meta) return null;
 
@@ -197,15 +221,39 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
   const currentStep = steps[stepIdx];
   const isLast = stepIdx === steps.length - 1;
 
+  const overrideMap = new Map(draft.overrideChecks.map((o) => [o.itemId, o]));
   const blockingOpen = draft.review?.items.filter((i) => i.severity === "Blocking" && i.status === "Open") ?? [];
-  const readyForDischarge = blockingOpen.length === 0 || blockingOpen.every((i) => draft.overrideChecks.includes(i.itemId));
+  const overrideComplete = (o: OverrideEntry | undefined) => !!o && !!o.reason.trim() && !!o.approverId.trim();
+  const readyForDischarge = blockingOpen.length === 0
+    || blockingOpen.every((i) => overrideComplete(overrideMap.get(i.itemId)));
 
   const runReview = async () => {
+    if (!draft.admissionId.trim()) return;
     setDraft((d) => ({ ...d, reviewLoading: true }));
     const r = await admissionsService.preDischargeReview(draft.admissionId);
     setDraft((d) => ({ ...d, reviewLoading: false, review: r.ok ? r.data : null }));
     if (!r.ok) setProblem(r.problem.detail ?? r.problem.title);
   };
+
+  // Auto-run pre-discharge review whenever the user reaches the readiness/run step.
+  useEffect(() => {
+    if (!currentStep) return;
+    if ((currentStep.key === "readiness" || currentStep.key === "run")
+        && draft.admissionId && !draft.review && !draft.reviewLoading) {
+      void runReview();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep?.key, draft.admissionId]);
+
+  const dispositionValid = (() => {
+    if (draft.disposition === "Transfer out" || draft.disposition === "Step-down facility") {
+      return !!draft.transferToFacility.trim();
+    }
+    if (draft.disposition === "Deceased") {
+      return !!draft.deathDateOfDeath && !!draft.deathCauseOfDeath.trim() && !!draft.deathCertifiedBy.trim();
+    }
+    return true;
+  })();
 
   const canAdvance = (() => {
     if (!currentStep) return false;
@@ -214,7 +262,7 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
       case "readiness": return readyForDischarge;
       case "capture":
         return !!draft.dischargeAt && !!draft.disposition && !!draft.dischargeReason.trim()
-          && !!draft.responsiblePractitionerId.trim();
+          && !!draft.responsiblePractitionerId.trim() && dispositionValid;
       case "run": return !!draft.review;
       case "approval":
         return !!draft.approverId.trim() && !!draft.reason.trim() && !!draft.correctionAt;
@@ -233,19 +281,35 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
     }
   })();
 
-  const toggleOverride = (id: string) =>
-    setDraft((d) => ({
-      ...d,
-      overrideChecks: d.overrideChecks.includes(id)
-        ? d.overrideChecks.filter((x) => x !== id)
-        : [...d.overrideChecks, id],
-    }));
+  const setOverride = (itemId: string, patch: Partial<OverrideEntry>) =>
+    setDraft((d) => {
+      const idx = d.overrideChecks.findIndex((o) => o.itemId === itemId);
+      const existing = idx >= 0 ? d.overrideChecks[idx] : { itemId, reason: "", approverId: "" };
+      const next = { ...existing, ...patch };
+      const list = idx >= 0
+        ? d.overrideChecks.map((o, i) => (i === idx ? next : o))
+        : [...d.overrideChecks, next];
+      return { ...d, overrideChecks: list };
+    });
+  const toggleOverride = (itemId: string) =>
+    setDraft((d) => {
+      const exists = d.overrideChecks.some((o) => o.itemId === itemId);
+      return {
+        ...d,
+        overrideChecks: exists
+          ? d.overrideChecks.filter((o) => o.itemId !== itemId)
+          : [...d.overrideChecks, { itemId, reason: "", approverId: "" }],
+      };
+    });
 
   const submit = async () => {
     setSubmitting(true); setProblem(null);
     try {
       let ok = false; let correlationId: string | undefined;
       if (variant === "discharge") {
+        const overrides: DischargeOverride[] = draft.overrideChecks
+          .filter((o) => o.reason.trim() && o.approverId.trim())
+          .map((o) => ({ itemId: o.itemId, reason: o.reason.trim(), approverId: o.approverId.trim() }));
         const req: DischargeAdmissionRequest = {
           admissionId: draft.admissionId,
           dischargeAt: draft.dischargeAt,
@@ -254,7 +318,18 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
           dischargeReason: draft.dischargeReason,
           responsiblePractitionerId: draft.responsiblePractitionerId,
           clinicalSummary: draft.clinicalSummary || undefined,
-          overrideChecks: draft.overrideChecks.length ? draft.overrideChecks : undefined,
+          overrideChecks: overrides.length ? overrides : undefined,
+          transferDetails: (draft.disposition === "Transfer out" || draft.disposition === "Step-down facility")
+            ? { toFacility: draft.transferToFacility.trim(), toWard: draft.transferToWard.trim() || undefined }
+            : undefined,
+          deathInformation: draft.disposition === "Deceased"
+            ? {
+                dateOfDeath: draft.deathDateOfDeath,
+                causeOfDeath: draft.deathCauseOfDeath.trim(),
+                certifiedBy: draft.deathCertifiedBy.trim(),
+              }
+            : undefined,
+          ifMatchVersion,
         };
         const r = await admissionsService.dischargeAdmission(req);
         ok = r.ok; correlationId = r.correlationId;
@@ -423,7 +498,7 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
                   {draft.reviewLoading ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Loading…</> : "Run review"}
                 </Button>
               </div>
-              {draft.review && <ReviewList review={draft.review} overrides={draft.overrideChecks} onToggleOverride={toggleOverride} />}
+              {draft.review && <ReviewList review={draft.review} overrides={draft.overrideChecks} onToggleOverride={toggleOverride} onOverrideChange={setOverride} />}
               {!draft.review && !draft.reviewLoading && (
                 <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
                   No review data yet — click <b>Run review</b>.
@@ -453,6 +528,29 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
               <Field label="Clinical summary" className="sm:col-span-2">
                 <Textarea rows={3} value={draft.clinicalSummary} onChange={(e) => set("clinicalSummary", e.target.value)} placeholder="Optional summary that supports the discharge." />
               </Field>
+              {(draft.disposition === "Transfer out" || draft.disposition === "Step-down facility") && (
+                <>
+                  <Field label="Receiving facility" required>
+                    <Input value={draft.transferToFacility} onChange={(e) => set("transferToFacility", e.target.value)} placeholder="e.g. Life Groenkloof" />
+                  </Field>
+                  <Field label="Receiving ward">
+                    <Input value={draft.transferToWard} onChange={(e) => set("transferToWard", e.target.value)} placeholder="Optional ward name" />
+                  </Field>
+                </>
+              )}
+              {draft.disposition === "Deceased" && (
+                <>
+                  <Field label="Date/time of death" required>
+                    <Input type="datetime-local" value={draft.deathDateOfDeath} onChange={(e) => set("deathDateOfDeath", e.target.value)} />
+                  </Field>
+                  <Field label="Certified by" required>
+                    <Input value={draft.deathCertifiedBy} onChange={(e) => set("deathCertifiedBy", e.target.value)} placeholder="Attending practitioner" />
+                  </Field>
+                  <Field label="Cause of death" required className="sm:col-span-2">
+                    <Textarea rows={2} value={draft.deathCauseOfDeath} onChange={(e) => set("deathCauseOfDeath", e.target.value)} placeholder="Primary cause plus contributing factors." />
+                  </Field>
+                </>
+              )}
             </div>
           )}
 
@@ -670,16 +768,18 @@ function SeverityBadge({ severity }: { severity: PreDischargeReviewItem["severit
 }
 
 function ReviewList({
-  review, overrides, onToggleOverride,
+  review, overrides, onToggleOverride, onOverrideChange,
 }: {
   review: PreDischargeReviewResult;
-  overrides?: string[];
+  overrides?: OverrideEntry[];
   onToggleOverride?: (id: string) => void;
+  onOverrideChange?: (id: string, patch: Partial<OverrideEntry>) => void;
 }) {
   const toneForReadiness =
     review.readiness === "Ready" ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
     : review.readiness === "Blocked" ? "border-rose-500/40 bg-rose-500/5 text-rose-700 dark:text-rose-300"
     : "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300";
+  const overrideMap = new Map((overrides ?? []).map((o) => [o.itemId, o]));
   return (
     <div className="space-y-3">
       <div className={cn("flex items-center justify-between rounded-lg border p-3 text-xs", toneForReadiness)}>
@@ -692,22 +792,43 @@ function ReviewList({
       <div className="space-y-2">
         {review.items.map((it) => {
           const isOverridable = it.severity === "Blocking" && !!onToggleOverride;
-          const overridden = overrides?.includes(it.itemId) ?? false;
+          const entry = overrideMap.get(it.itemId);
+          const overridden = !!entry;
+          const complete = !!entry && !!entry.reason.trim() && !!entry.approverId.trim();
           return (
-            <div key={it.itemId} className={cn("flex items-start gap-3 rounded-lg border p-3 text-xs",
-              overridden && "border-emerald-500/40 bg-emerald-500/5")}>
-              {isOverridable && (
-                <Checkbox checked={overridden} onCheckedChange={() => onToggleOverride?.(it.itemId)} />
-              )}
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <SeverityBadge severity={it.severity} />
-                  <Badge variant="outline" className="text-[10px]">{it.category}</Badge>
-                  <span className="font-medium">{it.title}</span>
+            <div key={it.itemId} className={cn("space-y-2 rounded-lg border p-3 text-xs",
+              overridden && complete && "border-emerald-500/40 bg-emerald-500/5",
+              overridden && !complete && "border-amber-500/40 bg-amber-500/5")}>
+              <div className="flex items-start gap-3">
+                {isOverridable && (
+                  <Checkbox checked={overridden} onCheckedChange={() => onToggleOverride?.(it.itemId)} />
+                )}
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SeverityBadge severity={it.severity} />
+                    <Badge variant="outline" className="text-[10px]">{it.category}</Badge>
+                    <span className="font-medium">{it.title}</span>
+                  </div>
+                  <div className="text-muted-foreground">{it.description}</div>
+                  {it.owner && <div className="mt-0.5 text-[10px] text-muted-foreground">Owner: {it.owner}</div>}
                 </div>
-                <div className="text-muted-foreground">{it.description}</div>
-                {it.owner && <div className="mt-0.5 text-[10px] text-muted-foreground">Owner: {it.owner}</div>}
               </div>
+              {isOverridable && overridden && onOverrideChange && (
+                <div className="grid gap-2 pl-6 sm:grid-cols-2">
+                  <div>
+                    <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Approver <span className="text-rose-500">*</span></Label>
+                    <Input className="h-8 text-xs" value={entry?.approverId ?? ""}
+                      onChange={(e) => onOverrideChange(it.itemId, { approverId: e.target.value })}
+                      placeholder="Manager / delegate" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Override reason <span className="text-rose-500">*</span></Label>
+                    <Input className="h-8 text-xs" value={entry?.reason ?? ""}
+                      onChange={(e) => onOverrideChange(it.itemId, { reason: e.target.value })}
+                      placeholder="Why this blocking check is being overridden" />
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
@@ -726,7 +847,7 @@ function ReviewSummary({ draft, variant, today }: { draft: Draft; variant: Depar
           ["Disposition", draft.disposition],
           ["Destination", draft.destination || "—"],
           ["Responsible practitioner", draft.responsiblePractitionerId],
-          ["Overrides", draft.overrideChecks.length ? draft.overrideChecks.join(", ") : "None"],
+          ["Overrides", draft.overrideChecks.length ? draft.overrideChecks.map((o) => `${o.itemId} (${o.approverId || "no approver"})`).join(", ") : "None"],
           ["Reason", draft.dischargeReason],
         ];
       case "predischarge":

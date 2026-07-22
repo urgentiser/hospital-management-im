@@ -397,6 +397,18 @@ export type RegisterBirthRequest = {
   correlationId?: string;
 };
 
+/**
+ * A blocking pre-discharge check that the discharger has elected to
+ * override. Every override must carry a reason and the approver id and
+ * lands verbatim on the audit trail — the wizard blocks submission until
+ * both are captured.
+ */
+export type DischargeOverride = {
+  itemId: string;
+  reason: string;
+  approverId: string;
+};
+
 export type DischargeAdmissionRequest = {
   admissionId: string;
   dischargeAt: string;
@@ -406,8 +418,9 @@ export type DischargeAdmissionRequest = {
   responsiblePractitionerId: string;
   clinicalSummary?: string;
   transferDetails?: { toFacility: string; toWard?: string };
-  deathInformation?: { causeOfDeath?: string; certifiedBy?: string };
-  overrideChecks?: string[];
+  deathInformation?: { dateOfDeath: string; causeOfDeath: string; certifiedBy: string };
+  overrideChecks?: DischargeOverride[];
+  ifMatchVersion?: string;
   correlationId?: string;
 };
 
