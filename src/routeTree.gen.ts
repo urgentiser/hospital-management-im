@@ -62,6 +62,7 @@ import { Route as AppPharmacyEnquiryRouteImport } from './routes/_app.pharmacy.e
 import { Route as AppPharmacyDispensingRouteImport } from './routes/_app.pharmacy.dispensing'
 import { Route as AppPharmacyCompoundingRouteImport } from './routes/_app.pharmacy.compounding'
 import { Route as AppPharmacyBusinessFlowRouteImport } from './routes/_app.pharmacy.business-flow'
+import { Route as AppAdmissionsAdmissionIdRouteImport } from './routes/_app.admissions.$admissionId'
 import { Route as AppAdminWorkflowRouteImport } from './routes/_app.admin.workflow'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminSupportRouteImport } from './routes/_app.admin.support'
@@ -341,6 +342,12 @@ const AppPharmacyBusinessFlowRoute = AppPharmacyBusinessFlowRouteImport.update({
   path: '/business-flow',
   getParentRoute: () => AppPharmacyRoute,
 } as any)
+const AppAdmissionsAdmissionIdRoute =
+  AppAdmissionsAdmissionIdRouteImport.update({
+    id: '/$admissionId',
+    path: '/$admissionId',
+    getParentRoute: () => AppAdmissionsRoute,
+  } as any)
 const AppAdminWorkflowRoute = AppAdminWorkflowRouteImport.update({
   id: '/workflow',
   path: '/workflow',
@@ -408,7 +415,7 @@ export interface FileRoutesByFullPath {
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
   '/admin': typeof AppAdminRouteWithChildren
-  '/admissions': typeof AppAdmissionsRoute
+  '/admissions': typeof AppAdmissionsRouteWithChildren
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
@@ -453,6 +460,7 @@ export interface FileRoutesByFullPath {
   '/admin/support': typeof AppAdminSupportRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/admin/workflow': typeof AppAdminWorkflowRoute
+  '/admissions/$admissionId': typeof AppAdmissionsAdmissionIdRoute
   '/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
@@ -471,7 +479,7 @@ export interface FileRoutesByTo {
   '/account-enquiries': typeof AppAccountEnquiriesRoute
   '/accounting': typeof AppAccountingRoute
   '/adhoc': typeof AppAdhocRoute
-  '/admissions': typeof AppAdmissionsRoute
+  '/admissions': typeof AppAdmissionsRouteWithChildren
   '/audit': typeof AppAuditRoute
   '/authorisations': typeof AppAuthorisationsRoute
   '/billing': typeof AppBillingRoute
@@ -516,6 +524,7 @@ export interface FileRoutesByTo {
   '/admin/support': typeof AppAdminSupportRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/admin/workflow': typeof AppAdminWorkflowRoute
+  '/admissions/$admissionId': typeof AppAdmissionsAdmissionIdRoute
   '/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
@@ -537,7 +546,7 @@ export interface FileRoutesById {
   '/_app/accounting': typeof AppAccountingRoute
   '/_app/adhoc': typeof AppAdhocRoute
   '/_app/admin': typeof AppAdminRouteWithChildren
-  '/_app/admissions': typeof AppAdmissionsRoute
+  '/_app/admissions': typeof AppAdmissionsRouteWithChildren
   '/_app/audit': typeof AppAuditRoute
   '/_app/authorisations': typeof AppAuthorisationsRoute
   '/_app/billing': typeof AppBillingRoute
@@ -583,6 +592,7 @@ export interface FileRoutesById {
   '/_app/admin/support': typeof AppAdminSupportRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/admin/workflow': typeof AppAdminWorkflowRoute
+  '/_app/admissions/$admissionId': typeof AppAdmissionsAdmissionIdRoute
   '/_app/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/_app/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/_app/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
@@ -650,6 +660,7 @@ export interface FileRouteTypes {
     | '/admin/support'
     | '/admin/users'
     | '/admin/workflow'
+    | '/admissions/$admissionId'
     | '/pharmacy/business-flow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
@@ -713,6 +724,7 @@ export interface FileRouteTypes {
     | '/admin/support'
     | '/admin/users'
     | '/admin/workflow'
+    | '/admissions/$admissionId'
     | '/pharmacy/business-flow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
@@ -779,6 +791,7 @@ export interface FileRouteTypes {
     | '/_app/admin/support'
     | '/_app/admin/users'
     | '/_app/admin/workflow'
+    | '/_app/admissions/$admissionId'
     | '/_app/pharmacy/business-flow'
     | '/_app/pharmacy/compounding'
     | '/_app/pharmacy/dispensing'
@@ -1173,6 +1186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPharmacyBusinessFlowRouteImport
       parentRoute: typeof AppPharmacyRoute
     }
+    '/_app/admissions/$admissionId': {
+      id: '/_app/admissions/$admissionId'
+      path: '/$admissionId'
+      fullPath: '/admissions/$admissionId'
+      preLoaderRoute: typeof AppAdmissionsAdmissionIdRouteImport
+      parentRoute: typeof AppAdmissionsRoute
+    }
     '/_app/admin/workflow': {
       id: '/_app/admin/workflow'
       path: '/workflow'
@@ -1285,6 +1305,18 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
   AppAdminRouteChildren,
 )
 
+interface AppAdmissionsRouteChildren {
+  AppAdmissionsAdmissionIdRoute: typeof AppAdmissionsAdmissionIdRoute
+}
+
+const AppAdmissionsRouteChildren: AppAdmissionsRouteChildren = {
+  AppAdmissionsAdmissionIdRoute: AppAdmissionsAdmissionIdRoute,
+}
+
+const AppAdmissionsRouteWithChildren = AppAdmissionsRoute._addFileChildren(
+  AppAdmissionsRouteChildren,
+)
+
 interface AppPharmacyRouteChildren {
   AppPharmacyBusinessFlowRoute: typeof AppPharmacyBusinessFlowRoute
   AppPharmacyCompoundingRoute: typeof AppPharmacyCompoundingRoute
@@ -1316,7 +1348,7 @@ interface AppRouteChildren {
   AppAccountingRoute: typeof AppAccountingRoute
   AppAdhocRoute: typeof AppAdhocRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
-  AppAdmissionsRoute: typeof AppAdmissionsRoute
+  AppAdmissionsRoute: typeof AppAdmissionsRouteWithChildren
   AppAuditRoute: typeof AppAuditRoute
   AppAuthorisationsRoute: typeof AppAuthorisationsRoute
   AppBillingRoute: typeof AppBillingRoute
@@ -1357,7 +1389,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAccountingRoute: AppAccountingRoute,
   AppAdhocRoute: AppAdhocRoute,
   AppAdminRoute: AppAdminRouteWithChildren,
-  AppAdmissionsRoute: AppAdmissionsRoute,
+  AppAdmissionsRoute: AppAdmissionsRouteWithChildren,
   AppAuditRoute: AppAuditRoute,
   AppAuthorisationsRoute: AppAuthorisationsRoute,
   AppBillingRoute: AppBillingRoute,
