@@ -297,6 +297,64 @@ export const admissionsService = {
       } satisfies FinaliseBillResult;
     });
   },
+
+  /** §33 — GET /admissions/{id}/pre-discharge-review (mock) */
+  preDischargeReview(admissionId: string, correlationId?: string) {
+    return wrap<PreDischargeReviewResult>(correlationId, async () => {
+      const items: PreDischargeReviewItem[] = [
+        { itemId: "PR-1", category: "Clinical",        severity: "Blocking", title: "Discharge summary outstanding", description: "Attending must sign discharge summary before release.", owner: "Attending physician", status: "Open" },
+        { itemId: "PR-2", category: "Billing",         severity: "Warning",  title: "Ward charges not closed",       description: "Ward 3B has an open accommodation period.",                owner: "Ward clerk",          status: "Open" },
+        { itemId: "PR-3", category: "Coding",          severity: "Warning",  title: "ICD-10 codes not captured",     description: "Awaiting primary diagnosis and procedure codes.",           owner: "Clinical coder",      status: "Open" },
+        { itemId: "PR-4", category: "Documents",       severity: "Info",     title: "Sick note pending",             description: "Optional — request via document service if needed.",         owner: "Ward clerk",          status: "Open" },
+        { itemId: "PR-5", category: "CaseManagement",  severity: "Info",     title: "Case sign-off pending",         description: "Case manager review not yet complete.",                     owner: "Case manager",        status: "Open" },
+        { itemId: "PR-6", category: "Pharmacy",        severity: "Info",     title: "Take-home medication",          description: "TTO script prepared, awaiting patient hand-over.",           owner: "Pharmacy",            status: "Open" },
+      ];
+      const blocking = items.filter((i) => i.severity === "Blocking" && i.status === "Open").length;
+      const warnings = items.filter((i) => i.severity === "Warning"  && i.status === "Open").length;
+      const readinessScore = Math.max(0, 100 - blocking * 40 - warnings * 15);
+      return {
+        admissionId,
+        reviewedAt: new Date().toISOString(),
+        readinessScore,
+        readiness: blocking > 0 ? "Blocked" : warnings > 0 ? "NotReady" : "Ready",
+        items,
+      } satisfies PreDischargeReviewResult;
+    });
+  },
+
+  /** §33 — PATCH /admissions/{id} (amend) */
+  amendAdmission(req: AmendAdmissionRequest) {
+    return wrap<void>(req.correlationId, async () => {
+      const summary = Object.entries(req.changes)
+        .filter(([, v]) => v !== undefined && v !== "")
+        .map(([k, v]) => `${k}=${String(v)}`)
+        .join(", ");
+      await base.addNote(
+        req.admissionId,
+        `Admission amended. Reason: ${req.reason}${summary ? ` — ${summary}` : ""}${req.approverId ? ` (approved by ${req.approverId})` : ""}`,
+      );
+    });
+  },
+
+  /** §33 — POST /admissions/{id}/notes */
+  addAdmissionNote(req: AddAdmissionNoteRequest) {
+    return wrap<void>(req.correlationId, async () => {
+      const prefix = req.category ? `[${req.category}] ` : "";
+      const visibility = req.visibility === "PatientVisible" ? " (patient-visible)" : "";
+      await base.addNote(req.admissionId, `${prefix}${req.body}${visibility}`);
+    });
+  },
+
+  /** §33 — POST /admissions/{id}/documents */
+  attachAdmissionDocument(req: AttachAdmissionDocumentRequest) {
+    return wrap<void>(req.correlationId, async () => {
+      const size = req.sizeBytes ? ` · ${(req.sizeBytes / 1024).toFixed(1)} KB` : "";
+      await base.addNote(
+        req.admissionId,
+        `Document attached: ${req.kind} — ${req.filename}${size}${req.description ? ` · ${req.description}` : ""}`,
+      );
+    });
+  },
 };
 
 export type AdmissionsService = typeof admissionsService;
