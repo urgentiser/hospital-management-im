@@ -33,9 +33,11 @@ function ProtectedShell() {
 
   useEffect(() => {
     if (status === "anonymous") {
-      void navigate({ to: "/auth", search: { redirect: returnPath }, replace: true });
+      const safeReturn = returnPath.startsWith("/auth") ? "/" : returnPath;
+      void navigate({ to: "/auth", search: { redirect: safeReturn }, replace: true });
     }
   }, [navigate, returnPath, status]);
+
 
   useEffect(() => {
     if (!principal || principal.accountState !== "active") return;
