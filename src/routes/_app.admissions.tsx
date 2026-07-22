@@ -10,6 +10,7 @@ import { AdmissionProcessSelector } from "@/modules/admissions/components/proces
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
 import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admissions/components/funding-wizard";
+import { AdmissionFinancialWizard, type FinancialVariant } from "@/modules/admissions/components/financial-wizard";
 
 
 const config: ModuleConsoleConfig = {
@@ -385,6 +386,7 @@ const config: ModuleConsoleConfig = {
 const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-admit", "emergency-admit", "no-auth-admit"]);
 const MANAGEMENT_KEYS = new Set<ManagementVariant>(["view-admission", "patient-location", "allocate-bed", "move-ward", "change-practitioner", "register-birth"]);
 const FUNDING_KEYS = new Set<FundingVariant>(["capture-auth", "funding-change", "auth-enquiry"]);
+const FINANCIAL_KEYS = new Set<FinancialVariant>(["misc-charge", "billing-checks", "finalise-bill"]);
 
 function AdmissionsRoute() {
   const scrollAnchor = useRef<HTMLDivElement>(null);
@@ -394,6 +396,8 @@ function AdmissionsRoute() {
   const [mgmtOpen, setMgmtOpen] = useState(false);
   const [fundVariant, setFundVariant] = useState<FundingVariant | null>(null);
   const [fundOpen, setFundOpen] = useState(false);
+  const [finVariant, setFinVariant] = useState<FinancialVariant | null>(null);
+  const [finOpen, setFinOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -415,6 +419,11 @@ function AdmissionsRoute() {
               setFundOpen(true);
               return;
             }
+            if (FINANCIAL_KEYS.has(process.key as FinancialVariant)) {
+              setFinVariant(process.key as FinancialVariant);
+              setFinOpen(true);
+              return;
+            }
             scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
             if (typeof window !== "undefined") {
               window.location.hash = `#p=${process.key}`;
@@ -428,6 +437,7 @@ function AdmissionsRoute() {
       <AdmissionCreationWizard variant={wizardVariant} open={wizardOpen} onOpenChange={setWizardOpen} />
       <AdmissionManagementWizard variant={mgmtVariant} open={mgmtOpen} onOpenChange={setMgmtOpen} />
       <AdmissionFundingWizard variant={fundVariant} open={fundOpen} onOpenChange={setFundOpen} />
+      <AdmissionFinancialWizard variant={finVariant} open={finOpen} onOpenChange={setFinOpen} />
     </div>
   );
 }
