@@ -363,6 +363,54 @@ function AdmissionWorkspaceRoute() {
   );
 }
 
+function AuditPanel({ admissionId }: { admissionId: string }) {
+  const q = useQuery<AdmissionAuditEvent[]>({
+    queryKey: ["admissions", "audit", admissionId],
+    queryFn: async () => {
+      const r = await admissionsService.listAuditEvents(admissionId);
+      return r.ok ? r.data : [];
+    },
+    staleTime: 15_000,
+  });
+  const events = q.data ?? [];
+  const catTone: Record<AdmissionAuditEvent["category"], string> = {
+    Clinical:   "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+    Movement:   "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+    Funding:    "border-primary/30 bg-primary/10 text-primary",
+    Billing:    "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+    Documents:  "border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300",
+    System:     "border-border bg-muted/40 text-muted-foreground",
+    Correction: "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  };
+  if (q.isLoading) {
+    return <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground"><RefreshCw className="h-3 w-3 animate-spin" />Loading audit trail…</div>;
+  }
+  if (events.length === 0) {
+    return <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5" />No audited events yet.</div>;
+  }
+  return (
+    <ol className="max-h-[500px] divide-y overflow-y-auto">
+      {[...events].reverse().map((e) => (
+        <li key={e.eventId} className="p-3 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className={cn("rounded-full border px-1.5 py-0.5 text-[10px] uppercase tracking-wide", catTone[e.category])}>{e.category}</span>
+              <span className="font-medium">{e.action}</span>
+            </div>
+            <span className="text-[10px] text-muted-foreground">{new Date(e.at).toLocaleString()}</span>
+          </div>
+          {e.summary && <div className="mt-1 text-muted-foreground">{e.summary}</div>}
+          <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+            <span>{e.actor}</span>
+            <span className="font-mono">· {e.eventId}</span>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+
 export const Route = createFileRoute("/_app/admissions/$admissionId")({
   head: ({ params }) => ({
     meta: [
