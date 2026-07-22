@@ -259,6 +259,39 @@ export const admissionsService = {
       } satisfies FundingDetail;
     });
   },
+
+  /** §33 — PATCH /admissions/{id}/billing-checks/{checkId} */
+  manageBillingCheck(req: ManageBillingCheckRequest) {
+    return wrap<void>(req.correlationId, async () => {
+      const label =
+        req.resolution === "Override" ? "overridden"
+        : req.resolution === "Reassign" ? `reassigned to ${req.reassignToUserId ?? "team"}`
+        : "resolved";
+      await base.addNote(
+        req.admissionId,
+        `Billing check ${req.checkId} ${label}. ${req.resolutionNote}`,
+      );
+    });
+  },
+
+  /** §33 — POST /admissions/{id}/finalise-bill */
+  finaliseBill(req: FinaliseBillRequest) {
+    return wrap<FinaliseBillResult>(req.correlationId, async () => {
+      await base.transitionRecord(req.admissionId, "discharged", "Bill finalised");
+      if (req.billingNarrative) {
+        await base.addNote(req.admissionId, `Finalise bill: ${req.billingNarrative}`);
+      }
+      const billNumber = `BILL-${Date.now().toString(36).slice(-6).toUpperCase()}`;
+      const totalAmountZar = Math.round((15000 + Math.random() * 85000) * 100) / 100;
+      return {
+        admissionId: req.admissionId,
+        billNumber,
+        finalisedAt: req.finalisedAt,
+        totalAmountZar,
+        blockingChecksRemaining: 0,
+      } satisfies FinaliseBillResult;
+    });
+  },
 };
 
 export type AdmissionsService = typeof admissionsService;
