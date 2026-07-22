@@ -384,6 +384,7 @@ const config: ModuleConsoleConfig = {
 
 const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-admit", "emergency-admit", "no-auth-admit"]);
 const MANAGEMENT_KEYS = new Set<ManagementVariant>(["view-admission", "patient-location", "allocate-bed", "move-ward", "change-practitioner", "register-birth"]);
+const FUNDING_KEYS = new Set<FundingVariant>(["capture-auth", "funding-change", "auth-enquiry"]);
 
 function AdmissionsRoute() {
   const scrollAnchor = useRef<HTMLDivElement>(null);
