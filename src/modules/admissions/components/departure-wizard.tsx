@@ -60,6 +60,8 @@ const DISPOSITIONS: Disposition[] = ["Home", "Step-down facility", "Transfer out
 const DOC_KINDS = ["Discharge summary", "Consent", "Referral letter", "Investigation result", "Script", "Sick note", "Other"];
 const NOTE_CATEGORIES = ["Clinical", "Administrative", "Billing", "CaseManagement", "Other"] as const;
 
+type OverrideEntry = { itemId: string; reason: string; approverId: string };
+
 type Draft = {
   admissionId: string;
   facilityId: string;
@@ -71,7 +73,12 @@ type Draft = {
   dischargeReason: string;
   responsiblePractitionerId: string;
   clinicalSummary: string;
-  overrideChecks: string[];
+  overrideChecks: OverrideEntry[];
+  transferToFacility: string;
+  transferToWard: string;
+  deathDateOfDeath: string;
+  deathCauseOfDeath: string;
+  deathCertifiedBy: string;
 
   // predischarge (review)
   review: PreDischargeReviewResult | null;
@@ -118,6 +125,8 @@ const EMPTY: Draft = {
   admissionId: "", facilityId: FACILITIES[0] ?? "",
   dischargeAt: today(), disposition: "Home", destination: "", dischargeReason: "",
   responsiblePractitionerId: "", clinicalSummary: "", overrideChecks: [],
+  transferToFacility: "", transferToWard: "",
+  deathDateOfDeath: today(), deathCauseOfDeath: "", deathCertifiedBy: "",
   review: null, reviewLoading: false,
   approverId: "", correctionAt: today(), receivingWardId: "", receivingBedId: "",
   effectiveAt: today(),
