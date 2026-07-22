@@ -9,6 +9,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
+import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admissions/components/funding-wizard";
 
 
 const config: ModuleConsoleConfig = {
