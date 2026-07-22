@@ -215,8 +215,6 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
     }
   }, [open, variant, initialAdmissionId]);
 
-  if (!variant || !meta) return null;
-
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const currentStep = steps[stepIdx];
   const isLast = stepIdx === steps.length - 1;
@@ -244,6 +242,8 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep?.key, draft.admissionId]);
+
+  if (!variant || !meta) return null;
 
   const dispositionValid = (() => {
     if (draft.disposition === "Transfer out" || draft.disposition === "Step-down facility") {
