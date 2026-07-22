@@ -187,9 +187,18 @@ function stepsFor(variant: DepartureVariant): StepDef[] {
   }
 }
 
-type Props = { variant: DepartureVariant | null; open: boolean; onOpenChange: (v: boolean) => void; onCompleted?: () => void };
+type Props = {
+  variant: DepartureVariant | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onCompleted?: () => void;
+  /** When opened from an Admission Workspace, prefill the admission id. */
+  initialAdmissionId?: string;
+  /** Latest server version token; sent as ifMatchVersion for optimistic concurrency. */
+  ifMatchVersion?: string;
+};
 
-export function AdmissionDepartureWizard({ variant, open, onOpenChange, onCompleted }: Props) {
+export function AdmissionDepartureWizard({ variant, open, onOpenChange, onCompleted, initialAdmissionId, ifMatchVersion }: Props) {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [stepIdx, setStepIdx] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -198,7 +207,13 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
   const steps = useMemo(() => (variant ? stepsFor(variant) : []), [variant]);
   const meta = variant ? META[variant] : null;
 
-  useEffect(() => { if (open) { setDraft(EMPTY); setStepIdx(0); setProblem(null); } }, [open, variant]);
+  useEffect(() => {
+    if (open) {
+      setDraft({ ...EMPTY, admissionId: initialAdmissionId ?? "" });
+      setStepIdx(0);
+      setProblem(null);
+    }
+  }, [open, variant, initialAdmissionId]);
 
   if (!variant || !meta) return null;
 
@@ -206,15 +221,39 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
   const currentStep = steps[stepIdx];
   const isLast = stepIdx === steps.length - 1;
 
+  const overrideMap = new Map(draft.overrideChecks.map((o) => [o.itemId, o]));
   const blockingOpen = draft.review?.items.filter((i) => i.severity === "Blocking" && i.status === "Open") ?? [];
-  const readyForDischarge = blockingOpen.length === 0 || blockingOpen.every((i) => draft.overrideChecks.includes(i.itemId));
+  const overrideComplete = (o: OverrideEntry | undefined) => !!o && !!o.reason.trim() && !!o.approverId.trim();
+  const readyForDischarge = blockingOpen.length === 0
+    || blockingOpen.every((i) => overrideComplete(overrideMap.get(i.itemId)));
 
   const runReview = async () => {
+    if (!draft.admissionId.trim()) return;
     setDraft((d) => ({ ...d, reviewLoading: true }));
     const r = await admissionsService.preDischargeReview(draft.admissionId);
     setDraft((d) => ({ ...d, reviewLoading: false, review: r.ok ? r.data : null }));
     if (!r.ok) setProblem(r.problem.detail ?? r.problem.title);
   };
+
+  // Auto-run pre-discharge review whenever the user reaches the readiness/run step.
+  useEffect(() => {
+    if (!currentStep) return;
+    if ((currentStep.key === "readiness" || currentStep.key === "run")
+        && draft.admissionId && !draft.review && !draft.reviewLoading) {
+      void runReview();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep?.key, draft.admissionId]);
+
+  const dispositionValid = (() => {
+    if (draft.disposition === "Transfer out" || draft.disposition === "Step-down facility") {
+      return !!draft.transferToFacility.trim();
+    }
+    if (draft.disposition === "Deceased") {
+      return !!draft.deathDateOfDeath && !!draft.deathCauseOfDeath.trim() && !!draft.deathCertifiedBy.trim();
+    }
+    return true;
+  })();
 
   const canAdvance = (() => {
     if (!currentStep) return false;
@@ -223,7 +262,7 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
       case "readiness": return readyForDischarge;
       case "capture":
         return !!draft.dischargeAt && !!draft.disposition && !!draft.dischargeReason.trim()
-          && !!draft.responsiblePractitionerId.trim();
+          && !!draft.responsiblePractitionerId.trim() && dispositionValid;
       case "run": return !!draft.review;
       case "approval":
         return !!draft.approverId.trim() && !!draft.reason.trim() && !!draft.correctionAt;
@@ -242,13 +281,26 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
     }
   })();
 
-  const toggleOverride = (id: string) =>
-    setDraft((d) => ({
-      ...d,
-      overrideChecks: d.overrideChecks.includes(id)
-        ? d.overrideChecks.filter((x) => x !== id)
-        : [...d.overrideChecks, id],
-    }));
+  const setOverride = (itemId: string, patch: Partial<OverrideEntry>) =>
+    setDraft((d) => {
+      const idx = d.overrideChecks.findIndex((o) => o.itemId === itemId);
+      const existing = idx >= 0 ? d.overrideChecks[idx] : { itemId, reason: "", approverId: "" };
+      const next = { ...existing, ...patch };
+      const list = idx >= 0
+        ? d.overrideChecks.map((o, i) => (i === idx ? next : o))
+        : [...d.overrideChecks, next];
+      return { ...d, overrideChecks: list };
+    });
+  const toggleOverride = (itemId: string) =>
+    setDraft((d) => {
+      const exists = d.overrideChecks.some((o) => o.itemId === itemId);
+      return {
+        ...d,
+        overrideChecks: exists
+          ? d.overrideChecks.filter((o) => o.itemId !== itemId)
+          : [...d.overrideChecks, { itemId, reason: "", approverId: "" }],
+      };
+    });
 
   const submit = async () => {
     setSubmitting(true); setProblem(null);
