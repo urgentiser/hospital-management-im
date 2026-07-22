@@ -350,7 +350,7 @@ export function AdmissionCreationWizard({ variant, open, onOpenChange, onComplet
           {currentStep?.key === "encounter" && (
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Facility" required>
-                <SelectBox value={draft.facilityId} onChange={(v) => set("facilityId", v)} options={FACILITIES.map((f) => ({ value: f.id, label: f.name }))} />
+                <SelectBox value={draft.facilityId} onChange={(v) => set("facilityId", v)} options={FACILITIES.filter((f) => f !== "All facilities").map((f) => ({ value: f, label: f }))} />
               </Field>
               <Field label="Admission type" required>
                 <SelectBox value={draft.admissionType} onChange={(v) => set("admissionType", v as AdmissionType)} options={ADMISSION_TYPES.map((t) => ({ value: t, label: t }))} />
