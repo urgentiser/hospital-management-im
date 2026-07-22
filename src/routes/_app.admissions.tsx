@@ -124,7 +124,7 @@ function AdmissionsRoute() {
   const [depOpen, setDepOpen] = useState(false);
 
   // Live KPI feed from the same service the worklist uses.
-  const { data } = useModuleList("admissions", { page: 1, pageSize: 500 });
+  const { data } = useModuleList("admissions", { page: 1, pageSize: 500, filters: {} });
   const kpis = useMemo(() => {
     const items = data?.items ?? [];
     const admitted = items.filter((i) => i.status === "admitted").length;
