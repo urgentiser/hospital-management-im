@@ -91,7 +91,7 @@ type Draft = {
 const EMPTY_DRAFT: Draft = {
   patientId: "", patientName: "", mrn: "", temporaryPatient: false,
   preadmissionId: "", emergencyVisitId: "",
-  facilityId: FACILITIES[0]?.id ?? "", admissionType: "Inpatient",
+  facilityId: FACILITIES[0] ?? "", admissionType: "Inpatient",
   admissionSource: "Direct", admissionDate: new Date().toISOString().slice(0, 16),
   expectedDeparture: "", reasonForAdmission: "", directAdmissionReason: "", triageSummary: "",
   admittingPractitionerId: "", responsiblePractitionerId: "", referringPractitionerId: "",
