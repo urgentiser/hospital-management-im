@@ -17,6 +17,7 @@ import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admission
 import { AdmissionFinancialWizard, type FinancialVariant } from "@/modules/admissions/components/financial-wizard";
 import { AdmissionDepartureWizard, type DepartureVariant } from "@/modules/admissions/components/departure-wizard";
 import type { WorklistConfig } from "@/components/worklist/types";
+import { PatientBanner } from "@/components/patient-banner";
 
 const worklistConfig: WorklistConfig = {
   moduleKey: "admissions",
@@ -179,6 +180,7 @@ function AdmissionsRoute() {
 
   return (
     <div className="space-y-6">
+      <PatientBanner />
       {/* Header — compact, single row of business priorities */}
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
         <div className="min-w-0">
