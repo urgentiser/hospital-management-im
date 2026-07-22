@@ -497,7 +497,15 @@ export type ManageBillingCheckRequest = {
   resolutionNote: string;
   overrideApproverId?: string;
   reassignToUserId?: string;
+  ifMatchVersion?: string;
   correlationId?: string;
+};
+
+/** Structured override captured against a blocking billing check. */
+export type BillingCheckOverride = {
+  checkId: string;
+  reason: string;
+  approverId: string;
 };
 
 /** §33 — POST /admissions/{id}/finalise-bill */
@@ -506,8 +514,10 @@ export type FinaliseBillRequest = {
   finalisedAt: string;
   closeAccommodation: boolean;
   clinicalCodingSignedOff: boolean;
-  outstandingChecksOverridden: string[];
+  /** Structured overrides for every blocking check being waived. */
+  overriddenChecks: BillingCheckOverride[];
   billingNarrative?: string;
+  ifMatchVersion?: string;
   correlationId?: string;
 };
 
@@ -516,7 +526,9 @@ export type FinaliseBillResult = {
   billNumber: string;
   finalisedAt: string;
   totalAmountZar: number;
+  lineItemCount: number;
   blockingChecksRemaining: number;
+  version: string;
 };
 
 /* ─── Phase G — Departure & corrections ──────────────────────────── */
