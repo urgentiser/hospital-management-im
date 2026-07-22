@@ -14,15 +14,16 @@ import {
   ArrowLeft, BedDouble, Building2, Clock, LogOut, Undo2, Ban, StopCircle,
   Pencil, FileText, Receipt, ClipboardCheck, Coins, ShieldAlert, Wallet,
   ArrowRightLeft, UserCog, Baby, ClipboardList, RefreshCw, AlertTriangle,
-  MapPin, CheckCircle2, CircleAlert, CircleDashed, Lock,
+  MapPin, CheckCircle2, CircleAlert, CircleDashed, Lock, ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { admissionsService } from "@/services/modules/admissions.service";
-import type { AdmissionActionKey, AdmissionReadiness } from "@/modules/admissions/contracts";
+import type { AdmissionActionKey, AdmissionReadiness, AdmissionAuditEvent } from "@/modules/admissions/contracts";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
 import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admissions/components/funding-wizard";
 import { AdmissionFinancialWizard, type FinancialVariant } from "@/modules/admissions/components/financial-wizard";
