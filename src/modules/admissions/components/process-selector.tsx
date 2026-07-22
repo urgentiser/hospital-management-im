@@ -151,16 +151,30 @@ function GroupChip({ active, onClick, label, count }: { active: boolean; onClick
   );
 }
 
-function ProcessCard({ process, onLaunch }: { process: AdmissionProcessDef; onLaunch: (p: AdmissionProcessDef) => void }) {
+function ProcessCard({
+  process,
+  allowed,
+  onLaunch,
+}: {
+  process: AdmissionProcessDef;
+  allowed: boolean;
+  onLaunch: (p: AdmissionProcessDef) => void;
+}) {
   const Icon = process.icon;
   return (
     <button
       type="button"
-      onClick={() => onLaunch(process)}
+      onClick={() => allowed && onLaunch(process)}
+      disabled={!allowed}
+      aria-disabled={!allowed}
+      title={allowed ? process.description : "You do not have permission to launch this process."}
       className={cn(
         "group flex w-full items-start gap-3 rounded-xl border bg-card p-3 text-left shadow-sm transition",
-        "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-        process.destructive && "hover:border-rose-400/60",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+        allowed
+          ? "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+          : "cursor-not-allowed opacity-60",
+        process.destructive && allowed && "hover:border-rose-400/60",
       )}
     >
       <div className={cn(
@@ -174,9 +188,15 @@ function ProcessCard({ process, onLaunch }: { process: AdmissionProcessDef; onLa
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <div className="truncate text-sm font-medium">{process.label}</div>
-          {process.permission === "elevated" && (
+          {process.elevated && (
             <Badge variant="outline" className="border-rose-400/50 text-[10px] text-rose-600 dark:text-rose-400">
               Elevated
+            </Badge>
+          )}
+          {!allowed && (
+            <Badge variant="outline" className="gap-1 border-muted-foreground/30 text-[10px] text-muted-foreground">
+              <Lock className="h-2.5 w-2.5" />
+              No access
             </Badge>
           )}
         </div>
