@@ -33,6 +33,11 @@ import type {
   ManageBillingCheckRequest,
   FinaliseBillRequest,
   FinaliseBillResult,
+  PreDischargeReviewResult,
+  PreDischargeReviewItem,
+  AmendAdmissionRequest,
+  AddAdmissionNoteRequest,
+  AttachAdmissionDocumentRequest,
 } from "@/modules/admissions/contracts";
 
 const base = createModuleService({
