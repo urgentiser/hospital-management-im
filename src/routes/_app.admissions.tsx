@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useRef } from "react";
 import {
   UserPlus, Eye, MapPin, ArrowRightLeft, LogOut, Undo2, Baby, Ban, StopCircle,
   Receipt, FileText, ClipboardCheck, ShieldOff, BedDouble, Clock, ShieldAlert,
   Building2, HeartPulse, ClipboardList, Wallet,
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 
 const config: ModuleConsoleConfig = {
   moduleKey: "admissions",
@@ -376,6 +378,30 @@ const config: ModuleConsoleConfig = {
   },
 };
 
+function AdmissionsRoute() {
+  const scrollAnchor = useRef<HTMLDivElement>(null);
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
+        <AdmissionProcessSelector
+          onLaunch={(process) => {
+            // Scroll the console into view; the guided-workflow tab surfaces the
+            // matching section and action key so users start on the right step.
+            scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            // Persist last-launched process on the URL fragment for deep links.
+            if (typeof window !== "undefined") {
+              window.location.hash = `#p=${process.key}`;
+            }
+          }}
+        />
+      </div>
+      <div ref={scrollAnchor}>
+        <ModuleConsole config={config} />
+      </div>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/_app/admissions")({
   head: () => ({
     meta: [
@@ -383,5 +409,5 @@ export const Route = createFileRoute("/_app/admissions")({
       { name: "description", content: config.description },
     ],
   }),
-  component: () => <ModuleConsole config={config} />,
+  component: AdmissionsRoute,
 });
