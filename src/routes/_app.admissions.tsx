@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import {
   UserPlus, Eye, MapPin, ArrowRightLeft, LogOut, Undo2, Baby, Ban, StopCircle,
   Receipt, FileText, ClipboardCheck, ShieldOff, BedDouble, Clock, ShieldAlert,
-  Building2, HeartPulse, ClipboardList, Wallet,
+  Building2, HeartPulse, ClipboardList, Wallet, LayoutDashboard,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
@@ -405,6 +406,12 @@ function AdmissionsRoute() {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="text-xs text-muted-foreground">Launch a guided process or jump into the live board.</div>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/admissions/dashboard"><LayoutDashboard className="mr-1 h-3.5 w-3.5" />Operational dashboard</Link>
+        </Button>
+      </div>
       <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
         <AdmissionProcessSelector
           onLaunch={(process) => {
