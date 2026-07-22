@@ -65,7 +65,6 @@ export const admissionsService = {
   createAdmission(req: CreateAdmissionRequest) {
     return wrap<AdmissionDetail>(req.correlationId, async () => {
       const result = await base.createRecord({
-        moduleKey: "admissions",
         title: req.reasonForAdmission,
         subtitle: [req.admissionType, req.admissionSource].filter(Boolean).join(" · "),
         status: req.authorisation?.noAuthReason ? "pending" : "admitted",
@@ -84,7 +83,6 @@ export const admissionsService = {
           "MoveToWard", "StartDischarge", "UpdateAdmission",
         ],
       });
-      if (!result.ok) throw new Error(result.problem?.detail ?? "Create failed");
       return result.data as unknown as AdmissionDetail;
     });
   },
