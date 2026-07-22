@@ -40,6 +40,12 @@ import type {
   AttachAdmissionDocumentRequest,
 } from "@/modules/admissions/contracts";
 
+import type {
+  AdmissionReadiness,
+  BedAvailabilityQuery,
+  BedAvailabilityRow,
+} from "@/modules/admissions/contracts";
+
 const base = createModuleService({
   moduleKey: "admissions",
   basePath: "admissions",
@@ -51,21 +57,45 @@ const newCorrelation = () =>
     ? crypto.randomUUID()
     : `corr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`);
 
+const newVersion = () => `v${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+/**
+ * Idempotency ledger. In mock mode we memoise the previous result for a
+ * given key so a retried mutation returns the original envelope instead of
+ * performing the action twice. In production this maps to the backend's
+ * `Idempotency-Key` header contract.
+ */
+const idempotencyLedger = new Map<string, AdmissionCommandResult<unknown>>();
+
 const wrap = async <T,>(
   correlationId: string | undefined,
   action: () => Promise<T>,
+  opts?: { idempotencyKey?: string },
 ): Promise<AdmissionCommandResult<T>> => {
   const corr = correlationId ?? newCorrelation();
+  const key = opts?.idempotencyKey;
+  if (key && idempotencyLedger.has(key)) {
+    return idempotencyLedger.get(key) as AdmissionCommandResult<T>;
+  }
   try {
     const data = await action();
-    return { ok: true, data, correlationId: corr };
+    const envelope: AdmissionCommandResult<T> = {
+      ok: true,
+      data,
+      correlationId: corr,
+      version: newVersion(),
+    };
+    if (key) idempotencyLedger.set(key, envelope as AdmissionCommandResult<unknown>);
+    return envelope;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected error";
-    return {
+    const envelope: AdmissionCommandResult<T> = {
       ok: false,
       correlationId: corr,
       problem: { title: "Admissions request failed", status: 500, detail: message },
     };
+    if (key) idempotencyLedger.set(key, envelope as AdmissionCommandResult<unknown>);
+    return envelope;
   }
 };
 
