@@ -567,16 +567,35 @@ export type AttachAdmissionDocumentRequest = {
 
 /* ─── Result envelopes ─────────────────────────────────────────────── */
 
+/**
+ * Every mutation carries `ifMatchVersion` (optimistic concurrency, matches
+ * `AdmissionDetail.version`) and `idempotencyKey` so retries never
+ * duplicate the operation. Both are required by `admissionsService`.
+ */
+export type VersionedCommand = {
+  ifMatchVersion?: string;
+  idempotencyKey?: string;
+};
+
 export type AdmissionCommandResult<T> =
-  | { ok: true; data: T; correlationId?: string }
+  | {
+      ok: true;
+      data: T;
+      correlationId?: string;
+      /** New version token to hand back on the next mutation. */
+      version?: string;
+    }
   | {
       ok: false;
+      correlationId?: string;
       problem: {
         title: string;
         status: number;
         detail?: string;
         instance?: string;
         fieldErrors?: Record<string, string[]>;
+        /** Server-current version on a 409 concurrency conflict. */
+        currentVersion?: string;
       };
-      correlationId?: string;
     };
+
