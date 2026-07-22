@@ -595,7 +595,7 @@ function ReviewSummary({ draft, variant, total }: { draft: Draft; variant: Finan
           ["Finalised at", draft.finalisedAt],
           ["Close accommodation", draft.closeAccommodation ? "Yes" : "No"],
           ["Coding signed off", draft.clinicalCodingSignedOff ? "Yes" : "No"],
-          ["Overridden checks", draft.overriddenCheckIds.length ? draft.overriddenCheckIds.join(", ") : "None"],
+          ["Overridden checks", draft.overrides.length ? draft.overrides.map((o) => `${o.checkId} (${o.approverId || "no approver"})`).join(", ") : "None"],
           ["Narrative", draft.billingNarrative || "—"],
         ];
     }
