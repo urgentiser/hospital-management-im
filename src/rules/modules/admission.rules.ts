@@ -43,6 +43,7 @@ export const admissionRules: RuleDefinition[] = [
             field: context.values.destinationBed ? "destinationBed" : "bed",
           };
     },
+  },
   {
     id: "admission.duplicate-active",
     description: "A patient cannot have two overlapping active admissions unless explicitly authorised.",
