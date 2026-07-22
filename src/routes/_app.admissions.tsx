@@ -1,15 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import {
-  BedDouble, Clock, ShieldAlert, LogOut, LayoutDashboard, UserPlus,
+  LogOut, LayoutDashboard, UserPlus,
   ArrowRightLeft, Search, ListChecks, LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KpiCard } from "@/components/ui-kit/kpi-card";
 import { ModuleWorklist } from "@/components/worklist/module-worklist";
-import { useModuleList } from "@/hooks/use-module-service";
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
