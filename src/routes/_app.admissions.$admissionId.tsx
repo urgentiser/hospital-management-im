@@ -14,15 +14,16 @@ import {
   ArrowLeft, BedDouble, Building2, Clock, LogOut, Undo2, Ban, StopCircle,
   Pencil, FileText, Receipt, ClipboardCheck, Coins, ShieldAlert, Wallet,
   ArrowRightLeft, UserCog, Baby, ClipboardList, RefreshCw, AlertTriangle,
-  MapPin, CheckCircle2, CircleAlert, CircleDashed, Lock,
+  MapPin, CheckCircle2, CircleAlert, CircleDashed, Lock, ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { admissionsService } from "@/services/modules/admissions.service";
-import type { AdmissionActionKey, AdmissionReadiness } from "@/modules/admissions/contracts";
+import type { AdmissionActionKey, AdmissionReadiness, AdmissionAuditEvent } from "@/modules/admissions/contracts";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
 import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admissions/components/funding-wizard";
 import { AdmissionFinancialWizard, type FinancialVariant } from "@/modules/admissions/components/financial-wizard";
@@ -286,43 +287,54 @@ function AdmissionWorkspaceRoute() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4 text-primary" />Timeline
+                  <ClipboardList className="h-4 w-4 text-primary" />Activity
                 </CardTitle>
                 <div className="text-xs text-muted-foreground">
-                  Audit trail from admission wizards, notes and status changes.
+                  Timeline and audit trail across every wizard and status change.
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                {history.length === 0 ? (
-                  <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground">
-                    <CircleDashed className="h-3.5 w-3.5" />No history yet.
-                  </div>
-                ) : (
-                  <ol className="max-h-[520px] divide-y overflow-y-auto">
-                    {[...history].reverse().map((h, i) => (
-                      <li key={i} className="flex gap-3 p-3 text-xs">
-                        <div className="flex flex-col items-center">
-                          <span className="grid h-6 w-6 place-items-center rounded-full border bg-background text-[10px] font-semibold text-primary">
-                            {history.length - i}
-                          </span>
-                          {i < history.length - 1 && <span className="mt-1 w-px flex-1 bg-border" />}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-baseline justify-between gap-2">
-                            <div className="font-medium">{h.action}</div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {new Date(h.at).toLocaleString()}
+                <Tabs defaultValue="timeline" className="w-full">
+                  <TabsList className="mx-3 mt-1 grid w-[calc(100%-1.5rem)] grid-cols-2">
+                    <TabsTrigger value="timeline" className="text-xs">Timeline</TabsTrigger>
+                    <TabsTrigger value="audit" className="text-xs">Audit</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="timeline" className="mt-0">
+                    {history.length === 0 ? (
+                      <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground">
+                        <CircleDashed className="h-3.5 w-3.5" />No history yet.
+                      </div>
+                    ) : (
+                      <ol className="max-h-[500px] divide-y overflow-y-auto">
+                        {[...history].reverse().map((h, i) => (
+                          <li key={i} className="flex gap-3 p-3 text-xs">
+                            <div className="flex flex-col items-center">
+                              <span className="grid h-6 w-6 place-items-center rounded-full border bg-background text-[10px] font-semibold text-primary">
+                                {history.length - i}
+                              </span>
+                              {i < history.length - 1 && <span className="mt-1 w-px flex-1 bg-border" />}
                             </div>
-                          </div>
-                          {h.note && <div className="mt-0.5 text-muted-foreground">{h.note}</div>}
-                          <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
-                            <MapPin className="h-2.5 w-2.5" />{h.by}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                )}
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                                <div className="font-medium">{h.action}</div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  {new Date(h.at).toLocaleString()}
+                                </div>
+                              </div>
+                              {h.note && <div className="mt-0.5 text-muted-foreground">{h.note}</div>}
+                              <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                                <MapPin className="h-2.5 w-2.5" />{h.by}
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </TabsContent>
+                  <TabsContent value="audit" className="mt-0">
+                    <AuditPanel admissionId={admissionId} />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
@@ -350,6 +362,54 @@ function AdmissionWorkspaceRoute() {
     </div>
   );
 }
+
+function AuditPanel({ admissionId }: { admissionId: string }) {
+  const q = useQuery<AdmissionAuditEvent[]>({
+    queryKey: ["admissions", "audit", admissionId],
+    queryFn: async () => {
+      const r = await admissionsService.listAuditEvents(admissionId);
+      return r.ok ? r.data : [];
+    },
+    staleTime: 15_000,
+  });
+  const events = q.data ?? [];
+  const catTone: Record<AdmissionAuditEvent["category"], string> = {
+    Clinical:   "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+    Movement:   "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+    Funding:    "border-primary/30 bg-primary/10 text-primary",
+    Billing:    "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+    Documents:  "border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300",
+    System:     "border-border bg-muted/40 text-muted-foreground",
+    Correction: "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  };
+  if (q.isLoading) {
+    return <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground"><RefreshCw className="h-3 w-3 animate-spin" />Loading audit trail…</div>;
+  }
+  if (events.length === 0) {
+    return <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5" />No audited events yet.</div>;
+  }
+  return (
+    <ol className="max-h-[500px] divide-y overflow-y-auto">
+      {[...events].reverse().map((e) => (
+        <li key={e.eventId} className="p-3 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className={cn("rounded-full border px-1.5 py-0.5 text-[10px] uppercase tracking-wide", catTone[e.category])}>{e.category}</span>
+              <span className="font-medium">{e.action}</span>
+            </div>
+            <span className="text-[10px] text-muted-foreground">{new Date(e.at).toLocaleString()}</span>
+          </div>
+          {e.summary && <div className="mt-1 text-muted-foreground">{e.summary}</div>}
+          <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+            <span>{e.actor}</span>
+            <span className="font-mono">· {e.eventId}</span>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 
 export const Route = createFileRoute("/_app/admissions/$admissionId")({
   head: ({ params }) => ({
