@@ -79,6 +79,8 @@ export type AdmissionWorklistItem = {
   slaHours?: number;
   updatedAt: string;
   createdAt: string;
+  /** Optimistic-concurrency token — pass back on every mutation. */
+  version: string;
   /** Backend-authoritative list of permitted action keys for this row. */
   availableActions: AdmissionActionKey[];
 };
@@ -95,6 +97,46 @@ export type AdmissionDetail = AdmissionWorklistItem & {
   documents: AdmissionDocument[];
   billingChecks: BillingCheckItem[];
   notes: AdmissionNote[];
+};
+
+/**
+ * Backend-authoritative readiness. Drives which actions the UI enables
+ * and which readiness pills the workspace shows. Never re-derived on the client.
+ */
+export type AdmissionReadiness = {
+  admissionId: string;
+  version: string;
+  state: AdmissionState;
+  availableActions: AdmissionActionKey[];
+  dischargeReadiness: "NotReady" | "Ready" | "Blocked";
+  billingChecksStatus: "Pending" | "Clear" | "Blocked";
+  blockingChecksCount: number;
+  warningChecksCount: number;
+  authorisationStatus: AuthorisationStatus;
+  memberValidationStatus: "Verified" | "Pending" | "Failed" | "NotRequired";
+  updatedAt: string;
+};
+
+/** Bed availability lookup — used by Allocate Bed and Move. */
+export type BedAvailabilityQuery = {
+  facilityId: string;
+  wardId?: string;
+  accommodationType?: AccommodationPeriod["accommodationType"];
+  sex?: "M" | "F" | "X";
+  isolationRequired?: boolean;
+};
+
+export type BedAvailabilityRow = {
+  wardId: string;
+  wardName: string;
+  roomId?: string;
+  roomName?: string;
+  bedId: string;
+  bedName: string;
+  accommodationType: AccommodationPeriod["accommodationType"];
+  status: BedStatus;
+  sexRestriction?: "M" | "F";
+  isolation?: boolean;
 };
 
 export type PatientBannerSnapshot = {
