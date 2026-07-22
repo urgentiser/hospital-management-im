@@ -447,6 +447,7 @@ function AdmissionsRoute() {
       <AdmissionManagementWizard variant={mgmtVariant} open={mgmtOpen} onOpenChange={setMgmtOpen} />
       <AdmissionFundingWizard variant={fundVariant} open={fundOpen} onOpenChange={setFundOpen} />
       <AdmissionFinancialWizard variant={finVariant} open={finOpen} onOpenChange={setFinOpen} />
+      <AdmissionDepartureWizard variant={depVariant} open={depOpen} onOpenChange={setDepOpen} />
     </div>
   );
 }
