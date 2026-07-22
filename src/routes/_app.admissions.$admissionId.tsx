@@ -343,7 +343,8 @@ function AdmissionWorkspaceRoute() {
 
       <AdmissionManagementWizard variant={mgmt} open={!!mgmt} onOpenChange={(v) => !v && setMgmt(null)} onCompleted={invalidate} />
       <AdmissionFundingWizard    variant={fund} open={!!fund} onOpenChange={(v) => !v && setFund(null)} onCompleted={invalidate} />
-      <AdmissionFinancialWizard  variant={fin}  open={!!fin}  onOpenChange={(v) => !v && setFin(null)}  onCompleted={invalidate} />
+      <AdmissionFinancialWizard  variant={fin}  open={!!fin}  onOpenChange={(v) => !v && setFin(null)}  onCompleted={invalidate}
+        initialAdmissionId={admissionId} ifMatchVersion={readiness?.version} />
       <AdmissionDepartureWizard  variant={dep}  open={!!dep}  onOpenChange={(v) => !v && setDep(null)}  onCompleted={invalidate}
         initialAdmissionId={admissionId} ifMatchVersion={readiness?.version} />
     </div>
