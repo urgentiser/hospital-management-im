@@ -445,21 +445,42 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
                 ) : (
                   <div className="space-y-2">
                     {blockingOpen.map((c) => {
-                      const overridden = draft.overriddenCheckIds.includes(c.checkId);
+                      const entry = overrideMap.get(c.checkId);
+                      const overridden = !!entry;
+                      const complete = overrideComplete(entry);
                       return (
-                        <div key={c.checkId} className={cn("flex items-start gap-2 rounded-lg border p-3 text-xs",
-                          overridden && "border-emerald-500/40 bg-emerald-500/5")}>
-                          <Checkbox id={`ov-${c.checkId}`} checked={overridden}
-                            onCheckedChange={() => toggleOverride(c.checkId)} />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <SeverityBadge severity={c.severity} />
-                              <Label htmlFor={`ov-${c.checkId}`} className="text-xs font-medium">
-                                Override — {c.checkType.replace(/([A-Z])/g, " $1").trim()}
-                              </Label>
+                        <div key={c.checkId} className={cn("space-y-2 rounded-lg border p-3 text-xs",
+                          overridden && complete && "border-emerald-500/40 bg-emerald-500/5",
+                          overridden && !complete && "border-amber-500/40 bg-amber-500/5")}>
+                          <div className="flex items-start gap-2">
+                            <Checkbox id={`ov-${c.checkId}`} checked={overridden}
+                              onCheckedChange={() => toggleOverride(c.checkId)} />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <SeverityBadge severity={c.severity} />
+                                <Label htmlFor={`ov-${c.checkId}`} className="text-xs font-medium">
+                                  Override — {c.checkType.replace(/([A-Z])/g, " $1").trim()}
+                                </Label>
+                              </div>
+                              <div className="text-muted-foreground">{c.description}</div>
                             </div>
-                            <div className="text-muted-foreground">{c.description}</div>
                           </div>
+                          {overridden && (
+                            <div className="grid gap-2 pl-6 sm:grid-cols-2">
+                              <div>
+                                <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Approver <span className="text-rose-500">*</span></Label>
+                                <Input className="h-8 text-xs" value={entry?.approverId ?? ""}
+                                  onChange={(e) => patchOverride(c.checkId, { approverId: e.target.value })}
+                                  placeholder="Manager / delegate" />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Override reason <span className="text-rose-500">*</span></Label>
+                                <Input className="h-8 text-xs" value={entry?.reason ?? ""}
+                                  onChange={(e) => patchOverride(c.checkId, { reason: e.target.value })}
+                                  placeholder="Why this blocking check is being overridden" />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
