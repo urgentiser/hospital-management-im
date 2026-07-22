@@ -30,6 +30,9 @@ import type {
   ChangeFundingRequest,
   AuthorisationDetail,
   FundingDetail,
+  ManageBillingCheckRequest,
+  FinaliseBillRequest,
+  FinaliseBillResult,
 } from "@/modules/admissions/contracts";
 
 const base = createModuleService({
