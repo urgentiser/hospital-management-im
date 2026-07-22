@@ -434,6 +434,36 @@ export type ChangeFundingRequest = {
   correlationId?: string;
 };
 
+/** §33 — PATCH /admissions/{id}/billing-checks/{checkId} */
+export type ManageBillingCheckRequest = {
+  admissionId: string;
+  checkId: string;
+  resolution: "Resolve" | "Override" | "Reassign";
+  resolutionNote: string;
+  overrideApproverId?: string;
+  reassignToUserId?: string;
+  correlationId?: string;
+};
+
+/** §33 — POST /admissions/{id}/finalise-bill */
+export type FinaliseBillRequest = {
+  admissionId: string;
+  finalisedAt: string;
+  closeAccommodation: boolean;
+  clinicalCodingSignedOff: boolean;
+  outstandingChecksOverridden: string[];
+  billingNarrative?: string;
+  correlationId?: string;
+};
+
+export type FinaliseBillResult = {
+  admissionId: string;
+  billNumber: string;
+  finalisedAt: string;
+  totalAmountZar: number;
+  blockingChecksRemaining: number;
+};
+
 /* ─── Result envelopes ─────────────────────────────────────────────── */
 
 export type AdmissionCommandResult<T> =
