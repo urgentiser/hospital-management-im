@@ -8,6 +8,7 @@ import {
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
+import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
 
 
 const config: ModuleConsoleConfig = {
@@ -381,11 +382,14 @@ const config: ModuleConsoleConfig = {
 };
 
 const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-admit", "emergency-admit", "no-auth-admit"]);
+const MANAGEMENT_KEYS = new Set<ManagementVariant>(["view-admission", "patient-location", "allocate-bed", "move-ward", "change-practitioner", "register-birth"]);
 
 function AdmissionsRoute() {
   const scrollAnchor = useRef<HTMLDivElement>(null);
   const [wizardVariant, setWizardVariant] = useState<CreationVariant | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [mgmtVariant, setMgmtVariant] = useState<ManagementVariant | null>(null);
+  const [mgmtOpen, setMgmtOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -395,6 +399,11 @@ function AdmissionsRoute() {
             if (CREATION_KEYS.has(process.key as CreationVariant)) {
               setWizardVariant(process.key as CreationVariant);
               setWizardOpen(true);
+              return;
+            }
+            if (MANAGEMENT_KEYS.has(process.key as ManagementVariant)) {
+              setMgmtVariant(process.key as ManagementVariant);
+              setMgmtOpen(true);
               return;
             }
             scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -408,6 +417,7 @@ function AdmissionsRoute() {
         <ModuleConsole config={config} />
       </div>
       <AdmissionCreationWizard variant={wizardVariant} open={wizardOpen} onOpenChange={setWizardOpen} />
+      <AdmissionManagementWizard variant={mgmtVariant} open={mgmtOpen} onOpenChange={setMgmtOpen} />
     </div>
   );
 }
