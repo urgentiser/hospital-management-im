@@ -39,6 +39,7 @@ import type {
   AmendAdmissionRequest,
   AddAdmissionNoteRequest,
   AttachAdmissionDocumentRequest,
+  AdmissionAuditEvent,
 } from "@/modules/admissions/contracts";
 
 import type {
