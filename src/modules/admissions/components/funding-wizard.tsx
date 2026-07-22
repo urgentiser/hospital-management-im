@@ -89,7 +89,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 const EMPTY: Draft = {
   admissionId: "", facilityId: FACILITIES[0] ?? "",
-  authorisationNumber: "", status: "Requested", scheme: "", administrator: "",
+  authorisationNumber: "", status: "Pending", scheme: "", administrator: "",
   requestedFrom: today(), requestedTo: today(), approvedFrom: "", approvedTo: "",
   requestedTreatment: "", approvedTreatment: "", expiry: "", noAuthReason: "",
   followUpOwnerId: "", followUpDate: "", notes: "",
@@ -126,7 +126,7 @@ type Props = { variant: FundingVariant | null; open: boolean; onOpenChange: (v: 
 const MOCK_AUTHS = [
   { auth: "AUTH-88213", member: "Discovery · 1129223", patient: "Naledi Mokoena", stay: "2026-07-18 → 2026-07-25", status: "Approved" },
   { auth: "AUTH-88410", member: "Bonitas · 4432109", patient: "Sipho Dlamini", stay: "2026-07-20 → 2026-07-22", status: "PartiallyApproved" },
-  { auth: "AUTH-88615", member: "GEMS · 9911872", patient: "Aisha Patel", stay: "2026-07-19 → —", status: "Requested" },
+  { auth: "AUTH-88615", member: "GEMS · 9911872", patient: "Aisha Patel", stay: "2026-07-19 → —", status: "Pending" },
   { auth: "AUTH-88802", member: "Momentum · 5501129", patient: "Jared Coetzee", stay: "2026-07-14 → 2026-07-16", status: "Rejected" },
 ];
 
@@ -155,8 +155,8 @@ export function AdmissionFundingWizard({ variant, open, onOpenChange, onComplete
     if (!currentStep) return false;
     switch (currentStep.key) {
       case "identify": return !!draft.admissionId.trim();
-      case "auth": return !!draft.status && (draft.status === "None" ? true : !!draft.scheme.trim());
-      case "outcome": return draft.status === "None" || draft.status === "Rejected" ? !!draft.noAuthReason : true;
+      case "auth": return !!draft.status && (draft.status === "NotRequested" ? true : !!draft.scheme.trim());
+      case "outcome": return draft.status === "NotRequested" || draft.status === "Rejected" ? !!draft.noAuthReason : true;
       case "funding": return !!draft.method && (draft.method === "SelfPay" ? true : !!draft.scheme.trim() && !!draft.membershipNumber.trim());
       case "reason": return !!draft.reason.trim();
       case "enquiry": return true;
@@ -318,7 +318,7 @@ export function AdmissionFundingWizard({ variant, open, onOpenChange, onComplete
               <Field label="Expiry">
                 <Input type="date" value={draft.expiry} onChange={(e) => set("expiry", e.target.value)} />
               </Field>
-              <Field label="No-auth reason" required={draft.status === "None" || draft.status === "Rejected"}>
+              <Field label="No-auth reason" required={draft.status === "NotRequested" || draft.status === "Rejected"}>
                 <SelectBox value={draft.noAuthReason || ""} onChange={(v) => set("noAuthReason", v as NoAuthReason)}
                   options={[{ value: "", label: "— none —" }, ...NO_AUTH_REASONS.map((s) => ({ value: s, label: s }))]} />
               </Field>
@@ -458,7 +458,7 @@ function StatusBadge({ status }: { status: AuthorisationStatus }) {
     ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
     : status === "Rejected" || status === "Expired"
     ? "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300"
-    : status === "PartiallyApproved" || status === "MoreInformationRequested"
+    : status === "MoreInfo" || status === "Pending"
     ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
     : "border-border bg-muted text-muted-foreground";
   return <Badge variant="outline" className={cn("text-[10px]", tone)}>{status}</Badge>;
