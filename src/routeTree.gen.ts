@@ -62,6 +62,7 @@ import { Route as AppPharmacyEnquiryRouteImport } from './routes/_app.pharmacy.e
 import { Route as AppPharmacyDispensingRouteImport } from './routes/_app.pharmacy.dispensing'
 import { Route as AppPharmacyCompoundingRouteImport } from './routes/_app.pharmacy.compounding'
 import { Route as AppPharmacyBusinessFlowRouteImport } from './routes/_app.pharmacy.business-flow'
+import { Route as AppAdmissionsDashboardRouteImport } from './routes/_app.admissions.dashboard'
 import { Route as AppAdmissionsAdmissionIdRouteImport } from './routes/_app.admissions.$admissionId'
 import { Route as AppAdminWorkflowRouteImport } from './routes/_app.admin.workflow'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
@@ -342,6 +343,11 @@ const AppPharmacyBusinessFlowRoute = AppPharmacyBusinessFlowRouteImport.update({
   path: '/business-flow',
   getParentRoute: () => AppPharmacyRoute,
 } as any)
+const AppAdmissionsDashboardRoute = AppAdmissionsDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppAdmissionsRoute,
+} as any)
 const AppAdmissionsAdmissionIdRoute =
   AppAdmissionsAdmissionIdRouteImport.update({
     id: '/$admissionId',
@@ -461,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AppAdminUsersRoute
   '/admin/workflow': typeof AppAdminWorkflowRoute
   '/admissions/$admissionId': typeof AppAdmissionsAdmissionIdRoute
+  '/admissions/dashboard': typeof AppAdmissionsDashboardRoute
   '/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
@@ -525,6 +532,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AppAdminUsersRoute
   '/admin/workflow': typeof AppAdminWorkflowRoute
   '/admissions/$admissionId': typeof AppAdmissionsAdmissionIdRoute
+  '/admissions/dashboard': typeof AppAdmissionsDashboardRoute
   '/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
@@ -593,6 +601,7 @@ export interface FileRoutesById {
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/admin/workflow': typeof AppAdminWorkflowRoute
   '/_app/admissions/$admissionId': typeof AppAdmissionsAdmissionIdRoute
+  '/_app/admissions/dashboard': typeof AppAdmissionsDashboardRoute
   '/_app/pharmacy/business-flow': typeof AppPharmacyBusinessFlowRoute
   '/_app/pharmacy/compounding': typeof AppPharmacyCompoundingRoute
   '/_app/pharmacy/dispensing': typeof AppPharmacyDispensingRoute
@@ -661,6 +670,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/workflow'
     | '/admissions/$admissionId'
+    | '/admissions/dashboard'
     | '/pharmacy/business-flow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
@@ -725,6 +735,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/workflow'
     | '/admissions/$admissionId'
+    | '/admissions/dashboard'
     | '/pharmacy/business-flow'
     | '/pharmacy/compounding'
     | '/pharmacy/dispensing'
@@ -792,6 +803,7 @@ export interface FileRouteTypes {
     | '/_app/admin/users'
     | '/_app/admin/workflow'
     | '/_app/admissions/$admissionId'
+    | '/_app/admissions/dashboard'
     | '/_app/pharmacy/business-flow'
     | '/_app/pharmacy/compounding'
     | '/_app/pharmacy/dispensing'
@@ -1186,6 +1198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPharmacyBusinessFlowRouteImport
       parentRoute: typeof AppPharmacyRoute
     }
+    '/_app/admissions/dashboard': {
+      id: '/_app/admissions/dashboard'
+      path: '/dashboard'
+      fullPath: '/admissions/dashboard'
+      preLoaderRoute: typeof AppAdmissionsDashboardRouteImport
+      parentRoute: typeof AppAdmissionsRoute
+    }
     '/_app/admissions/$admissionId': {
       id: '/_app/admissions/$admissionId'
       path: '/$admissionId'
@@ -1307,10 +1326,12 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 
 interface AppAdmissionsRouteChildren {
   AppAdmissionsAdmissionIdRoute: typeof AppAdmissionsAdmissionIdRoute
+  AppAdmissionsDashboardRoute: typeof AppAdmissionsDashboardRoute
 }
 
 const AppAdmissionsRouteChildren: AppAdmissionsRouteChildren = {
   AppAdmissionsAdmissionIdRoute: AppAdmissionsAdmissionIdRoute,
+  AppAdmissionsDashboardRoute: AppAdmissionsDashboardRoute,
 }
 
 const AppAdmissionsRouteWithChildren = AppAdmissionsRoute._addFileChildren(
