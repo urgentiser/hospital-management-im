@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   UserPlus, Eye, MapPin, ArrowRightLeft, LogOut, Undo2, Baby, Ban, StopCircle,
   Receipt, FileText, ClipboardCheck, ShieldOff, BedDouble, Clock, ShieldAlert,
@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
+import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
+
 
 const config: ModuleConsoleConfig = {
   moduleKey: "admissions",
@@ -378,17 +380,24 @@ const config: ModuleConsoleConfig = {
   },
 };
 
+const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-admit", "emergency-admit", "no-auth-admit"]);
+
 function AdmissionsRoute() {
   const scrollAnchor = useRef<HTMLDivElement>(null);
+  const [wizardVariant, setWizardVariant] = useState<CreationVariant | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
         <AdmissionProcessSelector
           onLaunch={(process) => {
-            // Scroll the console into view; the guided-workflow tab surfaces the
-            // matching section and action key so users start on the right step.
+            if (CREATION_KEYS.has(process.key as CreationVariant)) {
+              setWizardVariant(process.key as CreationVariant);
+              setWizardOpen(true);
+              return;
+            }
             scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-            // Persist last-launched process on the URL fragment for deep links.
             if (typeof window !== "undefined") {
               window.location.hash = `#p=${process.key}`;
             }
@@ -398,9 +407,11 @@ function AdmissionsRoute() {
       <div ref={scrollAnchor}>
         <ModuleConsole config={config} />
       </div>
+      <AdmissionCreationWizard variant={wizardVariant} open={wizardOpen} onOpenChange={setWizardOpen} />
     </div>
   );
 }
+
 
 export const Route = createFileRoute("/_app/admissions")({
   head: () => ({
