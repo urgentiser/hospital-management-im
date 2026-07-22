@@ -424,6 +424,35 @@ export const admissionsService = {
     });
   },
 
+  /** §33 — GET /admissions/{id}/audit */
+  listAuditEvents(admissionId: string, correlationId?: string) {
+    return wrap<AdmissionAuditEvent[]>(correlationId, async () => {
+      const record = await base.getRecord(admissionId).catch(() => null);
+      const history = (record?.history ?? []) as Array<{ at: string; by: string; action: string; note?: string }>;
+      const categorise = (a: string): AdmissionAuditEvent["category"] => {
+        const s = a.toLowerCase();
+        if (s.includes("bed") || s.includes("ward") || s.includes("move") || s.includes("transfer")) return "Movement";
+        if (s.includes("auth") || s.includes("funding") || s.includes("scheme")) return "Funding";
+        if (s.includes("bill") || s.includes("charge") || s.includes("finalise")) return "Billing";
+        if (s.includes("document") || s.includes("note")) return "Documents";
+        if (s.includes("amend") || s.includes("correct")) return "Correction";
+        if (s.includes("discharge") || s.includes("admit") || s.includes("birth")) return "Clinical";
+        return "System";
+      };
+      return history.map((h, i) => ({
+        eventId: `${admissionId}-A${i + 1}`,
+        at: h.at,
+        actor: h.by,
+        action: h.action,
+        category: categorise(h.action),
+        outcome: "Success",
+        summary: h.note,
+      } satisfies AdmissionAuditEvent));
+    });
+  },
+
+
+
 
 
   /**
