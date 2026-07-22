@@ -287,43 +287,54 @@ function AdmissionWorkspaceRoute() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4 text-primary" />Timeline
+                  <ClipboardList className="h-4 w-4 text-primary" />Activity
                 </CardTitle>
                 <div className="text-xs text-muted-foreground">
-                  Audit trail from admission wizards, notes and status changes.
+                  Timeline and audit trail across every wizard and status change.
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                {history.length === 0 ? (
-                  <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground">
-                    <CircleDashed className="h-3.5 w-3.5" />No history yet.
-                  </div>
-                ) : (
-                  <ol className="max-h-[520px] divide-y overflow-y-auto">
-                    {[...history].reverse().map((h, i) => (
-                      <li key={i} className="flex gap-3 p-3 text-xs">
-                        <div className="flex flex-col items-center">
-                          <span className="grid h-6 w-6 place-items-center rounded-full border bg-background text-[10px] font-semibold text-primary">
-                            {history.length - i}
-                          </span>
-                          {i < history.length - 1 && <span className="mt-1 w-px flex-1 bg-border" />}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-baseline justify-between gap-2">
-                            <div className="font-medium">{h.action}</div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {new Date(h.at).toLocaleString()}
+                <Tabs defaultValue="timeline" className="w-full">
+                  <TabsList className="mx-3 mt-1 grid w-[calc(100%-1.5rem)] grid-cols-2">
+                    <TabsTrigger value="timeline" className="text-xs">Timeline</TabsTrigger>
+                    <TabsTrigger value="audit" className="text-xs">Audit</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="timeline" className="mt-0">
+                    {history.length === 0 ? (
+                      <div className="flex items-center gap-2 p-4 text-xs text-muted-foreground">
+                        <CircleDashed className="h-3.5 w-3.5" />No history yet.
+                      </div>
+                    ) : (
+                      <ol className="max-h-[500px] divide-y overflow-y-auto">
+                        {[...history].reverse().map((h, i) => (
+                          <li key={i} className="flex gap-3 p-3 text-xs">
+                            <div className="flex flex-col items-center">
+                              <span className="grid h-6 w-6 place-items-center rounded-full border bg-background text-[10px] font-semibold text-primary">
+                                {history.length - i}
+                              </span>
+                              {i < history.length - 1 && <span className="mt-1 w-px flex-1 bg-border" />}
                             </div>
-                          </div>
-                          {h.note && <div className="mt-0.5 text-muted-foreground">{h.note}</div>}
-                          <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
-                            <MapPin className="h-2.5 w-2.5" />{h.by}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                )}
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                                <div className="font-medium">{h.action}</div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  {new Date(h.at).toLocaleString()}
+                                </div>
+                              </div>
+                              {h.note && <div className="mt-0.5 text-muted-foreground">{h.note}</div>}
+                              <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                                <MapPin className="h-2.5 w-2.5" />{h.by}
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </TabsContent>
+                  <TabsContent value="audit" className="mt-0">
+                    <AuditPanel admissionId={admissionId} />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
