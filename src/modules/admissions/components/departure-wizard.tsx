@@ -528,6 +528,29 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
               <Field label="Clinical summary" className="sm:col-span-2">
                 <Textarea rows={3} value={draft.clinicalSummary} onChange={(e) => set("clinicalSummary", e.target.value)} placeholder="Optional summary that supports the discharge." />
               </Field>
+              {(draft.disposition === "Transfer out" || draft.disposition === "Step-down facility") && (
+                <>
+                  <Field label="Receiving facility" required>
+                    <Input value={draft.transferToFacility} onChange={(e) => set("transferToFacility", e.target.value)} placeholder="e.g. Life Groenkloof" />
+                  </Field>
+                  <Field label="Receiving ward">
+                    <Input value={draft.transferToWard} onChange={(e) => set("transferToWard", e.target.value)} placeholder="Optional ward name" />
+                  </Field>
+                </>
+              )}
+              {draft.disposition === "Deceased" && (
+                <>
+                  <Field label="Date/time of death" required>
+                    <Input type="datetime-local" value={draft.deathDateOfDeath} onChange={(e) => set("deathDateOfDeath", e.target.value)} />
+                  </Field>
+                  <Field label="Certified by" required>
+                    <Input value={draft.deathCertifiedBy} onChange={(e) => set("deathCertifiedBy", e.target.value)} placeholder="Attending practitioner" />
+                  </Field>
+                  <Field label="Cause of death" required className="sm:col-span-2">
+                    <Textarea rows={2} value={draft.deathCauseOfDeath} onChange={(e) => set("deathCauseOfDeath", e.target.value)} placeholder="Primary cause plus contributing factors." />
+                  </Field>
+                </>
+              )}
             </div>
           )}
 
