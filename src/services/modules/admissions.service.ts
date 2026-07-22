@@ -399,24 +399,33 @@ export const admissionsService = {
     return wrap<AdmissionReadiness>(correlationId, async () => {
       // Mock: reflect the current workflow record state as readiness.
       const record = await base.getRecord(admissionId).catch(() => null);
-      const state = ((record as unknown as { status?: string })?.status ?? "admitted") as AdmissionReadiness["state"];
+      const raw = ((record as unknown as { status?: string })?.status ?? "admitted").toLowerCase();
+      const stateMap: Record<string, AdmissionReadiness["state"]> = {
+        admitted: "Admitted", pending: "PendingReadiness", discharged: "Discharged",
+        finalised: "Finalised", cancelled: "Cancelled", discontinued: "Discontinued",
+      };
+      const state = stateMap[raw] ?? "Admitted";
       const isDischarged = state === "Discharged";
       const isFinalised = state === "Finalised";
+      const isTerminal = state === "Cancelled" || state === "Discontinued";
       return {
         admissionId,
         version: newVersion(),
         state,
-        availableActions: isFinalised
-          ? ["ViewStatement", "ViewTimeline", "ViewAudit", "ViewDocuments"]
-          : isDischarged
-            ? ["ManageBillingChecks", "FinaliseBill", "ViewStatement", "ViewTimeline", "ViewDocuments", "ViewAudit"]
-            : [
-                "OpenAdmission", "AllocateBed", "CaptureAuthorisation", "ChangePractitioner",
-                "MoveToWard", "AddMiscellaneousCharge", "StartDischarge", "UpdateAdmission",
-                "ViewTimeline", "ViewDocuments", "ViewAudit",
-              ],
-        dischargeReadiness: isFinalised ? "Ready" : isDischarged ? "Ready" : "NotReady",
-        billingChecksStatus: isFinalised ? "Clear" : isDischarged ? "Pending" : "Pending",
+        availableActions: isTerminal
+          ? ["ViewTimeline", "ViewAudit", "ViewDocuments"]
+          : isFinalised
+            ? ["ViewStatement", "ViewTimeline", "ViewAudit", "ViewDocuments"]
+            : isDischarged
+              ? ["ManageBillingChecks", "FinaliseBill", "ViewStatement", "ViewTimeline", "ViewDocuments", "ViewAudit", "UndischargeEuPatient"]
+              : [
+                  "OpenAdmission", "AllocateBed", "MoveToWard", "CaptureAuthorisation",
+                  "ChangePractitioner", "RegisterBirth", "AddMiscellaneousCharge",
+                  "StartDischarge", "UpdateAdmission", "CancelAdmission", "DiscontinueAdmission",
+                  "ViewTimeline", "ViewDocuments", "ViewAudit",
+                ],
+        dischargeReadiness: isFinalised || isDischarged ? "Ready" : "NotReady",
+        billingChecksStatus: isFinalised ? "Clear" : "Pending",
         blockingChecksCount: isDischarged && !isFinalised ? 1 : 0,
         warningChecksCount: isDischarged && !isFinalised ? 2 : 1,
         authorisationStatus: "Approved",
