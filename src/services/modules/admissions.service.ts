@@ -33,6 +33,7 @@ import type {
   ManageBillingCheckRequest,
   FinaliseBillRequest,
   FinaliseBillResult,
+  BillingCheckItem,
   PreDischargeReviewResult,
   PreDischargeReviewItem,
   AmendAdmissionRequest,
@@ -58,6 +59,14 @@ const newCorrelation = () =>
     : `corr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`);
 
 const newVersion = () => `v${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+const hash = (s: string) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return h;
+};
 
 /**
  * Idempotency ledger. In mock mode we memoise the previous result for a
@@ -295,11 +304,28 @@ export const admissionsService = {
     });
   },
 
+  /** §33 — GET /admissions/{id}/billing-checks */
+  listBillingChecks(admissionId: string, correlationId?: string) {
+    return wrap<BillingCheckItem[]>(correlationId, async () => {
+      const seed = admissionId || "ADM";
+      const rand = (n: number) => Math.abs(hash(seed + n)) % 100;
+      const pool: BillingCheckItem[] = [
+        { checkId: `${seed}-BC-1`, admissionId, checkType: "MissingAccommodation",     severity: "Blocking", module: "Wards",     description: "Open accommodation period without close-out.", owner: "Ward clerk",   createdDate: today(), status: "Open" },
+        { checkId: `${seed}-BC-2`, admissionId, checkType: "MissingClinicalCoding",    severity: "Blocking", module: "Coding",    description: "Discharge summary present but ICD-10 codes not captured.", owner: "Clinical coder", createdDate: today(), status: "Open" },
+        { checkId: `${seed}-BC-3`, admissionId, checkType: "AuthorisationStayMismatch", severity: "Warning", module: "Case Mgmt", description: "Approved stay ends before captured discharge date.", owner: "Case manager",  createdDate: today(), status: "Open" },
+        { checkId: `${seed}-BC-4`, admissionId, checkType: "OutstandingPharmacyItems", severity: "Warning", module: "Pharmacy",  description: "Dispensed items not yet charged to the visit.", owner: "Pharmacy tech", createdDate: today(), status: "Open" },
+        { checkId: `${seed}-BC-5`, admissionId, checkType: "MissingDocuments",         severity: "Info",    module: "Documents", description: "Consent form scan pending upload.", owner: "Ward clerk",   createdDate: today(), status: "Open" },
+      ];
+      // Deterministic subset per admission to make polling stable.
+      return pool.filter((_, i) => rand(i) < 80);
+    });
+  },
+
   /** §33 — PATCH /admissions/{id}/billing-checks/{checkId} */
   manageBillingCheck(req: ManageBillingCheckRequest) {
     return wrap<void>(req.correlationId, async () => {
       const label =
-        req.resolution === "Override" ? "overridden"
+        req.resolution === "Override" ? `overridden by ${req.overrideApproverId ?? "approver"}`
         : req.resolution === "Reassign" ? `reassigned to ${req.reassignToUserId ?? "team"}`
         : "resolved";
       await base.addNote(
@@ -316,14 +342,25 @@ export const admissionsService = {
       if (req.billingNarrative) {
         await base.addNote(req.admissionId, `Finalise bill: ${req.billingNarrative}`);
       }
+      if (req.overriddenChecks.length) {
+        await base.addNote(
+          req.admissionId,
+          `Bill finalised with ${req.overriddenChecks.length} overridden blocking check(s): ${req.overriddenChecks
+            .map((o) => `${o.checkId} (${o.approverId})`)
+            .join(", ")}`,
+        );
+      }
       const billNumber = `BILL-${Date.now().toString(36).slice(-6).toUpperCase()}`;
       const totalAmountZar = Math.round((15000 + Math.random() * 85000) * 100) / 100;
+      const lineItemCount = 6 + Math.floor(Math.random() * 24);
       return {
         admissionId: req.admissionId,
         billNumber,
         finalisedAt: req.finalisedAt,
         totalAmountZar,
+        lineItemCount,
         blockingChecksRemaining: 0,
+        version: newVersion(),
       } satisfies FinaliseBillResult;
     });
   },

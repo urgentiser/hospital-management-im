@@ -31,9 +31,10 @@ import { cn } from "@/lib/utils";
 import { FACILITIES } from "@/lib/facility-context";
 import { admissionsService } from "@/services/modules/admissions.service";
 import type {
-  BillingCheckItem, FinaliseBillRequest, ManageBillingCheckRequest,
-  MiscellaneousChargeRequest,
+  BillingCheckItem, BillingCheckOverride, FinaliseBillRequest,
+  ManageBillingCheckRequest, MiscellaneousChargeRequest,
 } from "@/modules/admissions/contracts";
+import { Loader2 } from "lucide-react";
 
 export type FinancialVariant = "misc-charge" | "billing-checks" | "finalise-bill";
 
@@ -48,13 +49,7 @@ const CHARGE_TYPES = [
   "Sundry", "Interpreter", "Special investigation", "Other",
 ];
 
-/** Mock outstanding billing checks — in a real app this comes from the loader. */
-const MOCK_CHECKS: BillingCheckItem[] = [
-  { checkId: "BC-1", admissionId: "ADM-000", checkType: "MissingAccommodation",     severity: "Blocking", module: "Wards",     description: "Ward 3B has an open accommodation period without close-out.", owner: "Ward clerk",   createdDate: "2026-07-20", status: "Open" },
-  { checkId: "BC-2", admissionId: "ADM-000", checkType: "MissingClinicalCoding",    severity: "Blocking", module: "Coding",    description: "Discharge summary present but ICD-10 codes not captured.",    owner: "Clinical coder", createdDate: "2026-07-20", status: "Open" },
-  { checkId: "BC-3", admissionId: "ADM-000", checkType: "AuthorisationStayMismatch", severity: "Warning", module: "Case Mgmt", description: "Approved stay ends 2026-07-22 but discharge captured 2026-07-23.", owner: "Case manager",  createdDate: "2026-07-21", status: "Open" },
-  { checkId: "BC-4", admissionId: "ADM-000", checkType: "OutstandingPharmacyItems", severity: "Warning", module: "Pharmacy",  description: "2 dispensed items not yet charged to the visit.",             owner: "Pharmacy tech", createdDate: "2026-07-21", status: "Open" },
-];
+type OverrideEntry = BillingCheckOverride;
 
 type Draft = {
   admissionId: string;
@@ -66,8 +61,9 @@ type Draft = {
   quantity: string;
   amountZar: string;
   chargeReason: string;
-  // billing-checks
+  // billing-checks / finalise
   checks: BillingCheckItem[];
+  checksLoading: boolean;
   selectedCheckId: string;
   resolution: ManageBillingCheckRequest["resolution"];
   resolutionNote: string;
@@ -77,7 +73,7 @@ type Draft = {
   finalisedAt: string;
   closeAccommodation: boolean;
   clinicalCodingSignedOff: boolean;
-  overriddenCheckIds: string[];
+  overrides: OverrideEntry[];
   billingNarrative: string;
 };
 
@@ -87,10 +83,10 @@ const EMPTY: Draft = {
   admissionId: "", facilityId: FACILITIES[0] ?? "",
   chargeType: "Consumable", serviceDate: today(), description: "",
   quantity: "1", amountZar: "0.00", chargeReason: "",
-  checks: MOCK_CHECKS, selectedCheckId: "", resolution: "Resolve",
+  checks: [], checksLoading: false, selectedCheckId: "", resolution: "Resolve",
   resolutionNote: "", overrideApproverId: "", reassignToUserId: "",
   finalisedAt: today(), closeAccommodation: true, clinicalCodingSignedOff: false,
-  overriddenCheckIds: [], billingNarrative: "",
+  overrides: [], billingNarrative: "",
 };
 
 type StepDef = { key: string; title: string; hint: string };
@@ -120,9 +116,18 @@ function stepsFor(variant: FinancialVariant): StepDef[] {
   }
 }
 
-type Props = { variant: FinancialVariant | null; open: boolean; onOpenChange: (v: boolean) => void; onCompleted?: () => void };
+type Props = {
+  variant: FinancialVariant | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onCompleted?: () => void;
+  /** Prefill admission id when opened from an Admission Workspace. */
+  initialAdmissionId?: string;
+  /** Latest server version token; sent as ifMatchVersion for optimistic concurrency. */
+  ifMatchVersion?: string;
+};
 
-export function AdmissionFinancialWizard({ variant, open, onOpenChange, onCompleted }: Props) {
+export function AdmissionFinancialWizard({ variant, open, onOpenChange, onCompleted, initialAdmissionId, ifMatchVersion }: Props) {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [stepIdx, setStepIdx] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -131,7 +136,41 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
   const steps = useMemo(() => (variant ? stepsFor(variant) : []), [variant]);
   const meta = variant ? META[variant] : null;
 
-  useEffect(() => { if (open) { setDraft(EMPTY); setStepIdx(0); setProblem(null); } }, [open, variant]);
+  useEffect(() => {
+    if (open) {
+      setDraft({ ...EMPTY, admissionId: initialAdmissionId ?? "" });
+      setStepIdx(0);
+      setProblem(null);
+    }
+  }, [open, variant, initialAdmissionId]);
+
+  const overrideMap = useMemo(
+    () => new Map(draft.overrides.map((o) => [o.checkId, o])),
+    [draft.overrides],
+  );
+
+  // Auto-load outstanding checks when relevant steps are reached with an admission id.
+  const needsChecks = variant === "billing-checks" || variant === "finalise-bill";
+  const currentKey = steps[stepIdx]?.key;
+  useEffect(() => {
+    if (!open || !needsChecks) return;
+    if (!draft.admissionId.trim()) return;
+    if (currentKey !== "select" && currentKey !== "readiness") return;
+    if (draft.checks.length > 0 || draft.checksLoading) return;
+    let cancelled = false;
+    (async () => {
+      setDraft((d) => ({ ...d, checksLoading: true }));
+      const r = await admissionsService.listBillingChecks(draft.admissionId);
+      if (cancelled) return;
+      setDraft((d) => ({
+        ...d,
+        checksLoading: false,
+        checks: r.ok ? r.data : [],
+      }));
+      if (!r.ok) setProblem(r.problem.detail ?? r.problem.title);
+    })();
+    return () => { cancelled = true; };
+  }, [open, needsChecks, currentKey, draft.admissionId, draft.checks.length, draft.checksLoading]);
 
   if (!variant || !meta) return null;
 
@@ -142,6 +181,7 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
   const selectedCheck = draft.checks.find((c) => c.checkId === draft.selectedCheckId);
   const blockingOpen = draft.checks.filter((c) => c.severity === "Blocking" && c.status === "Open");
   const totalCharge = (Number(draft.quantity || "0") * Number(draft.amountZar || "0")) || 0;
+  const overrideComplete = (o: OverrideEntry | undefined) => !!o && !!o.reason.trim() && !!o.approverId.trim();
 
   const canAdvance = (() => {
     if (!currentStep) return false;
@@ -158,7 +198,7 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
         return true;
       case "readiness":
         return draft.clinicalCodingSignedOff
-          && blockingOpen.every((c) => draft.overriddenCheckIds.includes(c.checkId));
+          && blockingOpen.every((c) => overrideComplete(overrideMap.get(c.checkId)));
       case "finalise": return !!draft.finalisedAt;
       case "review": return true;
       default: return true;
@@ -188,6 +228,7 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
           resolutionNote: draft.resolutionNote,
           overrideApproverId: draft.overrideApproverId || undefined,
           reassignToUserId: draft.reassignToUserId || undefined,
+          ifMatchVersion,
         };
         r = await admissionsService.manageBillingCheck(req);
       } else {
@@ -196,8 +237,9 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
           finalisedAt: draft.finalisedAt,
           closeAccommodation: draft.closeAccommodation,
           clinicalCodingSignedOff: draft.clinicalCodingSignedOff,
-          outstandingChecksOverridden: draft.overriddenCheckIds,
+          overriddenChecks: draft.overrides.filter((o) => blockingOpen.some((c) => c.checkId === o.checkId)),
           billingNarrative: draft.billingNarrative || undefined,
+          ifMatchVersion,
         };
         r = await admissionsService.finaliseBill(req);
       }
@@ -213,11 +255,20 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
   const Icon = meta.icon;
 
   const toggleOverride = (id: string) => {
+    setDraft((d) => {
+      const exists = d.overrides.some((o) => o.checkId === id);
+      return {
+        ...d,
+        overrides: exists
+          ? d.overrides.filter((o) => o.checkId !== id)
+          : [...d.overrides, { checkId: id, reason: "", approverId: "" }],
+      };
+    });
+  };
+  const patchOverride = (id: string, patch: Partial<OverrideEntry>) => {
     setDraft((d) => ({
       ...d,
-      overriddenCheckIds: d.overriddenCheckIds.includes(id)
-        ? d.overriddenCheckIds.filter((x) => x !== id)
-        : [...d.overriddenCheckIds, id],
+      overrides: d.overrides.map((o) => (o.checkId === id ? { ...o, ...patch } : o)),
     }));
   };
 
@@ -314,6 +365,16 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
 
           {currentStep?.key === "select" && (
             <div className="space-y-2">
+              {draft.checksLoading && (
+                <div className="flex items-center gap-2 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading outstanding checks…
+                </div>
+              )}
+              {!draft.checksLoading && draft.checks.length === 0 && (
+                <div className="rounded-lg border bg-emerald-500/5 p-3 text-xs text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="mr-1 inline h-3.5 w-3.5" /> No outstanding billing checks for this admission.
+                </div>
+              )}
               {draft.checks.map((c) => {
                 const selected = draft.selectedCheckId === c.checkId;
                 return (
@@ -394,21 +455,42 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
                 ) : (
                   <div className="space-y-2">
                     {blockingOpen.map((c) => {
-                      const overridden = draft.overriddenCheckIds.includes(c.checkId);
+                      const entry = overrideMap.get(c.checkId);
+                      const overridden = !!entry;
+                      const complete = overrideComplete(entry);
                       return (
-                        <div key={c.checkId} className={cn("flex items-start gap-2 rounded-lg border p-3 text-xs",
-                          overridden && "border-emerald-500/40 bg-emerald-500/5")}>
-                          <Checkbox id={`ov-${c.checkId}`} checked={overridden}
-                            onCheckedChange={() => toggleOverride(c.checkId)} />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <SeverityBadge severity={c.severity} />
-                              <Label htmlFor={`ov-${c.checkId}`} className="text-xs font-medium">
-                                Override — {c.checkType.replace(/([A-Z])/g, " $1").trim()}
-                              </Label>
+                        <div key={c.checkId} className={cn("space-y-2 rounded-lg border p-3 text-xs",
+                          overridden && complete && "border-emerald-500/40 bg-emerald-500/5",
+                          overridden && !complete && "border-amber-500/40 bg-amber-500/5")}>
+                          <div className="flex items-start gap-2">
+                            <Checkbox id={`ov-${c.checkId}`} checked={overridden}
+                              onCheckedChange={() => toggleOverride(c.checkId)} />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <SeverityBadge severity={c.severity} />
+                                <Label htmlFor={`ov-${c.checkId}`} className="text-xs font-medium">
+                                  Override — {c.checkType.replace(/([A-Z])/g, " $1").trim()}
+                                </Label>
+                              </div>
+                              <div className="text-muted-foreground">{c.description}</div>
                             </div>
-                            <div className="text-muted-foreground">{c.description}</div>
                           </div>
+                          {overridden && (
+                            <div className="grid gap-2 pl-6 sm:grid-cols-2">
+                              <div>
+                                <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Approver <span className="text-rose-500">*</span></Label>
+                                <Input className="h-8 text-xs" value={entry?.approverId ?? ""}
+                                  onChange={(e) => patchOverride(c.checkId, { approverId: e.target.value })}
+                                  placeholder="Manager / delegate" />
+                              </div>
+                              <div>
+                                <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Override reason <span className="text-rose-500">*</span></Label>
+                                <Input className="h-8 text-xs" value={entry?.reason ?? ""}
+                                  onChange={(e) => patchOverride(c.checkId, { reason: e.target.value })}
+                                  placeholder="Why this blocking check is being overridden" />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -523,7 +605,7 @@ function ReviewSummary({ draft, variant, total }: { draft: Draft; variant: Finan
           ["Finalised at", draft.finalisedAt],
           ["Close accommodation", draft.closeAccommodation ? "Yes" : "No"],
           ["Coding signed off", draft.clinicalCodingSignedOff ? "Yes" : "No"],
-          ["Overridden checks", draft.overriddenCheckIds.length ? draft.overriddenCheckIds.join(", ") : "None"],
+          ["Overridden checks", draft.overrides.length ? draft.overrides.map((o) => `${o.checkId} (${o.approverId || "no approver"})`).join(", ") : "None"],
           ["Narrative", draft.billingNarrative || "—"],
         ];
     }
