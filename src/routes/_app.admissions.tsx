@@ -378,6 +378,30 @@ const config: ModuleConsoleConfig = {
   },
 };
 
+function AdmissionsRoute() {
+  const scrollAnchor = useRef<HTMLDivElement>(null);
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
+        <AdmissionProcessSelector
+          onLaunch={(process) => {
+            // Scroll the console into view; the guided-workflow tab surfaces the
+            // matching section and action key so users start on the right step.
+            scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            // Persist last-launched process on the URL fragment for deep links.
+            if (typeof window !== "undefined") {
+              window.location.hash = `#p=${process.key}`;
+            }
+          }}
+        />
+      </div>
+      <div ref={scrollAnchor}>
+        <ModuleConsole config={config} />
+      </div>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/_app/admissions")({
   head: () => ({
     meta: [
@@ -385,5 +409,5 @@ export const Route = createFileRoute("/_app/admissions")({
       { name: "description", content: config.description },
     ],
   }),
-  component: () => <ModuleConsole config={config} />,
+  component: AdmissionsRoute,
 });
