@@ -124,16 +124,6 @@ function AdmissionsRoute() {
   const [depVariant, setDepVariant] = useState<DepartureVariant | null>(null);
   const [depOpen, setDepOpen] = useState(false);
 
-  // Live KPI feed from the same service the worklist uses.
-  const { data } = useModuleList("admissions", { page: 1, pageSize: 500, filters: {} });
-  const kpis = useMemo(() => {
-    const items = data?.items ?? [];
-    const admitted = items.filter((i) => i.status === "admitted").length;
-    const pending = items.filter((i) => i.status === "pending").length;
-    const discharged = items.filter((i) => i.status === "discharged").length;
-    const noAuth = items.filter((i) => String(i.fields["Auth"] ?? "").toLowerCase() === "none").length;
-    return { admitted, pending, discharged, noAuth };
-  }, [data]);
 
   // Aliases for registry keys that map onto an existing wizard variant.
   const FUNDING_ALIASES: Record<string, FundingVariant> = {
