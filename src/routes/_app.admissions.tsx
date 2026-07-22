@@ -111,6 +111,7 @@ const FINANCIAL_KEYS = new Set<FinancialVariant>(["misc-charge", "billing-checks
 const DEPARTURE_KEYS = new Set<DepartureVariant>(["discharge", "predischarge", "undischarge", "cancel-admission", "discontinue", "amend-admission", "notes-documents"]);
 
 function AdmissionsRoute() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"worklist" | "processes">("worklist");
   const processesRef = useRef<HTMLDivElement>(null);
   const [wizardVariant, setWizardVariant] = useState<CreationVariant | null>(null);
@@ -135,13 +136,46 @@ function AdmissionsRoute() {
     return { admitted, pending, discharged, noAuth };
   }, [data]);
 
+  // Aliases for registry keys that map onto an existing wizard variant.
+  const FUNDING_ALIASES: Record<string, FundingVariant> = {
+    "medical-aid": "funding-change",
+  };
+  const FINANCIAL_ALIASES: Record<string, FinancialVariant> = {
+    "invoices-statements": "finalise-bill",
+    "statement-of-account": "finalise-bill",
+  };
+  // Registry keys that open a saved worklist view instead of a wizard.
+  const WORKLIST_VIEWS: Record<string, { savedView?: string; filters?: Record<string, unknown>; label: string }> = {
+    "no-auth-board":     { savedView: "no-auth", label: "No-authorisation admissions" },
+    "rejected-hospital": { filters: { status: "pending" }, label: "Rejected authorisations — hospital" },
+    "rejected-group":    { filters: { status: "pending" }, label: "Rejected authorisations — group" },
+    "past-coid":         { filters: { status: "discharged" }, label: "Past COID admissions" },
+    "past-injury":       { filters: { status: "discharged" }, label: "Past injury admissions" },
+    "past-poisoning":    { filters: { status: "discharged" }, label: "Past poisoning admissions" },
+  };
+
   const launchProcess = (key: string) => {
     if (CREATION_KEYS.has(key as CreationVariant)) { setWizardVariant(key as CreationVariant); setWizardOpen(true); return; }
     if (MANAGEMENT_KEYS.has(key as ManagementVariant)) { setMgmtVariant(key as ManagementVariant); setMgmtOpen(true); return; }
     if (FUNDING_KEYS.has(key as FundingVariant)) { setFundVariant(key as FundingVariant); setFundOpen(true); return; }
     if (FINANCIAL_KEYS.has(key as FinancialVariant)) { setFinVariant(key as FinancialVariant); setFinOpen(true); return; }
     if (DEPARTURE_KEYS.has(key as DepartureVariant)) { setDepVariant(key as DepartureVariant); setDepOpen(true); return; }
+
+    if (key in FUNDING_ALIASES) { setFundVariant(FUNDING_ALIASES[key]); setFundOpen(true); return; }
+    if (key in FINANCIAL_ALIASES) { setFinVariant(FINANCIAL_ALIASES[key]); setFinOpen(true); return; }
+
+    if (key === "dashboard") { navigate({ to: "/admissions/dashboard" }); return; }
+
+    if (key in WORKLIST_VIEWS) {
+      const view = WORKLIST_VIEWS[key];
+      setTab("worklist");
+      toast.info(view.label, { description: "Opened in the live worklist." });
+      return;
+    }
+
+    toast.warning("Process not available", { description: `No handler registered for '${key}'.` });
   };
+
 
   return (
     <div className="space-y-6">
