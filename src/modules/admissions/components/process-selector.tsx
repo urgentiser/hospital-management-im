@@ -27,6 +27,7 @@ type Props = {
 export function AdmissionProcessSelector({ onLaunch }: Props) {
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState<AdmissionProcessGroupKey | "all">("all");
+  const { principal } = useAuth();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -57,7 +58,7 @@ export function AdmissionProcessSelector({ onLaunch }: Props) {
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Admissions processes</h2>
           <p className="text-sm text-muted-foreground">
-            Launch a guided workflow. All 22 admission processes are grouped by operating cluster.
+            Launch a guided Admissions process. Processes are grouped by operational area.
           </p>
         </div>
         <div className="relative w-full sm:w-72">
