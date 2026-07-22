@@ -26,6 +26,10 @@ import type {
   NoAuthorisationAdmissionRequest,
   RegisterBirthRequest,
   UndischargeAdmissionRequest,
+  CaptureAuthorisationRequest,
+  ChangeFundingRequest,
+  AuthorisationDetail,
+  FundingDetail,
 } from "@/modules/admissions/contracts";
 
 const base = createModuleService({
