@@ -503,8 +503,8 @@ export function AdmissionCreationWizard({ variant, open, onOpenChange, onComplet
                 <Field label="ID / Passport" required><Input value={draft.newIdOrPassport} onChange={(e) => set("newIdOrPassport", e.target.value)} /></Field>
                 <Field label="Date of birth"><Input type="date" value={draft.newDob} onChange={(e) => set("newDob", e.target.value)} /></Field>
                 <Field label="Sex">
-                  <SelectBox value={draft.newSex} onChange={(v) => set("newSex", v as Draft["newSex"])}
-                    options={[{ value: "", label: "—" }, { value: "F", label: "Female" }, { value: "M", label: "Male" }, { value: "X", label: "Other" }]} />
+                  <SelectBox value={draft.newSex || "unspecified"} onChange={(v) => set("newSex", (v === "unspecified" ? "" : v) as Draft["newSex"])}
+                    options={[{ value: "unspecified", label: "—" }, { value: "F", label: "Female" }, { value: "M", label: "Male" }, { value: "X", label: "Other" }]} />
                 </Field>
                 <div className="sm:col-span-2 rounded-lg border bg-emerald-500/5 p-3 text-[11px] text-emerald-800 dark:text-emerald-200">
                   This creates a lightweight patient record. Full demographics can be completed from Patient Maintenance later without leaving this admission.
