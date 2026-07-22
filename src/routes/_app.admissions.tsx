@@ -380,17 +380,24 @@ const config: ModuleConsoleConfig = {
   },
 };
 
+const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-admit", "emergency-admit", "no-auth-admit"]);
+
 function AdmissionsRoute() {
   const scrollAnchor = useRef<HTMLDivElement>(null);
+  const [wizardVariant, setWizardVariant] = useState<CreationVariant | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
         <AdmissionProcessSelector
           onLaunch={(process) => {
-            // Scroll the console into view; the guided-workflow tab surfaces the
-            // matching section and action key so users start on the right step.
+            if (CREATION_KEYS.has(process.key as CreationVariant)) {
+              setWizardVariant(process.key as CreationVariant);
+              setWizardOpen(true);
+              return;
+            }
             scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-            // Persist last-launched process on the URL fragment for deep links.
             if (typeof window !== "undefined") {
               window.location.hash = `#p=${process.key}`;
             }
@@ -400,9 +407,11 @@ function AdmissionsRoute() {
       <div ref={scrollAnchor}>
         <ModuleConsole config={config} />
       </div>
+      <AdmissionCreationWizard variant={wizardVariant} open={wizardOpen} onOpenChange={setWizardOpen} />
     </div>
   );
 }
+
 
 export const Route = createFileRoute("/_app/admissions")({
   head: () => ({
