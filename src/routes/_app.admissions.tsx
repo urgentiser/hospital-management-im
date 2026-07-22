@@ -180,6 +180,7 @@ function AdmissionsRoute() {
 
   return (
     <div className="space-y-6">
+      <PatientBanner />
       {/* Header — compact, single row of business priorities */}
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
         <div className="min-w-0">
