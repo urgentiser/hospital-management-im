@@ -622,5 +622,19 @@ export type AdmissionCommandResult<T> =
         /** Server-current version on a 409 concurrency conflict. */
         currentVersion?: string;
       };
-    };
+
+/** §33 — Audit event returned by GET /admissions/{id}/audit */
+export type AdmissionAuditEvent = {
+  eventId: string;
+  at: string;
+  actor: string;
+  actorRole?: string;
+  action: string;
+  category: "Clinical" | "Movement" | "Funding" | "Billing" | "Documents" | "System" | "Correction";
+  outcome: "Success" | "Warning" | "Failure";
+  ifMatchVersion?: string;
+  correlationId?: string;
+  summary?: string;
+};
+
 
