@@ -384,6 +384,9 @@ export const admissionsService = {
         `Document attached: ${req.kind} — ${req.filename}${size}${req.description ? ` · ${req.description}` : ""}`,
       );
     });
+  },
+
+
 
   /**
    * §33 — GET /admissions/{id}/readiness
