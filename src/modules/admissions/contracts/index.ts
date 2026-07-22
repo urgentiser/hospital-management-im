@@ -402,6 +402,38 @@ export type MiscellaneousChargeRequest = {
   correlationId?: string;
 };
 
+export type CaptureAuthorisationRequest = {
+  admissionId: string;
+  authorisationNumber?: string;
+  status: AuthorisationStatus;
+  scheme?: string;
+  administrator?: string;
+  requestedStay?: { from: string; to: string };
+  approvedStay?: { from: string; to: string };
+  requestedTreatment?: string;
+  approvedTreatment?: string;
+  expiry?: string;
+  noAuthReason?: NoAuthReason;
+  followUpOwnerId?: string;
+  followUpDate?: string;
+  notes?: string;
+  correlationId?: string;
+};
+
+export type ChangeFundingRequest = {
+  admissionId: string;
+  method: FundingMethod;
+  scheme?: string;
+  administrator?: string;
+  planOption?: string;
+  membershipNumber?: string;
+  dependantCode?: string;
+  principalMemberName?: string;
+  effectiveDate?: string;
+  reason: string;
+  correlationId?: string;
+};
+
 /* ─── Result envelopes ─────────────────────────────────────────────── */
 
 export type AdmissionCommandResult<T> =

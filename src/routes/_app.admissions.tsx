@@ -9,6 +9,7 @@ import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-con
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
+import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admissions/components/funding-wizard";
 
 
 const config: ModuleConsoleConfig = {
@@ -383,6 +384,7 @@ const config: ModuleConsoleConfig = {
 
 const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-admit", "emergency-admit", "no-auth-admit"]);
 const MANAGEMENT_KEYS = new Set<ManagementVariant>(["view-admission", "patient-location", "allocate-bed", "move-ward", "change-practitioner", "register-birth"]);
+const FUNDING_KEYS = new Set<FundingVariant>(["capture-auth", "funding-change", "auth-enquiry"]);
 
 function AdmissionsRoute() {
   const scrollAnchor = useRef<HTMLDivElement>(null);
@@ -390,6 +392,8 @@ function AdmissionsRoute() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [mgmtVariant, setMgmtVariant] = useState<ManagementVariant | null>(null);
   const [mgmtOpen, setMgmtOpen] = useState(false);
+  const [fundVariant, setFundVariant] = useState<FundingVariant | null>(null);
+  const [fundOpen, setFundOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -406,6 +410,11 @@ function AdmissionsRoute() {
               setMgmtOpen(true);
               return;
             }
+            if (FUNDING_KEYS.has(process.key as FundingVariant)) {
+              setFundVariant(process.key as FundingVariant);
+              setFundOpen(true);
+              return;
+            }
             scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
             if (typeof window !== "undefined") {
               window.location.hash = `#p=${process.key}`;
@@ -418,6 +427,7 @@ function AdmissionsRoute() {
       </div>
       <AdmissionCreationWizard variant={wizardVariant} open={wizardOpen} onOpenChange={setWizardOpen} />
       <AdmissionManagementWizard variant={mgmtVariant} open={mgmtOpen} onOpenChange={setMgmtOpen} />
+      <AdmissionFundingWizard variant={fundVariant} open={fundOpen} onOpenChange={setFundOpen} />
     </div>
   );
 }

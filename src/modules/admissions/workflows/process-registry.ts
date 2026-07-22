@@ -70,6 +70,7 @@ export const admissionProcesses: AdmissionProcessDef[] = [
   // Funding
   { key: "capture-auth",       label: "Capture authorisation",        description: "Record or link an authorisation for an active admission.",     icon: ShieldAlert, group: "funding",       sectionKey: "authorisation", actionKey: "no-auth", permission: "manage" },
   { key: "funding-change",     label: "Change funding",               description: "Update funding method, scheme or guarantor details.",         icon: Wallet,     group: "funding",        sectionKey: "movement", actionKey: "view-admission", permission: "manage" },
+  { key: "auth-enquiry",       label: "Authorisation enquiry",        description: "Look up authorisations across facilities and schemes.",       icon: ClipboardList, group: "funding",    sectionKey: "authorisation", actionKey: "no-auth-admissions", permission: "view" },
 
   // Financial
   { key: "misc-charge",        label: "Add miscellaneous charge",     description: "Capture a bill-side miscellaneous charge on the admission.",  icon: Receipt,    group: "financial",      sectionKey: "billing", actionKey: "view-admission", permission: "manage" },
