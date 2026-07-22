@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   UserPlus, Eye, MapPin, ArrowRightLeft, LogOut, Undo2, Baby, Ban, StopCircle,
   Receipt, FileText, ClipboardCheck, ShieldOff, BedDouble, Clock, ShieldAlert,
@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
+import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
+
 
 const config: ModuleConsoleConfig = {
   moduleKey: "admissions",
