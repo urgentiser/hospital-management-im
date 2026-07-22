@@ -194,13 +194,6 @@ function AdmissionsRoute() {
         </div>
       </header>
 
-      {/* KPI row — what business asks first */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KpiCard label="Currently admitted" value={kpis.admitted} icon={BedDouble} tone="success" />
-        <KpiCard label="Pending admission" value={kpis.pending} icon={Clock} tone="warning" />
-        <KpiCard label="No-auth flagged" value={kpis.noAuth} icon={ShieldAlert} tone="destructive" hint="Requires funding intervention" />
-        <KpiCard label="Discharged today" value={kpis.discharged} icon={LogOut} tone="info" />
-      </div>
 
       {/* Focus tabs — Worklist first (default), Processes on demand */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as "worklist" | "processes")} className="space-y-4">
