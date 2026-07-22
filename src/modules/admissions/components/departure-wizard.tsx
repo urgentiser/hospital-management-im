@@ -824,7 +824,7 @@ function ReviewSummary({ draft, variant, today }: { draft: Draft; variant: Depar
           ["Disposition", draft.disposition],
           ["Destination", draft.destination || "—"],
           ["Responsible practitioner", draft.responsiblePractitionerId],
-          ["Overrides", draft.overrideChecks.length ? draft.overrideChecks.join(", ") : "None"],
+          ["Overrides", draft.overrideChecks.length ? draft.overrideChecks.map((o) => `${o.itemId} (${o.approverId || "no approver"})`).join(", ") : "None"],
           ["Reason", draft.dischargeReason],
         ];
       case "predischarge":
