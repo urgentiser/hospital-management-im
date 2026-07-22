@@ -384,7 +384,85 @@ export const admissionsService = {
         `Document attached: ${req.kind} — ${req.filename}${size}${req.description ? ` · ${req.description}` : ""}`,
       );
     });
+
+  /**
+   * §33 — GET /admissions/{id}/readiness
+   *
+   * Backend-authoritative readiness. Never derive `availableActions` or
+   * `dischargeReadiness` client-side; poll this after every mutation and
+   * feed the result into the workspace and Process Selector.
+   */
+  getReadiness(admissionId: string, correlationId?: string) {
+    return wrap<AdmissionReadiness>(correlationId, async () => {
+      // Mock: reflect the current workflow record state as readiness.
+      const record = await base.getRecord(admissionId).catch(() => null);
+      const state = ((record as unknown as { status?: string })?.status ?? "admitted") as AdmissionReadiness["state"];
+      const isDischarged = state === "Discharged";
+      const isFinalised = state === "Finalised";
+      return {
+        admissionId,
+        version: newVersion(),
+        state,
+        availableActions: isFinalised
+          ? ["ViewStatement", "ViewTimeline", "ViewAudit", "ViewDocuments"]
+          : isDischarged
+            ? ["ManageBillingChecks", "FinaliseBill", "ViewStatement", "ViewTimeline", "ViewDocuments", "ViewAudit"]
+            : [
+                "OpenAdmission", "AllocateBed", "CaptureAuthorisation", "ChangePractitioner",
+                "MoveToWard", "AddMiscellaneousCharge", "StartDischarge", "UpdateAdmission",
+                "ViewTimeline", "ViewDocuments", "ViewAudit",
+              ],
+        dischargeReadiness: isFinalised ? "Ready" : isDischarged ? "Ready" : "NotReady",
+        billingChecksStatus: isFinalised ? "Clear" : isDischarged ? "Pending" : "Pending",
+        blockingChecksCount: isDischarged && !isFinalised ? 1 : 0,
+        warningChecksCount: isDischarged && !isFinalised ? 2 : 1,
+        authorisationStatus: "Approved",
+        memberValidationStatus: "Verified",
+        updatedAt: new Date().toISOString(),
+      } satisfies AdmissionReadiness;
+    });
+  },
+
+  /**
+   * §33 — GET /facilities/{id}/beds/available
+   *
+   * Live bed availability, filtered by ward, accommodation type, sex
+   * restriction and isolation. Consumed by Allocate Bed and Move.
+   */
+  listAvailableBeds(query: BedAvailabilityQuery, correlationId?: string) {
+    return wrap<BedAvailabilityRow[]>(correlationId, async () => {
+      const wards = query.wardId ? [query.wardId] : ["Ward-3A", "Ward-3B", "Ward-ICU"];
+      const rows: BedAvailabilityRow[] = wards.flatMap((wardId) =>
+        Array.from({ length: 4 }, (_, idx) => {
+          const bedNo = idx + 1;
+          const bedId = `${wardId}-B${bedNo}`;
+          const type: BedAvailabilityRow["accommodationType"] =
+            wardId.includes("ICU") ? "ICU"
+            : bedNo === 1 ? "Private"
+            : bedNo === 2 ? "Semi-private"
+            : "General";
+          return {
+            wardId,
+            wardName: wardId.replace("-", " "),
+            bedId,
+            bedName: `Bed ${bedNo}`,
+            accommodationType: type,
+            status: bedNo === 3 ? "Cleaning" : "Available",
+            sexRestriction: bedNo === 4 ? "F" : undefined,
+            isolation: wardId.includes("ICU") && bedNo === 1,
+          } satisfies BedAvailabilityRow;
+        }),
+      );
+      return rows.filter((r) => {
+        if (r.status !== "Available") return false;
+        if (query.accommodationType && r.accommodationType !== query.accommodationType) return false;
+        if (query.sex && r.sexRestriction && r.sexRestriction !== query.sex) return false;
+        if (query.isolationRequired && !r.isolation) return false;
+        return true;
+      });
+    });
   },
 };
 
 export type AdmissionsService = typeof admissionsService;
+
