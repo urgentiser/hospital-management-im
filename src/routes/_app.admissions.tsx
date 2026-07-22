@@ -400,6 +400,8 @@ function AdmissionsRoute() {
   const [fundOpen, setFundOpen] = useState(false);
   const [finVariant, setFinVariant] = useState<FinancialVariant | null>(null);
   const [finOpen, setFinOpen] = useState(false);
+  const [depVariant, setDepVariant] = useState<DepartureVariant | null>(null);
+  const [depOpen, setDepOpen] = useState(false);
 
   return (
     <div className="space-y-6">
