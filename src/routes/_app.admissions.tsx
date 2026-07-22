@@ -388,6 +388,7 @@ const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-
 const MANAGEMENT_KEYS = new Set<ManagementVariant>(["view-admission", "patient-location", "allocate-bed", "move-ward", "change-practitioner", "register-birth"]);
 const FUNDING_KEYS = new Set<FundingVariant>(["capture-auth", "funding-change", "auth-enquiry"]);
 const FINANCIAL_KEYS = new Set<FinancialVariant>(["misc-charge", "billing-checks", "finalise-bill"]);
+const DEPARTURE_KEYS = new Set<DepartureVariant>(["discharge", "predischarge", "undischarge", "cancel-admission", "discontinue", "amend-admission", "notes-documents"]);
 
 function AdmissionsRoute() {
   const scrollAnchor = useRef<HTMLDivElement>(null);
