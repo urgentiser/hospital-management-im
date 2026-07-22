@@ -365,6 +365,16 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
 
           {currentStep?.key === "select" && (
             <div className="space-y-2">
+              {draft.checksLoading && (
+                <div className="flex items-center gap-2 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading outstanding checks…
+                </div>
+              )}
+              {!draft.checksLoading && draft.checks.length === 0 && (
+                <div className="rounded-lg border bg-emerald-500/5 p-3 text-xs text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="mr-1 inline h-3.5 w-3.5" /> No outstanding billing checks for this admission.
+                </div>
+              )}
               {draft.checks.map((c) => {
                 const selected = draft.selectedCheckId === c.checkId;
                 return (
