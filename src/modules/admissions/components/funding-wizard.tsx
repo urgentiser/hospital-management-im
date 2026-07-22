@@ -125,7 +125,7 @@ type Props = { variant: FundingVariant | null; open: boolean; onOpenChange: (v: 
 
 const MOCK_AUTHS = [
   { auth: "AUTH-88213", member: "Discovery · 1129223", patient: "Naledi Mokoena", stay: "2026-07-18 → 2026-07-25", status: "Approved" },
-  { auth: "AUTH-88410", member: "Bonitas · 4432109", patient: "Sipho Dlamini", stay: "2026-07-20 → 2026-07-22", status: "PartiallyApproved" },
+  { auth: "AUTH-88410", member: "Bonitas · 4432109", patient: "Sipho Dlamini", stay: "2026-07-20 → 2026-07-22", status: "MoreInfo" },
   { auth: "AUTH-88615", member: "GEMS · 9911872", patient: "Aisha Patel", stay: "2026-07-19 → —", status: "Pending" },
   { auth: "AUTH-88802", member: "Momentum · 5501129", patient: "Jared Coetzee", stay: "2026-07-14 → 2026-07-16", status: "Rejected" },
 ];
@@ -286,7 +286,7 @@ export function AdmissionFundingWizard({ variant, open, onOpenChange, onComplete
                 <SelectBox value={draft.status} onChange={(v) => set("status", v as AuthorisationStatus)}
                   options={AUTH_STATUSES.map((s) => ({ value: s, label: s }))} />
               </Field>
-              <Field label="Scheme" required={draft.status !== "None"}>
+              <Field label="Scheme" required={draft.status !== "NotRequested"}>
                 <Input value={draft.scheme} onChange={(e) => set("scheme", e.target.value)} placeholder="e.g. Discovery Health" />
               </Field>
               <Field label="Administrator">
