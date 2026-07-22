@@ -1,15 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import {
-  BedDouble, Clock, ShieldAlert, LogOut, LayoutDashboard, UserPlus,
+  LogOut, LayoutDashboard, UserPlus,
   ArrowRightLeft, Search, ListChecks, LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KpiCard } from "@/components/ui-kit/kpi-card";
 import { ModuleWorklist } from "@/components/worklist/module-worklist";
-import { useModuleList } from "@/hooks/use-module-service";
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
@@ -126,16 +124,6 @@ function AdmissionsRoute() {
   const [depVariant, setDepVariant] = useState<DepartureVariant | null>(null);
   const [depOpen, setDepOpen] = useState(false);
 
-  // Live KPI feed from the same service the worklist uses.
-  const { data } = useModuleList("admissions", { page: 1, pageSize: 500, filters: {} });
-  const kpis = useMemo(() => {
-    const items = data?.items ?? [];
-    const admitted = items.filter((i) => i.status === "admitted").length;
-    const pending = items.filter((i) => i.status === "pending").length;
-    const discharged = items.filter((i) => i.status === "discharged").length;
-    const noAuth = items.filter((i) => String(i.fields["Auth"] ?? "").toLowerCase() === "none").length;
-    return { admitted, pending, discharged, noAuth };
-  }, [data]);
 
   // Aliases for registry keys that map onto an existing wizard variant.
   const FUNDING_ALIASES: Record<string, FundingVariant> = {
@@ -206,13 +194,6 @@ function AdmissionsRoute() {
         </div>
       </header>
 
-      {/* KPI row — what business asks first */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KpiCard label="Currently admitted" value={kpis.admitted} icon={BedDouble} tone="success" />
-        <KpiCard label="Pending admission" value={kpis.pending} icon={Clock} tone="warning" />
-        <KpiCard label="No-auth flagged" value={kpis.noAuth} icon={ShieldAlert} tone="destructive" hint="Requires funding intervention" />
-        <KpiCard label="Discharged today" value={kpis.discharged} icon={LogOut} tone="info" />
-      </div>
 
       {/* Focus tabs — Worklist first (default), Processes on demand */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as "worklist" | "processes")} className="space-y-4">
