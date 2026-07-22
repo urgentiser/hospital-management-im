@@ -60,6 +60,14 @@ const newCorrelation = () =>
 
 const newVersion = () => `v${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
+const today = () => new Date().toISOString().slice(0, 10);
+
+const hash = (s: string) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return h;
+};
+
 /**
  * Idempotency ledger. In mock mode we memoise the previous result for a
  * given key so a retried mutation returns the original envelope instead of
