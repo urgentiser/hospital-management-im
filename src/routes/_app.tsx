@@ -33,9 +33,11 @@ function ProtectedShell() {
 
   useEffect(() => {
     if (status === "anonymous") {
-      void navigate({ to: "/auth", search: { redirect: returnPath }, replace: true });
+      const safeReturn = returnPath.startsWith("/auth") ? "/" : returnPath;
+      void navigate({ to: "/auth", search: { redirect: safeReturn }, replace: true });
     }
   }, [navigate, returnPath, status]);
+
 
   useEffect(() => {
     if (!principal || principal.accountState !== "active") return;
@@ -47,8 +49,10 @@ function ProtectedShell() {
   const expire = useCallback(async () => {
     toast.error("Your Impilo session expired. Sign in again to continue.");
     await logout();
-    await navigate({ to: "/auth", search: { redirect: returnPath }, replace: true });
+    const safeReturn = returnPath.startsWith("/auth") ? "/" : returnPath;
+    await navigate({ to: "/auth", search: { redirect: safeReturn }, replace: true });
   }, [logout, navigate, returnPath]);
+
 
   const warn = useCallback((minutesRemaining: number) => {
     toast.warning(`Your session will expire in approximately ${minutesRemaining} minute${minutesRemaining === 1 ? "" : "s"}.`);
