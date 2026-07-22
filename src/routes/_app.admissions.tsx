@@ -17,6 +17,7 @@ import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admission
 import { AdmissionFinancialWizard, type FinancialVariant } from "@/modules/admissions/components/financial-wizard";
 import { AdmissionDepartureWizard, type DepartureVariant } from "@/modules/admissions/components/departure-wizard";
 import type { WorklistConfig } from "@/components/worklist/types";
+import { PatientBanner } from "@/components/patient-banner";
 
 const worklistConfig: WorklistConfig = {
   moduleKey: "admissions",
