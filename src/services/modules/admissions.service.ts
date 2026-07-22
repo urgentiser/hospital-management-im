@@ -212,6 +212,50 @@ export const admissionsService = {
       );
     });
   },
+
+  /** §33 — POST /admissions/{id}/authorisation */
+  captureAuthorisation(req: CaptureAuthorisationRequest) {
+    return wrap<AuthorisationDetail>(req.correlationId, async () => {
+      await base.addNote(
+        req.admissionId,
+        `Authorisation ${req.authorisationNumber ?? "(pending)"} — ${req.status}${req.scheme ? ` · ${req.scheme}` : ""}`,
+      );
+      return {
+        authorisationNumber: req.authorisationNumber,
+        status: req.status,
+        requestedStay: req.requestedStay,
+        approvedStay: req.approvedStay,
+        requestedTreatment: req.requestedTreatment,
+        approvedTreatment: req.approvedTreatment,
+        expiry: req.expiry,
+        noAuthReason: req.noAuthReason,
+        followUpOwner: req.followUpOwnerId,
+        followUpDate: req.followUpDate,
+      } satisfies AuthorisationDetail;
+    });
+  },
+
+  /** §33 — PATCH /admissions/{id}/funding */
+  changeFunding(req: ChangeFundingRequest) {
+    return wrap<FundingDetail>(req.correlationId, async () => {
+      await base.addNote(
+        req.admissionId,
+        `Funding changed to ${req.method}${req.scheme ? ` · ${req.scheme}` : ""}. Reason: ${req.reason}`,
+      );
+      return {
+        method: req.method,
+        scheme: req.scheme,
+        administrator: req.administrator,
+        planOption: req.planOption,
+        membershipNumber: req.membershipNumber,
+        dependantCode: req.dependantCode,
+        principalMember: req.principalMemberName
+          ? { fullName: req.principalMemberName }
+          : undefined,
+        effectiveDate: req.effectiveDate,
+      } satisfies FundingDetail;
+    });
+  },
 };
 
 export type AdmissionsService = typeof admissionsService;
