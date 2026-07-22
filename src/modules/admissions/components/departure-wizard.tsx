@@ -307,6 +307,9 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
     try {
       let ok = false; let correlationId: string | undefined;
       if (variant === "discharge") {
+        const overrides: DischargeOverride[] = draft.overrideChecks
+          .filter((o) => o.reason.trim() && o.approverId.trim())
+          .map((o) => ({ itemId: o.itemId, reason: o.reason.trim(), approverId: o.approverId.trim() }));
         const req: DischargeAdmissionRequest = {
           admissionId: draft.admissionId,
           dischargeAt: draft.dischargeAt,
@@ -315,7 +318,18 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
           dischargeReason: draft.dischargeReason,
           responsiblePractitionerId: draft.responsiblePractitionerId,
           clinicalSummary: draft.clinicalSummary || undefined,
-          overrideChecks: draft.overrideChecks.length ? draft.overrideChecks : undefined,
+          overrideChecks: overrides.length ? overrides : undefined,
+          transferDetails: (draft.disposition === "Transfer out" || draft.disposition === "Step-down facility")
+            ? { toFacility: draft.transferToFacility.trim(), toWard: draft.transferToWard.trim() || undefined }
+            : undefined,
+          deathInformation: draft.disposition === "Deceased"
+            ? {
+                dateOfDeath: draft.deathDateOfDeath,
+                causeOfDeath: draft.deathCauseOfDeath.trim(),
+                certifiedBy: draft.deathCertifiedBy.trim(),
+              }
+            : undefined,
+          ifMatchVersion,
         };
         const r = await admissionsService.dischargeAdmission(req);
         ok = r.ok; correlationId = r.correlationId;
