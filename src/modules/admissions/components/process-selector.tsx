@@ -114,7 +114,12 @@ export function AdmissionProcessSelector({ onLaunch }: Props) {
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                     {items.map((p) => (
-                      <ProcessCard key={p.key} process={p} onLaunch={onLaunch} />
+                      <ProcessCard
+                        key={p.key}
+                        process={p}
+                        allowed={hasPermission(principal, p.permission)}
+                        onLaunch={onLaunch}
+                      />
                     ))}
                   </div>
                 </div>
