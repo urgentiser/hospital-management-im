@@ -392,6 +392,8 @@ function AdmissionsRoute() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [mgmtVariant, setMgmtVariant] = useState<ManagementVariant | null>(null);
   const [mgmtOpen, setMgmtOpen] = useState(false);
+  const [fundVariant, setFundVariant] = useState<FundingVariant | null>(null);
+  const [fundOpen, setFundOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -408,6 +410,11 @@ function AdmissionsRoute() {
               setMgmtOpen(true);
               return;
             }
+            if (FUNDING_KEYS.has(process.key as FundingVariant)) {
+              setFundVariant(process.key as FundingVariant);
+              setFundOpen(true);
+              return;
+            }
             scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
             if (typeof window !== "undefined") {
               window.location.hash = `#p=${process.key}`;
@@ -420,6 +427,7 @@ function AdmissionsRoute() {
       </div>
       <AdmissionCreationWizard variant={wizardVariant} open={wizardOpen} onOpenChange={setWizardOpen} />
       <AdmissionManagementWizard variant={mgmtVariant} open={mgmtOpen} onOpenChange={setMgmtOpen} />
+      <AdmissionFundingWizard variant={fundVariant} open={fundOpen} onOpenChange={setFundOpen} />
     </div>
   );
 }
