@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/security/auth-provider";
+import { hasPermission } from "@/security/permissions";
 import {
   admissionProcessGroups,
   admissionProcesses,
@@ -25,6 +27,7 @@ type Props = {
 export function AdmissionProcessSelector({ onLaunch }: Props) {
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState<AdmissionProcessGroupKey | "all">("all");
+  const { principal } = useAuth();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -55,7 +58,7 @@ export function AdmissionProcessSelector({ onLaunch }: Props) {
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Admissions processes</h2>
           <p className="text-sm text-muted-foreground">
-            Launch a guided workflow. All 22 admission processes are grouped by operating cluster.
+            Launch a guided Admissions process. Processes are grouped by operational area.
           </p>
         </div>
         <div className="relative w-full sm:w-72">
@@ -111,7 +114,12 @@ export function AdmissionProcessSelector({ onLaunch }: Props) {
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                     {items.map((p) => (
-                      <ProcessCard key={p.key} process={p} onLaunch={onLaunch} />
+                      <ProcessCard
+                        key={p.key}
+                        process={p}
+                        allowed={hasPermission(principal, p.permission)}
+                        onLaunch={onLaunch}
+                      />
                     ))}
                   </div>
                 </div>
@@ -143,16 +151,30 @@ function GroupChip({ active, onClick, label, count }: { active: boolean; onClick
   );
 }
 
-function ProcessCard({ process, onLaunch }: { process: AdmissionProcessDef; onLaunch: (p: AdmissionProcessDef) => void }) {
+function ProcessCard({
+  process,
+  allowed,
+  onLaunch,
+}: {
+  process: AdmissionProcessDef;
+  allowed: boolean;
+  onLaunch: (p: AdmissionProcessDef) => void;
+}) {
   const Icon = process.icon;
   return (
     <button
       type="button"
-      onClick={() => onLaunch(process)}
+      onClick={() => allowed && onLaunch(process)}
+      disabled={!allowed}
+      aria-disabled={!allowed}
+      title={allowed ? process.description : "You do not have permission to launch this process."}
       className={cn(
         "group flex w-full items-start gap-3 rounded-xl border bg-card p-3 text-left shadow-sm transition",
-        "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-        process.destructive && "hover:border-rose-400/60",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+        allowed
+          ? "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+          : "cursor-not-allowed opacity-60",
+        process.destructive && allowed && "hover:border-rose-400/60",
       )}
     >
       <div className={cn(
@@ -166,9 +188,15 @@ function ProcessCard({ process, onLaunch }: { process: AdmissionProcessDef; onLa
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <div className="truncate text-sm font-medium">{process.label}</div>
-          {process.permission === "elevated" && (
+          {process.elevated && (
             <Badge variant="outline" className="border-rose-400/50 text-[10px] text-rose-600 dark:text-rose-400">
               Elevated
+            </Badge>
+          )}
+          {!allowed && (
+            <Badge variant="outline" className="gap-1 border-muted-foreground/30 text-[10px] text-muted-foreground">
+              <Lock className="h-2.5 w-2.5" />
+              No access
             </Badge>
           )}
         </div>

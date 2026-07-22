@@ -1,54 +1,62 @@
-# Admissions upgrade — phased plan
+## Admissions Production MVP — Hardening Plan
 
-Also fixed this turn: the `/auth?redirect=/auth?redirect=…` loop when the shell redirected an already-`/auth` path back into itself.
+Scope: Admissions module only. Design, shell, sidebar, header, tokens, stepper, form cards, and patient banner remain unchanged. All 34 sections of the brief will be delivered, but as sequenced phases so each lands as a reviewable, working slice on top of the existing wizards.
 
-Scope: Admissions module only. No changes to the approved shell, sidebar, header, patient banner, facility selector, colours, typography, cards, steppers, or other modules. Guided processes remain the default tab; every new surface is a secondary tab or contextual view within Admissions.
+### Phase 1 — Structural correction (foundation)
+Fixes the "old flow still visible" and "wrong catalogue" problems first so every later phase builds on the right shell.
 
-## Delivery phases
+- Remove the old ModuleConsole `businessFlow` for Admissions. `_app.admissions.tsx` renders **Process Selector → Worklist** only (with supporting tabs: No-Auth Worklist, Rejected Auth, Patient Location, Billing Checks, Invoices & Statements, Statement of Account, Dashboard, Documents, Timeline, Audit).
+- Rewrite `process-registry.ts` with the 8 corrected groups (Creation / Identification & Location / Management / Funding & Authorisation / Financial & Billing / Departure / Corrections & Exceptions / Operational Monitoring). Move "No-Auth Admissions" under Funding & Authorisation. Add every missing process (Medical Aid Details, Authorisation Search, Rejected Auth Hospital + Group, Past COID/Injury/Poisoning, Invoices & Statements, Statement of Account, Notes & Documents, Undischarge EU, Amend Admission).
+- Process Selector header uses `admissionProcesses.length` dynamically. Remove the "All 22 processes" string.
+- Every process card enforces `Admissions.*` permission via `PermissionGate` in addition to the elevated badge.
 
-### Phase A — Foundations (typed contracts + service)
-- `src/modules/admissions/contracts/*` — one file per contract: admission summary, detail, worklist item, actions, timeline, billing check, and one request contract per process (create / from-preadmission / direct / emergency / no-auth / allocate-bed / move / change-practitioner / register-birth / discharge / cancel / discontinue / undischarge / miscellaneous charge).
-- `src/modules/admissions/services/admissions.service.ts` — all methods from spec §33 wired against the existing mock-pager for now, backend-shaped so a real API is a drop-in.
-- `src/rules/modules/admissions.rules.ts` — every frontend-enforced validation from spec §35 classified.
-- Query keys under `admissions.*` per spec §41.
+### Phase 2 — Journey context + facility/patient entry
+Every wizard now starts with facility → patient search, sharing one context.
 
-### Phase B — Guided processes shell + selector
-- New Admissions module page that keeps the existing chrome and swaps the process launcher for the grouped selector (Create / Manage / Funding / Movement / Discharge / Financial / Enquiry) from spec §4, cards showing action name, description, required privilege, applicable states, patient/facility/high-risk indicators.
-- Shared patient + admission context provider so processes never re-prompt for identity when it's already loaded.
-- Each of the 20 processes gets its own guided workflow file — no giant single stepper. Reuses the existing `BusinessFlow` stepper design unchanged.
+- New `useAdmissionJourney` zustand store: `{ facilityId, selectedProcess, patientId, patientMRN, preadmissionId, emergencyVisitId, admissionDraft, fundingDraft, authorisationDraft, completedSteps }` persisted to sessionStorage, cleared on completion.
+- New `FacilityConfirmStep` + `PatientSearchStep` components (search by MRN/ID/passport/name/DOB/mobile/membership; results table with duplicate warnings; "Register New Patient" branch).
+- New embedded `PatientRegistrationWizard` (Demographics → Identification → Contact → Address → Next of kin → Employment → Consent → Funding → Guarantor → Documents → Review → Create) which returns to Admissions journey preserving `selectedProcess` + `facilityId`.
+- All five creation wizards (Admit / Convert Preadmission / Direct / Emergency / No-Auth) are refactored to start from these shared steps.
 
-### Phase C — Admission Creation cluster
-Admit a Patient · Convert Preadmission · Direct Admission · Emergency/A&E · No-Authorisation. Full validations and backend-authoritative readiness call, plus ward/bed allocation continuation.
+### Phase 3 — Typed contracts + service hardening
+- Replace `WorkflowItem`-style generic fields with the 27 typed contracts listed in section 26 (`AdmissionDetail`, `AdmissionWorklistItem`, `AdmissionAvailableAction`, `PatientSearchResult`, `PreadmissionSearchResult`, `EmergencyVisitSearchResult`, all Create/Convert/Discharge/Move/Birth request types, `BedAvailability`, `PreDischargeReviewResult`, `BillingCheckItem`, `FinaliseBillResult`, `AdmissionInvoice/Statement/Account/TimelineItem/AuditItem`).
+- `admissions.service.ts` exposes typed methods per contract; wired through `apiRequest` with Problem Details mapping.
+- Query keys namespaced under `admissions.*` (21 keys from section 30). Mutations invalidate only the affected keys.
+- Remove `MOCK_AUTHS`, `MOCK_CHECKS`, hard-coded ward "3B · Room 12", random bill numbers, and any local financial calculation.
 
-### Phase D — Admission Management + Location
-View Admission (full Admission Detail Workspace with all tabs from spec §16) · Patient Location · Move to Ward · Maintain Admission · Maintain Practitioner · Register Birth. Includes accommodation-history timeline and movement history.
+### Phase 4 — Complete "Admit a Patient" 16-step flow
+The full guided workflow from section 8: Facility → Patient search → Context review → Source → Details → Practitioner → Funding → Member validation → Authorisation → Special context (conditional COID/Injury/Poisoning/Maternity/Neonatal) → Consent & Documents → Readiness → Review → Confirm → Bed allocation → Completed screen with next actions.
 
-### Phase E — Funding, Authorisation, enquiry
-Medical Aid Details · Authorisation Search · No-Authorisation Admissions queue · Rejected Authorisations (Hospital + Group) · Past COID / Injury / Poisoning enquiry views.
+### Phase 5 — Alternate creation wizards
+Convert Preadmission, Direct Admission, Emergency/A&E, No-Authorisation — each restructured to their section 9–12 flows on the shared facility+patient foundation. Duplicate-admission prevention. Emergency exception permitted only with permission.
 
-### Phase F — Charges + financial completion
-Miscellaneous Charges · Manage Billing Checks · Finalise Bill (blocked while backend checks fail) · Invoices and Statements · Statement of Account. ZAR formatting throughout.
+### Phase 6 — Ward & bed allocation, Move, Register Birth
+Real bed selector: ward → room → bed with live availability statuses (Available/Reserved/Occupied/Cleaning/Blocked/OOS). Move-to-Ward with previous-location guard. Register Birth with baby MRN + neonatal allocation and duplicate-birth guard.
 
-### Phase G — Departure & corrections
-Discharge Patient (Phases A–E from spec §22, not just a date field) · Cancel Admission · Discontinue Admission · Undischarge EU Patient. High-risk actions require reason + confirmation + permission gating.
+### Phase 7 — Admission Workspace
+`/admissions/{id}` becomes the full workspace with typed `AdmissionDetail`, persistent patient banner, backend-driven `availableActions`, and tabs: Summary, Patient, Medical Event, Funding, Medical Aid, Insurance, COID, Injury, Poisoning, Authorisation, Consent, Practitioners, Current Location, Accommodation History, Ward/Theatre/Pharmacy Activity, Clinical Assessments, Coding, Case Management, Charges, Billing Checks, Documents, Notes, Timeline, Audit.
 
-### Phase H — Worklist, dashboard, audit
-- Admissions worklist reconfigured with the full column set, statuses, and saved views from spec §29, using `availableActions` from backend for row actions. No bulk high-risk operations.
-- Admissions Dashboard (KPIs + charts) with drill-through into the worklist.
-- Immutable timeline + audit tab on Admission Detail sourced from the audit service contract.
+### Phase 8 — Funding & Authorisation processes
+Medical Aid Details, Rejected Authorisations (Hospital + Group with permission gate), Past COID/Injury/Poisoning admissions views.
 
-### Phase I — Non-functional hardening
-Permissions per spec §36, Problem Details error mapping (409 refresh, 422 field mapping), correlation IDs, observability-safe logging, TanStack Query invalidations per spec §41, Vitest coverage of the unit + component checklist in spec §42.
+### Phase 9 — Pre-discharge, Discharge, Billing Checks, Finalise Bill
+Live readiness from backend (no hard-coded checks). Discharge 5-phase flow. Billing checks + bill finalisation returns real `FinaliseBillResult`. Admission state moves to `Finalised`, not back to `Discharged`.
 
-## What stays the same
-Sidebar grouping, route name `/admissions`, colours, typography, patient banner layout, stepper visual style, card design, shell, facility selector. No new top-level routes; every new view lives inside the Admissions module as a tab or contextual detail.
+### Phase 10 — Invoices, Statements, Statement of Account, Documents, Patient Location
+Invoice/statement generation with download/print/reprint/email. Statement of Account with ZAR formatting and full transaction history. Real document upload with progress/validation/malware-scan status. Patient location driven by real query, not sample data.
 
-## Out of scope
-- Other modules (Ward, Theatre, Pharmacy, Billing, etc.) — only their read integrations that Admission Detail already surfaces.
-- Real backend implementation. Services stay mock-backed but shaped for the API family in spec §34 so a swap is mechanical.
-- Penetration testing, POPIA review, UAT, cutover rehearsal (spec §43) — those are release-gate activities outside a build turn.
+### Phase 11 — State, concurrency, errors, audit, tests
+Draft save/resume, unsaved-changes prompt, idempotency keys on all create/convert/discharge/birth. HTTP 409 handling with field diff. Problem Details banner already exists; wire correlation IDs. Full audit event list from section 31. Unit + component + Playwright e2e covering the 26 acceptance journeys from section 32.
 
-## Suggested first turn after approval
-Phase A + B end-to-end, so the new selector and typed service are live even before any single process is rebuilt. Then Phases C–H one turn each; Phase I closes the release-gate checklist.
+### Technical notes
+- No new third-party dependencies expected; uses existing `apiRequest`, `useModuleService`, `PermissionGate`, `PatientBanner`, `KpiCard`, `BusinessFlow` stepper, and worklist primitives.
+- Backend endpoints are assumed available at `admissions/*`, `patients/*`, `preadmissions/*`, `emergency-visits/*`, `beds/*`, `billing/*`, `documents/*`. Where an endpoint is missing on the backend, the service will surface a Problem Details error instead of falling back to mock data.
+- Zero design token or component-shape changes.
 
-Reply "go" to start Phase A + B, or tell me to reorder / drop phases.
+### Deliverable per phase
+Each phase ends with: passing `tsc --noEmit`, updated unit tests for the slice, and a short verification note (screenshot or Playwright trace for UI slices).
+
+### Recommended first commit
+Phase 1 + Phase 2 together, because the corrected catalogue and the shared facility/patient journey are prerequisites for every wizard rewrite in Phases 4–6. Phases 3–11 then land in order.
+
+Please confirm to proceed with Phase 1 + 2, or tell me to sequence differently (e.g. contracts first, or all phases in one large drop).
