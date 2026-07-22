@@ -116,9 +116,18 @@ function stepsFor(variant: FinancialVariant): StepDef[] {
   }
 }
 
-type Props = { variant: FinancialVariant | null; open: boolean; onOpenChange: (v: boolean) => void; onCompleted?: () => void };
+type Props = {
+  variant: FinancialVariant | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onCompleted?: () => void;
+  /** Prefill admission id when opened from an Admission Workspace. */
+  initialAdmissionId?: string;
+  /** Latest server version token; sent as ifMatchVersion for optimistic concurrency. */
+  ifMatchVersion?: string;
+};
 
-export function AdmissionFinancialWizard({ variant, open, onOpenChange, onCompleted }: Props) {
+export function AdmissionFinancialWizard({ variant, open, onOpenChange, onCompleted, initialAdmissionId, ifMatchVersion }: Props) {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [stepIdx, setStepIdx] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -127,7 +136,41 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
   const steps = useMemo(() => (variant ? stepsFor(variant) : []), [variant]);
   const meta = variant ? META[variant] : null;
 
-  useEffect(() => { if (open) { setDraft(EMPTY); setStepIdx(0); setProblem(null); } }, [open, variant]);
+  useEffect(() => {
+    if (open) {
+      setDraft({ ...EMPTY, admissionId: initialAdmissionId ?? "" });
+      setStepIdx(0);
+      setProblem(null);
+    }
+  }, [open, variant, initialAdmissionId]);
+
+  const overrideMap = useMemo(
+    () => new Map(draft.overrides.map((o) => [o.checkId, o])),
+    [draft.overrides],
+  );
+
+  // Auto-load outstanding checks when relevant steps are reached with an admission id.
+  const needsChecks = variant === "billing-checks" || variant === "finalise-bill";
+  const currentKey = steps[stepIdx]?.key;
+  useEffect(() => {
+    if (!open || !needsChecks) return;
+    if (!draft.admissionId.trim()) return;
+    if (currentKey !== "select" && currentKey !== "readiness") return;
+    if (draft.checks.length > 0 || draft.checksLoading) return;
+    let cancelled = false;
+    (async () => {
+      setDraft((d) => ({ ...d, checksLoading: true }));
+      const r = await admissionsService.listBillingChecks(draft.admissionId);
+      if (cancelled) return;
+      setDraft((d) => ({
+        ...d,
+        checksLoading: false,
+        checks: r.ok ? r.data : [],
+      }));
+      if (!r.ok) setProblem(r.problem.detail ?? r.problem.title);
+    })();
+    return () => { cancelled = true; };
+  }, [open, needsChecks, currentKey, draft.admissionId, draft.checks.length, draft.checksLoading]);
 
   if (!variant || !meta) return null;
 
@@ -138,6 +181,7 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
   const selectedCheck = draft.checks.find((c) => c.checkId === draft.selectedCheckId);
   const blockingOpen = draft.checks.filter((c) => c.severity === "Blocking" && c.status === "Open");
   const totalCharge = (Number(draft.quantity || "0") * Number(draft.amountZar || "0")) || 0;
+  const overrideComplete = (o: OverrideEntry | undefined) => !!o && !!o.reason.trim() && !!o.approverId.trim();
 
   const canAdvance = (() => {
     if (!currentStep) return false;
@@ -154,7 +198,7 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
         return true;
       case "readiness":
         return draft.clinicalCodingSignedOff
-          && blockingOpen.every((c) => draft.overriddenCheckIds.includes(c.checkId));
+          && blockingOpen.every((c) => overrideComplete(overrideMap.get(c.checkId)));
       case "finalise": return !!draft.finalisedAt;
       case "review": return true;
       default: return true;
@@ -184,6 +228,7 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
           resolutionNote: draft.resolutionNote,
           overrideApproverId: draft.overrideApproverId || undefined,
           reassignToUserId: draft.reassignToUserId || undefined,
+          ifMatchVersion,
         };
         r = await admissionsService.manageBillingCheck(req);
       } else {
@@ -192,8 +237,9 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
           finalisedAt: draft.finalisedAt,
           closeAccommodation: draft.closeAccommodation,
           clinicalCodingSignedOff: draft.clinicalCodingSignedOff,
-          outstandingChecksOverridden: draft.overriddenCheckIds,
+          overriddenChecks: draft.overrides.filter((o) => blockingOpen.some((c) => c.checkId === o.checkId)),
           billingNarrative: draft.billingNarrative || undefined,
+          ifMatchVersion,
         };
         r = await admissionsService.finaliseBill(req);
       }
@@ -209,11 +255,20 @@ export function AdmissionFinancialWizard({ variant, open, onOpenChange, onComple
   const Icon = meta.icon;
 
   const toggleOverride = (id: string) => {
+    setDraft((d) => {
+      const exists = d.overrides.some((o) => o.checkId === id);
+      return {
+        ...d,
+        overrides: exists
+          ? d.overrides.filter((o) => o.checkId !== id)
+          : [...d.overrides, { checkId: id, reason: "", approverId: "" }],
+      };
+    });
+  };
+  const patchOverride = (id: string, patch: Partial<OverrideEntry>) => {
     setDraft((d) => ({
       ...d,
-      overriddenCheckIds: d.overriddenCheckIds.includes(id)
-        ? d.overriddenCheckIds.filter((x) => x !== id)
-        : [...d.overriddenCheckIds, id],
+      overrides: d.overrides.map((o) => (o.checkId === id ? { ...o, ...patch } : o)),
     }));
   };
 
