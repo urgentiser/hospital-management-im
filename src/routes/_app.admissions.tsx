@@ -1,284 +1,106 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
-  UserPlus, Eye, MapPin, ArrowRightLeft, LogOut, Undo2, Baby, Ban, StopCircle,
-  Receipt, FileText, ClipboardCheck, ShieldOff, BedDouble, Clock, ShieldAlert,
-  Building2, HeartPulse, ClipboardList, Wallet, LayoutDashboard,
+  BedDouble, Clock, ShieldAlert, LogOut, LayoutDashboard, UserPlus,
+  ArrowRightLeft, Search, ListChecks, LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { KpiCard } from "@/components/ui-kit/kpi-card";
+import { ModuleWorklist } from "@/components/worklist/module-worklist";
+import { useModuleList } from "@/hooks/use-module-service";
 import { AdmissionProcessSelector } from "@/modules/admissions/components/process-selector";
 import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissions/components/creation-wizard";
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
 import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admissions/components/funding-wizard";
 import { AdmissionFinancialWizard, type FinancialVariant } from "@/modules/admissions/components/financial-wizard";
 import { AdmissionDepartureWizard, type DepartureVariant } from "@/modules/admissions/components/departure-wizard";
+import type { WorklistConfig } from "@/components/worklist/types";
 
-
-const config: ModuleConsoleConfig = {
+const worklistConfig: WorklistConfig = {
   moduleKey: "admissions",
-  patientScoped: true,
-  eyebrow: "Clinical · Admissions",
-  title: "Admissions",
-  description: "Admit, transfer, discharge and bill inpatients across every Life Healthcare facility.",
-  heroHeadline: "One command centre for the entire inpatient journey.",
-  heroBlurb: "From admission to discharge — track beds, authorisations and billing without leaving the console.",
-  heroBadge: "Live · Bed board",
-  heroCtas: [
-    { label: "Admit a patient", sectionKey: "movement", primary: true },
-    { label: "Billing & bills", sectionKey: "billing" },
-    { label: "No-auth board", sectionKey: "authorisation" },
+  name: "Admissions worklist",
+  tagline: "Current inpatients, transfers pending and discharge-ready cases.",
+  exportable: true,
+  defaultSortBy: "updatedAt",
+  defaultSortDir: "desc",
+  pageSize: 25,
+  statusMap: {
+    admitted: { label: "Admitted", tone: "success" },
+    pending: { label: "Pending", tone: "warning" },
+    transferred: { label: "Transferred", tone: "info" },
+    discharged: { label: "Discharged", tone: "muted" },
+    cancelled: { label: "Cancelled", tone: "destructive" },
+    discontinued: { label: "Discontinued", tone: "destructive" },
+  },
+  columns: [
+    { key: "id", label: "Admission #", sortable: true, width: "140px",
+      render: (r) => <span className="font-mono text-xs">{r.id}</span> },
+    { key: "title", label: "Patient", sortable: true,
+      render: (r) => (
+        <div className="min-w-0">
+          <div className="truncate font-medium">{r.title}</div>
+          {r.subtitle && <div className="truncate text-[11px] text-muted-foreground">{r.subtitle}</div>}
+        </div>
+      ) },
+    { key: "Ward", label: "Ward / Bed",
+      render: (r) => <span>{String(r.fields["Ward"] ?? r.fields["To Ward"] ?? "—")}{r.fields["Bed"] ? ` · ${r.fields["Bed"]}` : ""}</span> },
+    { key: "Admitting practitioner", label: "Practitioner",
+      render: (r) => String(r.fields["Admitting practitioner"] ?? r.fields["Practitioner"] ?? "—") },
+    { key: "Auth", label: "Auth",
+      render: (r) => {
+        const auth = String(r.fields["Auth"] ?? r.fields["Authorisation ref"] ?? "").trim();
+        if (!auth || auth.toLowerCase() === "none") {
+          return <span className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] text-rose-600 dark:text-rose-400">No-auth</span>;
+        }
+        return <span className="font-mono text-[11px]">{auth}</span>;
+      } },
+    { key: "status", label: "Status",
+      render: (r) => {
+        const map: Record<string, { label: string; cls: string }> = {
+          admitted: { label: "Admitted", cls: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+          pending: { label: "Pending", cls: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+          transferred: { label: "Transferred", cls: "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400" },
+          discharged: { label: "Discharged", cls: "border-border bg-muted/60 text-muted-foreground" },
+          cancelled: { label: "Cancelled", cls: "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+          discontinued: { label: "Discontinued", cls: "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+        };
+        const cfg = map[r.status] ?? { label: r.status, cls: "border-border bg-muted/60 text-muted-foreground" };
+        return <span className={"inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium " + cfg.cls}>{cfg.label}</span>;
+      } },
+    { key: "updatedAt", label: "Updated", sortable: true, defaultVisible: false,
+      render: (r) => <span className="text-[11px] text-muted-foreground">{new Date(r.updatedAt || r.createdAt).toLocaleString("en-ZA")}</span> },
   ],
-  overviewKpis: (items) => {
-    const admitted = items.filter((i) => i.status === "admitted").length;
-    const pending = items.filter((i) => i.status === "pending").length;
-    const discharged = items.filter((i) => i.status === "discharged").length;
-    const noAuth = items.filter((i) => String(i.fields.Auth ?? "").toLowerCase() === "none").length;
-    return [
-      { label: "Currently admitted", value: admitted, icon: BedDouble, accent: "from-emerald-500/30 to-transparent", tone: "success" },
-      { label: "Pending", value: pending, icon: Clock, accent: "from-amber-500/30 to-transparent", tone: "warning" },
-      { label: "Discharged", value: discharged, icon: LogOut, accent: "from-slate-500/30 to-transparent", tone: "muted" },
-      { label: "No-auth flagged", value: noAuth, icon: ShieldAlert, accent: "from-rose-500/30 to-transparent", tone: "destructive" },
-    ];
-  },
-  sectionKpis: (section, items) => {
-    if (section.key === "movement") {
-      return [
-        { label: "Admitted", value: items.filter((i) => i.status === "admitted").length, icon: HeartPulse, accent: "from-emerald-500/30 to-transparent", tone: "success" },
-        { label: "Transferred", value: items.filter((i) => i.status === "transferred").length, icon: ArrowRightLeft, accent: "from-sky-500/30 to-transparent" },
-        { label: "Discharged", value: items.filter((i) => i.status === "discharged").length, icon: LogOut, accent: "from-slate-500/30 to-transparent", tone: "muted" },
-        { label: "Cancelled", value: items.filter((i) => i.status === "cancelled").length, icon: Ban, accent: "from-rose-500/30 to-transparent", tone: "destructive" },
-      ];
-    }
-    if (section.key === "authorisation") {
-      const noAuth = items.filter((i) => String(i.fields.Auth ?? "").toLowerCase() === "none").length;
-      return [
-        { label: "No-auth", value: noAuth, icon: ShieldOff, accent: "from-rose-500/30 to-transparent", tone: "destructive" },
-        { label: "Pending", value: items.filter((i) => i.status === "pending").length, icon: Clock, accent: "from-amber-500/30 to-transparent", tone: "warning" },
-        { label: "Active", value: items.filter((i) => i.status === "admitted").length, icon: ShieldAlert, accent: "from-primary/30 to-transparent" },
-      ];
-    }
-    if (section.key === "billing") {
-      const finalised = items.filter((i) => String(i.fields["Bill Status"] ?? "") === "finalised").length;
-      return [
-        { label: "Bills open", value: items.length - finalised, icon: Receipt, accent: "from-amber-500/30 to-transparent", tone: "warning" },
-        { label: "Finalised", value: finalised, icon: ClipboardCheck, accent: "from-emerald-500/30 to-transparent", tone: "success" },
-        { label: "Statements", value: items.filter((i) => String(i.fields["Kind"] ?? "").includes("Statement")).length, icon: FileText, accent: "from-primary/30 to-transparent" },
-      ];
-    }
-    return [
-      { label: "Facilities", value: 8, icon: Building2, accent: "from-primary/30 to-transparent" },
-      { label: "Beds", value: 1810, icon: BedDouble, accent: "from-emerald-500/30 to-transparent", tone: "success" },
-    ];
-  },
-  sections: [
-    {
-      key: "movement",
-      title: "Patient Movement",
-      tagline: "Admit · transfer · discharge",
-      description: "Every touch-point in the patient journey — admission, ward moves, discharge, undischarge and neonate registration.",
-      icon: BedDouble,
-      accent: "from-emerald-500/25 via-teal-500/15 to-transparent",
-      ring: "ring-emerald-400/30",
-      actions: [
-        { key: "admit", label: "Admit a Patient", icon: UserPlus, hint: "Capture a new admission", kind: "Admit", startStatus: "admitted",
-          fields: [
-            { name: "patient", label: "Patient name", required: true },
-            { name: "mrn", label: "MRN", placeholder: "IMP-…" },
-            { name: "facility", label: "Facility", required: true },
-            { name: "ward", label: "Ward", required: true, placeholder: "e.g. Ward 3B" },
-            { name: "bed", label: "Bed" },
-            { name: "practitioner", label: "Admitting practitioner" },
-          ]},
-        { key: "view-admission", label: "View Admission", icon: Eye, hint: "Open admission details", kind: "View Admission", startStatus: "active",
-          fields: [{ name: "reference", label: "Admission reference", required: true, placeholder: "ADM-…" }] },
-        { key: "location", label: "Patient Location", icon: MapPin, hint: "Current ward and bed", kind: "Patient Location", startStatus: "active",
-          fields: [{ name: "patient", label: "Patient", required: true }] },
-        { key: "move-ward", label: "Move to Ward", icon: ArrowRightLeft, hint: "Internal ward transfer", kind: "Ward Move", startStatus: "transferred",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "fromWard", label: "From ward" },
-            { name: "toWard", label: "To ward", required: true },
-            { name: "reason", label: "Reason", type: "textarea" },
-          ]},
-        { key: "discharge", label: "Discharge Patient", icon: LogOut, hint: "Complete discharge", kind: "Discharge", startStatus: "discharged",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "destination", label: "Discharge destination", placeholder: "Home / Step-down / Transfer" },
-            { name: "notes", label: "Clinical notes", type: "textarea" },
-          ]},
-        { key: "undischarge", label: "Undischarge EU Patient", icon: Undo2, hint: "Reverse a discharge (Emergency Unit)", kind: "Undischarge", startStatus: "admitted",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "reason", label: "Reason", required: true, type: "textarea" },
-          ], destructive: true },
-        { key: "register-birth", label: "Register Birth", icon: Baby, hint: "Add neonate to mother's admission", kind: "Register Birth", startStatus: "admitted",
-          fields: [
-            { name: "patient", label: "Mother", required: true },
-            { name: "dob", label: "Date of birth", placeholder: "YYYY-MM-DD" },
-            { name: "gender", label: "Gender" },
-            { name: "weight", label: "Weight (g)", type: "number" },
-          ]},
-        { key: "cancel", label: "Cancel Admission", icon: Ban, hint: "Release the bed", kind: "Cancel Admission", startStatus: "cancelled",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "reason", label: "Reason", required: true, type: "textarea" },
-          ], destructive: true },
-        { key: "discontinue", label: "Discontinue Admission", icon: StopCircle, hint: "Stop in-progress admission", kind: "Discontinue", startStatus: "discontinued",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "reason", label: "Reason", required: true, type: "textarea" },
-          ], destructive: true },
-      ],
-    },
-    {
-      key: "authorisation",
-      title: "Authorisation & Location",
-      tagline: "No-auth · location · admissions view",
-      description: "Manage authorisation exceptions and quickly locate any inpatient in the network.",
-      icon: ShieldAlert,
-      accent: "from-rose-500/25 via-pink-500/15 to-transparent",
-      ring: "ring-rose-400/30",
-      actions: [
-        { key: "no-auth", label: "Flag No-Auth", icon: ShieldOff, hint: "Mark admission as no authorisation", kind: "No Auth", startStatus: "pending",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "reason", label: "Reason", required: true, type: "textarea" },
-          ], destructive: true },
-        { key: "no-auth-admissions", label: "No Auth Admissions", icon: ShieldAlert, hint: "Board of open no-auth admissions", kind: "No Auth Board", startStatus: "active",
-          fields: [{ name: "facility", label: "Facility" }] },
-        { key: "patient-location", label: "Patient Location Lookup", icon: MapPin, hint: "Locate any inpatient", kind: "Location Lookup", startStatus: "active",
-          fields: [{ name: "patient", label: "Patient", required: true }] },
-      ],
-    },
-    {
-      key: "dashboard",
-      title: "Dashboard",
-      tagline: "Ops overview",
-      description: "Facility-level occupancy, length of stay and no-auth board at a glance.",
-      icon: ClipboardList,
-      accent: "from-primary/25 via-accent/15 to-transparent",
-      ring: "ring-primary/30",
-      actions: [
-        { key: "view-dashboard", label: "View Dashboard", icon: ClipboardList, hint: "Open the operational dashboard", kind: "Dashboard", startStatus: "active",
-          fields: [
-            { name: "facility", label: "Facility" },
-            { name: "period", label: "Period", placeholder: "e.g. Week 27" },
-          ]},
-      ],
-    },
+  filters: [
+    { key: "status", label: "Status", kind: "select", options: [
+      { value: "admitted", label: "Admitted" },
+      { value: "pending", label: "Pending" },
+      { value: "transferred", label: "Transferred" },
+      { value: "discharged", label: "Discharged" },
+      { value: "cancelled", label: "Cancelled" },
+    ] },
+    { key: "Ward", label: "Ward", kind: "text", placeholder: "e.g. Ward 3B" },
+    { key: "updated", label: "Updated between", kind: "date-range" },
+    { key: "noAuthOnly", label: "No-auth flagged only", kind: "boolean" },
   ],
-  worklist: {
-    moduleKey: "admissions",
-    name: "Admissions worklist",
-    tagline: "Current inpatients, transfers pending and discharge-ready cases.",
-    exportable: true,
-    defaultSortBy: "updatedAt",
-    defaultSortDir: "desc",
-    pageSize: 25,
-    statusMap: {
-      admitted: { label: "Admitted", tone: "success" },
-      pending: { label: "Pending", tone: "warning" },
-      transferred: { label: "Transferred", tone: "info" },
-      discharged: { label: "Discharged", tone: "muted" },
-      cancelled: { label: "Cancelled", tone: "destructive" },
-      discontinued: { label: "Discontinued", tone: "destructive" },
-    },
-    columns: [
-      { key: "id", label: "Admission #", sortable: true, width: "140px",
-        render: (r) => <span className="font-mono text-xs">{r.id}</span> },
-      { key: "title", label: "Patient", sortable: true,
-        render: (r) => (
-          <div className="min-w-0">
-            <div className="truncate font-medium">{r.title}</div>
-            {r.subtitle && <div className="truncate text-[11px] text-muted-foreground">{r.subtitle}</div>}
-          </div>
-        ) },
-      { key: "Ward", label: "Ward / Bed",
-        render: (r) => <span>{String(r.fields["Ward"] ?? r.fields["To Ward"] ?? "—")}{r.fields["Bed"] ? ` · ${r.fields["Bed"]}` : ""}</span> },
-      { key: "Admitting practitioner", label: "Practitioner",
-        render: (r) => String(r.fields["Admitting practitioner"] ?? r.fields["Practitioner"] ?? "—") },
-      { key: "Auth", label: "Auth",
-        render: (r) => {
-          const auth = String(r.fields["Auth"] ?? r.fields["Authorisation ref"] ?? "").trim();
-          if (!auth || auth.toLowerCase() === "none") {
-            return <span className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] text-rose-600 dark:text-rose-400">No-auth</span>;
-          }
-          return <span className="font-mono text-[11px]">{auth}</span>;
-        } },
-      { key: "status", label: "Status",
-        render: (r) => {
-          const map: Record<string, { label: string; tone: "success" | "warning" | "info" | "muted" | "destructive" }> = {
-            admitted: { label: "Admitted", tone: "success" },
-            pending: { label: "Pending", tone: "warning" },
-            transferred: { label: "Transferred", tone: "info" },
-            discharged: { label: "Discharged", tone: "muted" },
-            cancelled: { label: "Cancelled", tone: "destructive" },
-            discontinued: { label: "Discontinued", tone: "destructive" },
-          };
-          const cfg = map[r.status] ?? { label: r.status, tone: "muted" as const };
-          const tones = {
-            success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-            warning: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
-            info: "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400",
-            muted: "border-border bg-muted/60 text-muted-foreground",
-            destructive: "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400",
-          };
-          return <span className={"inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium " + tones[cfg.tone]}>{cfg.label}</span>;
-        } },
-      { key: "updatedAt", label: "Updated", sortable: true, defaultVisible: false,
-        render: (r) => <span className="text-[11px] text-muted-foreground">{new Date(r.updatedAt || r.createdAt).toLocaleString("en-ZA")}</span> },
-    ],
-    filters: [
-      { key: "status", label: "Status", kind: "select", options: [
-        { value: "admitted", label: "Admitted" },
-        { value: "pending", label: "Pending" },
-        { value: "transferred", label: "Transferred" },
-        { value: "discharged", label: "Discharged" },
-        { value: "cancelled", label: "Cancelled" },
-      ] },
-      { key: "Auth", label: "Authorisation", kind: "select", options: [
-        { value: "none", label: "No-auth only" },
-      ] },
-      { key: "Ward", label: "Ward", kind: "text", placeholder: "e.g. Ward 3B" },
-      { key: "updated", label: "Updated between", kind: "date-range" },
-      { key: "noAuthOnly", label: "No-auth flagged only", kind: "boolean" },
-    ],
-    summary: (items) => {
-      const admitted = items.filter((i) => i.status === "admitted").length;
-      const pending = items.filter((i) => i.status === "pending").length;
-      const noAuth = items.filter((i) => String(i.fields["Auth"] ?? "").toLowerCase() === "none").length;
-      const discharged = items.filter((i) => i.status === "discharged").length;
-      return [
-        { label: "Currently admitted", value: admitted, tone: "success" as const },
-        { label: "Pending admission", value: pending, tone: "warning" as const },
-        { label: "No-auth flagged", value: noAuth, tone: "destructive" as const },
-        { label: "Discharged", value: discharged, tone: "muted" as const },
-      ];
-    },
-    savedViews: [
-      { key: "no-auth", label: "No-auth admissions", description: "All admissions flagged as no-authorisation.",
-        filters: { noAuthOnly: true } },
-      { key: "discharge-ready", label: "Discharge ready", description: "Admitted cases ready for discharge review.",
-        filters: { status: "admitted" } },
-      { key: "pending-in", label: "Pending admissions", description: "Preadmissions awaiting bed allocation.",
-        filters: { status: "pending" } },
-    ],
-    rowActions: [
-      { key: "open", label: "Open in guided workflow", launchesGuidedWorkflow: true, permission: "view" },
-      { key: "transferred", label: "Transfer / move ward", targetStep: "changes", launchesGuidedWorkflow: true, permission: "manage",
-        visibleWhen: (r) => r.status === "admitted" },
-      { key: "discharged", label: "Discharge patient", targetStep: "discharge", launchesGuidedWorkflow: true, permission: "manage",
-        visibleWhen: (r) => r.status === "admitted" },
-      { key: "cancelled", label: "Cancel admission", destructive: true, requiresReason: true, permission: "manage",
-        visibleWhen: (r) => r.status === "pending" || r.status === "admitted" },
-    ],
-    // Bulk admission, discharge, finalisation, refund, reversal, patient merge,
-    // clinical sign-off and claim submission are prohibited by policy.
-    bulkActions: [],
-  },
-  // The old single Admissions mega-workflow has been removed. Guided processes
-  // are now launched exclusively via the AdmissionProcessSelector below.
+  savedViews: [
+    { key: "no-auth", label: "No-auth admissions", description: "All admissions flagged as no-authorisation.",
+      filters: { noAuthOnly: true } },
+    { key: "discharge-ready", label: "Discharge ready", description: "Admitted cases ready for discharge review.",
+      filters: { status: "admitted" } },
+    { key: "pending-in", label: "Pending admissions", description: "Preadmissions awaiting bed allocation.",
+      filters: { status: "pending" } },
+  ],
+  rowActions: [
+    { key: "open", label: "Open in guided workflow", launchesGuidedWorkflow: true, permission: "view" },
+    { key: "transferred", label: "Transfer / move ward", targetStep: "changes", launchesGuidedWorkflow: true, permission: "manage",
+      visibleWhen: (r) => r.status === "admitted" },
+    { key: "discharged", label: "Discharge patient", targetStep: "discharge", launchesGuidedWorkflow: true, permission: "manage",
+      visibleWhen: (r) => r.status === "admitted" },
+    { key: "cancelled", label: "Cancel admission", destructive: true, requiresReason: true, permission: "manage",
+      visibleWhen: (r) => r.status === "pending" || r.status === "admitted" },
+  ],
+  bulkActions: [],
 };
 
 const CREATION_KEYS = new Set<CreationVariant>(["admit", "convert-pre", "direct-admit", "emergency-admit", "no-auth-admit"]);
@@ -288,7 +110,8 @@ const FINANCIAL_KEYS = new Set<FinancialVariant>(["misc-charge", "billing-checks
 const DEPARTURE_KEYS = new Set<DepartureVariant>(["discharge", "predischarge", "undischarge", "cancel-admission", "discontinue", "amend-admission", "notes-documents"]);
 
 function AdmissionsRoute() {
-  const scrollAnchor = useRef<HTMLDivElement>(null);
+  const [tab, setTab] = useState<"worklist" | "processes">("worklist");
+  const processesRef = useRef<HTMLDivElement>(null);
   const [wizardVariant, setWizardVariant] = useState<CreationVariant | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [mgmtVariant, setMgmtVariant] = useState<ManagementVariant | null>(null);
@@ -300,52 +123,82 @@ function AdmissionsRoute() {
   const [depVariant, setDepVariant] = useState<DepartureVariant | null>(null);
   const [depOpen, setDepOpen] = useState(false);
 
+  // Live KPI feed from the same service the worklist uses.
+  const { data } = useModuleList("admissions", { page: 1, pageSize: 500 });
+  const kpis = useMemo(() => {
+    const items = data?.items ?? [];
+    const admitted = items.filter((i) => i.status === "admitted").length;
+    const pending = items.filter((i) => i.status === "pending").length;
+    const discharged = items.filter((i) => i.status === "discharged").length;
+    const noAuth = items.filter((i) => String(i.fields["Auth"] ?? "").toLowerCase() === "none").length;
+    return { admitted, pending, discharged, noAuth };
+  }, [data]);
+
+  const launchProcess = (key: string) => {
+    if (CREATION_KEYS.has(key as CreationVariant)) { setWizardVariant(key as CreationVariant); setWizardOpen(true); return; }
+    if (MANAGEMENT_KEYS.has(key as ManagementVariant)) { setMgmtVariant(key as ManagementVariant); setMgmtOpen(true); return; }
+    if (FUNDING_KEYS.has(key as FundingVariant)) { setFundVariant(key as FundingVariant); setFundOpen(true); return; }
+    if (FINANCIAL_KEYS.has(key as FinancialVariant)) { setFinVariant(key as FinancialVariant); setFinOpen(true); return; }
+    if (DEPARTURE_KEYS.has(key as DepartureVariant)) { setDepVariant(key as DepartureVariant); setDepOpen(true); return; }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-xs text-muted-foreground">Launch a guided process or jump into the live board.</div>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/admissions/dashboard"><LayoutDashboard className="mr-1 h-3.5 w-3.5" />Operational dashboard</Link>
-        </Button>
+      {/* Header — compact, single row of business priorities */}
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Clinical · Admissions</div>
+          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">Admissions</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Live inpatient board. Admit, move and discharge with guided workflows.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" className="gap-1.5" onClick={() => { setWizardVariant("admit"); setWizardOpen(true); }}>
+            <UserPlus className="h-4 w-4" /> Admit patient
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => launchProcess("move-ward")}>
+            <ArrowRightLeft className="h-4 w-4" /> Transfer
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => launchProcess("discharge")}>
+            <LogOut className="h-4 w-4" /> Discharge
+          </Button>
+          <Button asChild variant="ghost" size="sm" className="gap-1.5">
+            <Link to="/admissions/dashboard"><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
+          </Button>
+        </div>
+      </header>
+
+      {/* KPI row — what business asks first */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <KpiCard label="Currently admitted" value={kpis.admitted} icon={BedDouble} tone="success" />
+        <KpiCard label="Pending admission" value={kpis.pending} icon={Clock} tone="warning" />
+        <KpiCard label="No-auth flagged" value={kpis.noAuth} icon={ShieldAlert} tone="destructive" hint="Requires funding intervention" />
+        <KpiCard label="Discharged today" value={kpis.discharged} icon={LogOut} tone="info" />
       </div>
-      <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
-        <AdmissionProcessSelector
-          onLaunch={(process) => {
-            if (CREATION_KEYS.has(process.key as CreationVariant)) {
-              setWizardVariant(process.key as CreationVariant);
-              setWizardOpen(true);
-              return;
-            }
-            if (MANAGEMENT_KEYS.has(process.key as ManagementVariant)) {
-              setMgmtVariant(process.key as ManagementVariant);
-              setMgmtOpen(true);
-              return;
-            }
-            if (FUNDING_KEYS.has(process.key as FundingVariant)) {
-              setFundVariant(process.key as FundingVariant);
-              setFundOpen(true);
-              return;
-            }
-            if (FINANCIAL_KEYS.has(process.key as FinancialVariant)) {
-              setFinVariant(process.key as FinancialVariant);
-              setFinOpen(true);
-              return;
-            }
-            if (DEPARTURE_KEYS.has(process.key as DepartureVariant)) {
-              setDepVariant(process.key as DepartureVariant);
-              setDepOpen(true);
-              return;
-            }
-            scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-            if (typeof window !== "undefined") {
-              window.location.hash = `#p=${process.key}`;
-            }
-          }}
-        />
-      </div>
-      <div ref={scrollAnchor}>
-        <ModuleConsole config={config} />
-      </div>
+
+      {/* Focus tabs — Worklist first (default), Processes on demand */}
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "worklist" | "processes")} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="worklist" className="gap-1.5">
+            <ListChecks className="h-4 w-4" /> Live worklist
+          </TabsTrigger>
+          <TabsTrigger value="processes" className="gap-1.5">
+            <LayoutGrid className="h-4 w-4" /> All processes
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="worklist" className="space-y-4">
+          <ModuleWorklist config={worklistConfig} />
+        </TabsContent>
+
+        <TabsContent value="processes" className="space-y-4">
+          <div ref={processesRef} className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
+            <AdmissionProcessSelector onLaunch={(process) => launchProcess(process.key)} />
+          </div>
+        </TabsContent>
+      </Tabs>
+
       <AdmissionCreationWizard variant={wizardVariant} open={wizardOpen} onOpenChange={setWizardOpen} />
       <AdmissionManagementWizard variant={mgmtVariant} open={mgmtOpen} onOpenChange={setMgmtOpen} />
       <AdmissionFundingWizard variant={fundVariant} open={fundOpen} onOpenChange={setFundOpen} />
@@ -355,12 +208,16 @@ function AdmissionsRoute() {
   );
 }
 
+// Suppress unused-search warning
+void Search;
 
 export const Route = createFileRoute("/_app/admissions")({
   head: () => ({
     meta: [
       { title: "Admissions — Impilo" },
-      { name: "description", content: config.description },
+      { name: "description", content: "Live inpatient worklist with guided admit, transfer and discharge workflows." },
+      { property: "og:title", content: "Admissions — Impilo" },
+      { property: "og:description", content: "Live inpatient worklist with guided admit, transfer and discharge workflows." },
     ],
   }),
   component: AdmissionsRoute,
