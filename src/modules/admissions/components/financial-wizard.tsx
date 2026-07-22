@@ -49,13 +49,7 @@ const CHARGE_TYPES = [
   "Sundry", "Interpreter", "Special investigation", "Other",
 ];
 
-/** Mock outstanding billing checks — in a real app this comes from the loader. */
-const MOCK_CHECKS: BillingCheckItem[] = [
-  { checkId: "BC-1", admissionId: "ADM-000", checkType: "MissingAccommodation",     severity: "Blocking", module: "Wards",     description: "Ward 3B has an open accommodation period without close-out.", owner: "Ward clerk",   createdDate: "2026-07-20", status: "Open" },
-  { checkId: "BC-2", admissionId: "ADM-000", checkType: "MissingClinicalCoding",    severity: "Blocking", module: "Coding",    description: "Discharge summary present but ICD-10 codes not captured.",    owner: "Clinical coder", createdDate: "2026-07-20", status: "Open" },
-  { checkId: "BC-3", admissionId: "ADM-000", checkType: "AuthorisationStayMismatch", severity: "Warning", module: "Case Mgmt", description: "Approved stay ends 2026-07-22 but discharge captured 2026-07-23.", owner: "Case manager",  createdDate: "2026-07-21", status: "Open" },
-  { checkId: "BC-4", admissionId: "ADM-000", checkType: "OutstandingPharmacyItems", severity: "Warning", module: "Pharmacy",  description: "2 dispensed items not yet charged to the visit.",             owner: "Pharmacy tech", createdDate: "2026-07-21", status: "Open" },
-];
+type OverrideEntry = BillingCheckOverride;
 
 type Draft = {
   admissionId: string;
@@ -67,8 +61,9 @@ type Draft = {
   quantity: string;
   amountZar: string;
   chargeReason: string;
-  // billing-checks
+  // billing-checks / finalise
   checks: BillingCheckItem[];
+  checksLoading: boolean;
   selectedCheckId: string;
   resolution: ManageBillingCheckRequest["resolution"];
   resolutionNote: string;
@@ -78,7 +73,7 @@ type Draft = {
   finalisedAt: string;
   closeAccommodation: boolean;
   clinicalCodingSignedOff: boolean;
-  overriddenCheckIds: string[];
+  overrides: OverrideEntry[];
   billingNarrative: string;
 };
 
@@ -88,10 +83,10 @@ const EMPTY: Draft = {
   admissionId: "", facilityId: FACILITIES[0] ?? "",
   chargeType: "Consumable", serviceDate: today(), description: "",
   quantity: "1", amountZar: "0.00", chargeReason: "",
-  checks: MOCK_CHECKS, selectedCheckId: "", resolution: "Resolve",
+  checks: [], checksLoading: false, selectedCheckId: "", resolution: "Resolve",
   resolutionNote: "", overrideApproverId: "", reassignToUserId: "",
   finalisedAt: today(), closeAccommodation: true, clinicalCodingSignedOff: false,
-  overriddenCheckIds: [], billingNarrative: "",
+  overrides: [], billingNarrative: "",
 };
 
 type StepDef = { key: string; title: string; hint: string };
