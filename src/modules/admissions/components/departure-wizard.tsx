@@ -745,16 +745,18 @@ function SeverityBadge({ severity }: { severity: PreDischargeReviewItem["severit
 }
 
 function ReviewList({
-  review, overrides, onToggleOverride,
+  review, overrides, onToggleOverride, onOverrideChange,
 }: {
   review: PreDischargeReviewResult;
-  overrides?: string[];
+  overrides?: OverrideEntry[];
   onToggleOverride?: (id: string) => void;
+  onOverrideChange?: (id: string, patch: Partial<OverrideEntry>) => void;
 }) {
   const toneForReadiness =
     review.readiness === "Ready" ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
     : review.readiness === "Blocked" ? "border-rose-500/40 bg-rose-500/5 text-rose-700 dark:text-rose-300"
     : "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300";
+  const overrideMap = new Map((overrides ?? []).map((o) => [o.itemId, o]));
   return (
     <div className="space-y-3">
       <div className={cn("flex items-center justify-between rounded-lg border p-3 text-xs", toneForReadiness)}>
@@ -767,22 +769,43 @@ function ReviewList({
       <div className="space-y-2">
         {review.items.map((it) => {
           const isOverridable = it.severity === "Blocking" && !!onToggleOverride;
-          const overridden = overrides?.includes(it.itemId) ?? false;
+          const entry = overrideMap.get(it.itemId);
+          const overridden = !!entry;
+          const complete = !!entry && !!entry.reason.trim() && !!entry.approverId.trim();
           return (
-            <div key={it.itemId} className={cn("flex items-start gap-3 rounded-lg border p-3 text-xs",
-              overridden && "border-emerald-500/40 bg-emerald-500/5")}>
-              {isOverridable && (
-                <Checkbox checked={overridden} onCheckedChange={() => onToggleOverride?.(it.itemId)} />
-              )}
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <SeverityBadge severity={it.severity} />
-                  <Badge variant="outline" className="text-[10px]">{it.category}</Badge>
-                  <span className="font-medium">{it.title}</span>
+            <div key={it.itemId} className={cn("space-y-2 rounded-lg border p-3 text-xs",
+              overridden && complete && "border-emerald-500/40 bg-emerald-500/5",
+              overridden && !complete && "border-amber-500/40 bg-amber-500/5")}>
+              <div className="flex items-start gap-3">
+                {isOverridable && (
+                  <Checkbox checked={overridden} onCheckedChange={() => onToggleOverride?.(it.itemId)} />
+                )}
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SeverityBadge severity={it.severity} />
+                    <Badge variant="outline" className="text-[10px]">{it.category}</Badge>
+                    <span className="font-medium">{it.title}</span>
+                  </div>
+                  <div className="text-muted-foreground">{it.description}</div>
+                  {it.owner && <div className="mt-0.5 text-[10px] text-muted-foreground">Owner: {it.owner}</div>}
                 </div>
-                <div className="text-muted-foreground">{it.description}</div>
-                {it.owner && <div className="mt-0.5 text-[10px] text-muted-foreground">Owner: {it.owner}</div>}
               </div>
+              {isOverridable && overridden && onOverrideChange && (
+                <div className="grid gap-2 pl-6 sm:grid-cols-2">
+                  <div>
+                    <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Approver <span className="text-rose-500">*</span></Label>
+                    <Input className="h-8 text-xs" value={entry?.approverId ?? ""}
+                      onChange={(e) => onOverrideChange(it.itemId, { approverId: e.target.value })}
+                      placeholder="Manager / delegate" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Override reason <span className="text-rose-500">*</span></Label>
+                    <Input className="h-8 text-xs" value={entry?.reason ?? ""}
+                      onChange={(e) => onOverrideChange(it.itemId, { reason: e.target.value })}
+                      placeholder="Why this blocking check is being overridden" />
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
