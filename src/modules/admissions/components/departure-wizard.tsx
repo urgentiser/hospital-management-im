@@ -37,9 +37,9 @@ import { FACILITIES } from "@/lib/facility-context";
 import { admissionsService } from "@/services/modules/admissions.service";
 import type {
   AddAdmissionNoteRequest, AmendAdmissionRequest, AttachAdmissionDocumentRequest,
-  CancelAdmissionRequest, DischargeAdmissionRequest, DiscontinueAdmissionRequest,
-  Disposition, PreDischargeReviewItem, PreDischargeReviewResult,
-  UndischargeAdmissionRequest,
+  CancelAdmissionRequest, DischargeAdmissionRequest, DischargeOverride,
+  DiscontinueAdmissionRequest, Disposition, PreDischargeReviewItem,
+  PreDischargeReviewResult, UndischargeAdmissionRequest,
 } from "@/modules/admissions/contracts";
 
 export type DepartureVariant =
