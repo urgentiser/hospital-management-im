@@ -498,7 +498,7 @@ export function AdmissionDepartureWizard({ variant, open, onOpenChange, onComple
                   {draft.reviewLoading ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Loading…</> : "Run review"}
                 </Button>
               </div>
-              {draft.review && <ReviewList review={draft.review} overrides={draft.overrideChecks} onToggleOverride={toggleOverride} />}
+              {draft.review && <ReviewList review={draft.review} overrides={draft.overrideChecks} onToggleOverride={toggleOverride} onOverrideChange={setOverride} />}
               {!draft.review && !draft.reviewLoading && (
                 <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
                   No review data yet — click <b>Run review</b>.
