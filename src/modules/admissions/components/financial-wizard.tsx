@@ -31,9 +31,10 @@ import { cn } from "@/lib/utils";
 import { FACILITIES } from "@/lib/facility-context";
 import { admissionsService } from "@/services/modules/admissions.service";
 import type {
-  BillingCheckItem, FinaliseBillRequest, ManageBillingCheckRequest,
-  MiscellaneousChargeRequest,
+  BillingCheckItem, BillingCheckOverride, FinaliseBillRequest,
+  ManageBillingCheckRequest, MiscellaneousChargeRequest,
 } from "@/modules/admissions/contracts";
+import { Loader2 } from "lucide-react";
 
 export type FinancialVariant = "misc-charge" | "billing-checks" | "finalise-bill";
 
