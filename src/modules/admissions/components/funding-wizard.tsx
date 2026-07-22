@@ -45,13 +45,13 @@ const META: Record<FundingVariant, { title: string; blurb: string; icon: typeof 
 };
 
 const FUNDING_METHODS: FundingMethod[] = [
-  "MedicalScheme", "SelfPay", "COID", "RoadAccidentFund", "InsuranceOther", "Sponsor",
+  "MedicalScheme", "Insurance", "COID", "SelfPay", "Guarantor", "Other",
 ];
 const AUTH_STATUSES: AuthorisationStatus[] = [
-  "None", "Requested", "Approved", "PartiallyApproved", "Rejected", "Expired", "MoreInformationRequested",
+  "NotRequested", "Pending", "Approved", "Rejected", "Expired", "MoreInfo",
 ];
 const NO_AUTH_REASONS: NoAuthReason[] = [
-  "EmergencyAdmission", "Rejected", "SchemeUnavailable", "AwaitingResponse", "PatientOptOut", "Other",
+  "NotRequested", "Pending", "Rejected", "ProviderUnavailable", "EmergencyException", "InsufficientInformation",
 ];
 
 type Draft = {
