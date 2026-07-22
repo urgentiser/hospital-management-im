@@ -428,6 +428,11 @@ function AdmissionsRoute() {
               setFinOpen(true);
               return;
             }
+            if (DEPARTURE_KEYS.has(process.key as DepartureVariant)) {
+              setDepVariant(process.key as DepartureVariant);
+              setDepOpen(true);
+              return;
+            }
             scrollAnchor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
             if (typeof window !== "undefined") {
               window.location.hash = `#p=${process.key}`;
