@@ -33,6 +33,7 @@ import type {
   ManageBillingCheckRequest,
   FinaliseBillRequest,
   FinaliseBillResult,
+  BillingCheckItem,
   PreDischargeReviewResult,
   PreDischargeReviewItem,
   AmendAdmissionRequest,
