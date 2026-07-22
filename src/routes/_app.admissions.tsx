@@ -11,6 +11,7 @@ import { AdmissionCreationWizard, type CreationVariant } from "@/modules/admissi
 import { AdmissionManagementWizard, type ManagementVariant } from "@/modules/admissions/components/management-wizard";
 import { AdmissionFundingWizard, type FundingVariant } from "@/modules/admissions/components/funding-wizard";
 import { AdmissionFinancialWizard, type FinancialVariant } from "@/modules/admissions/components/financial-wizard";
+import { AdmissionDepartureWizard, type DepartureVariant } from "@/modules/admissions/components/departure-wizard";
 
 
 const config: ModuleConsoleConfig = {
