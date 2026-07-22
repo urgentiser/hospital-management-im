@@ -464,6 +464,65 @@ export type FinaliseBillResult = {
   blockingChecksRemaining: number;
 };
 
+/* ─── Phase G — Departure & corrections ──────────────────────────── */
+
+/** §33 — GET /admissions/{id}/pre-discharge-review */
+export type PreDischargeReviewItem = {
+  itemId: string;
+  category: "Clinical" | "Billing" | "Coding" | "Documents" | "CaseManagement" | "Authorisation" | "Pharmacy";
+  severity: "Blocking" | "Warning" | "Info";
+  title: string;
+  description: string;
+  owner?: string;
+  status: "Open" | "Resolved" | "Waived";
+};
+
+export type PreDischargeReviewResult = {
+  admissionId: string;
+  reviewedAt: string;
+  readinessScore: number;
+  readiness: "Ready" | "Blocked" | "NotReady";
+  items: PreDischargeReviewItem[];
+};
+
+/** §33 — PATCH /admissions/{id} */
+export type AmendAdmissionRequest = {
+  admissionId: string;
+  reason: string;
+  approverId?: string;
+  changes: Partial<{
+    admissionType: AdmissionType;
+    admissionSource: AdmissionSource;
+    admissionDate: string;
+    expectedDeparture: string;
+    reasonForAdmission: string;
+    admittingPractitionerId: string;
+    responsiblePractitionerId: string;
+    admissionDiagnosis: string;
+  }>;
+  correlationId?: string;
+};
+
+/** §33 — POST /admissions/{id}/notes */
+export type AddAdmissionNoteRequest = {
+  admissionId: string;
+  category?: "Clinical" | "Administrative" | "Billing" | "CaseManagement" | "Other";
+  body: string;
+  visibility?: "Internal" | "PatientVisible";
+  correlationId?: string;
+};
+
+/** §33 — POST /admissions/{id}/documents */
+export type AttachAdmissionDocumentRequest = {
+  admissionId: string;
+  kind: string;
+  filename: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  description?: string;
+  correlationId?: string;
+};
+
 /* ─── Result envelopes ─────────────────────────────────────────────── */
 
 export type AdmissionCommandResult<T> =
