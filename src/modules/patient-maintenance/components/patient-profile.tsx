@@ -149,7 +149,13 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
                     ["Last updated", formatDateZA(patient.updatedAt)],
                   ]} />
                 </div>
-              </TabsContent>
+                {canView && (
+                  <div className="flex justify-end">
+                    <Button size="sm" variant="ghost" className="h-7 gap-1 text-[11px]" onClick={() => setRevealIdentifier((v) => !v)}>
+                      {revealIdentifier ? <><EyeOff className="h-3 w-3" /> Hide identifier</> : <><Eye className="h-3 w-3" /> Show identifier</>}
+                    </Button>
+                  </div>
+                )}
 
               <TabsContent value="contact" className="mt-0 space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2">
