@@ -1,11 +1,11 @@
 /**
- * Patient profile — tabbed read-only workspace opened from the browser
+ * Patient profile — tabbed read-only workspace opened from the directory
  * or after registration. Actions in the header launch the wizards.
  */
 import { useEffect, useMemo, useState } from "react";
 import {
   Building2, FileText, IdCard, Lock, MapPin, PhoneCall, Printer, ShieldAlert,
-  Unlock, User, Users, Wallet, Clock, HeartPulse, FileSignature, Eye,
+  Unlock, User, Users, Wallet, Clock, HeartPulse, FileSignature, Eye, EyeOff,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
@@ -17,6 +17,9 @@ import { cn } from "@/lib/utils";
 import { formatDateZA } from "@/lib/format";
 import { patientMaintenanceService } from "@/services/modules/patient-maintenance.service";
 import type { PatientRecord } from "@/modules/patient-maintenance/contracts";
+import { maskIdentifier } from "@/modules/patient-maintenance/components/patient-browser";
+import { useAuth } from "@/security/auth-provider";
+import { hasPermission, Permissions } from "@/security/permissions";
 
 type Props = {
   patientId: string | null;
