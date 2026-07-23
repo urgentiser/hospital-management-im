@@ -1,11 +1,11 @@
 /**
- * Patient profile — tabbed read-only workspace opened from the browser
+ * Patient profile — tabbed read-only workspace opened from the directory
  * or after registration. Actions in the header launch the wizards.
  */
 import { useEffect, useMemo, useState } from "react";
 import {
   Building2, FileText, IdCard, Lock, MapPin, PhoneCall, Printer, ShieldAlert,
-  Unlock, User, Users, Wallet, Clock, HeartPulse, FileSignature, Eye,
+  Unlock, User, Users, Wallet, Clock, HeartPulse, FileSignature, Eye, EyeOff,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
@@ -17,6 +17,9 @@ import { cn } from "@/lib/utils";
 import { formatDateZA } from "@/lib/format";
 import { patientMaintenanceService } from "@/services/modules/patient-maintenance.service";
 import type { PatientRecord } from "@/modules/patient-maintenance/contracts";
+import { maskIdentifier } from "@/modules/patient-maintenance/components/patient-browser";
+import { useAuth } from "@/security/auth-provider";
+import { hasPermission, Permissions } from "@/security/permissions";
 
 type Props = {
   patientId: string | null;
@@ -28,9 +31,15 @@ type Props = {
 
 export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateContact, onPrintDocuments }: Props) {
   const [patient, setPatient] = useState<PatientRecord | null>(null);
+  const [revealIdentifier, setRevealIdentifier] = useState(false);
+  const { principal } = useAuth();
+  const canView = hasPermission(principal, Permissions.PatientView);
+  const canUpdate = hasPermission(principal, Permissions.PatientUpdate);
+  const canPrint = hasPermission(principal, Permissions.DocumentView);
 
   useEffect(() => {
     if (open && patientId) setPatient(patientMaintenanceService.getPatient(patientId));
+    if (!open) setRevealIdentifier(false);
   }, [open, patientId]);
 
   const printJobs = useMemo(() => patient ? patientMaintenanceService.listPrintJobs(patient.id) : [], [patient]);
@@ -43,6 +52,10 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
       : patientMaintenanceService.lockPatient(patient.id, "Reception · current user");
     if (updated) setPatient({ ...updated });
   };
+
+  const identifierDisplay = revealIdentifier && canView
+    ? (patient.identifierValue ?? patient.identifierUnavailableReason ?? "—")
+    : maskIdentifier(patient.identifierValue);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,11 +86,11 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
                   <Lock className="h-3 w-3" /> Locked by {patient.lockedBy}
                 </Badge>
               )}
-              <Button size="sm" variant="outline" onClick={() => onUpdateContact?.(patient.id)}>
-                <PhoneCall className="mr-1 h-3.5 w-3.5" /> Update contact
+              <Button size="sm" variant="outline" onClick={() => onUpdateContact?.(patient.id)} disabled={!canUpdate}>
+                <PhoneCall className="mr-1 h-3.5 w-3.5" /> Update Contact Details
               </Button>
-              <Button size="sm" variant="outline" onClick={() => onPrintDocuments?.(patient.id)}>
-                <Printer className="mr-1 h-3.5 w-3.5" /> Print documents
+              <Button size="sm" variant="outline" onClick={() => onPrintDocuments?.(patient.id)} disabled={!canPrint}>
+                <Printer className="mr-1 h-3.5 w-3.5" /> Print Past Documents
               </Button>
               <Button size="sm" variant="ghost" onClick={toggleLock}>
                 {patient.lockedBy ? <Unlock className="mr-1 h-3.5 w-3.5" /> : <Lock className="mr-1 h-3.5 w-3.5" />}
@@ -130,13 +143,21 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
                     ["Country", patient.country],
                     ["Patient type", patient.patientType],
                     ["Identifier type", patient.identifierType],
-                    ["Identifier value", patient.identifierValue ?? patient.identifierUnavailableReason ?? "—"],
+                    ["Identifier value", identifierDisplay],
                     ["Facility", patient.facility],
                     ["Created", formatDateZA(patient.createdAt)],
                     ["Last updated", formatDateZA(patient.updatedAt)],
                   ]} />
                 </div>
+                {canView && (
+                  <div className="flex justify-end">
+                    <Button size="sm" variant="ghost" className="h-7 gap-1 text-[11px]" onClick={() => setRevealIdentifier((v) => !v)}>
+                      {revealIdentifier ? <><EyeOff className="h-3 w-3" /> Hide identifier</> : <><Eye className="h-3 w-3" /> Show identifier</>}
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
+
 
               <TabsContent value="contact" className="mt-0 space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2">
