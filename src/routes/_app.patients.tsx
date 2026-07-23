@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  Eye, LayoutGrid, ListChecks, Printer, Search, UserPlus, Users,
+  LayoutGrid, ListChecks, Printer, Search, Users2, UserPlus, Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +14,9 @@ import { RegisterPatientWizard } from "@/modules/patient-maintenance/components/
 import { UpdateContactWizard } from "@/modules/patient-maintenance/components/update-contact-wizard";
 import { PastDocumentsWizard } from "@/modules/patient-maintenance/components/past-documents-wizard";
 import { PatientProfileModal } from "@/modules/patient-maintenance/components/patient-profile";
-import { PatientBrowserModal } from "@/modules/patient-maintenance/components/patient-browser";
+import { PatientBrowser, PatientBrowserModal } from "@/modules/patient-maintenance/components/patient-browser";
+import { useAuth } from "@/security/auth-provider";
+import { hasPermission, Permissions } from "@/security/permissions";
 
 const worklistConfig: WorklistConfig = {
   moduleKey: "patients",
@@ -65,7 +67,13 @@ const worklistConfig: WorklistConfig = {
 };
 
 function PatientMaintenanceRoute() {
-  const [tab, setTab] = useState<"processes" | "worklist">("processes");
+  const { principal } = useAuth();
+  const canView = hasPermission(principal, Permissions.PatientView);
+  const canCreate = hasPermission(principal, Permissions.PatientCreate);
+  const canUpdate = hasPermission(principal, Permissions.PatientUpdate);
+  const canPrint = hasPermission(principal, Permissions.DocumentView);
+
+  const [tab, setTab] = useState<"processes" | "directory" | "worklist">("processes");
   const [registerOpen, setRegisterOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
@@ -81,20 +89,24 @@ function PatientMaintenanceRoute() {
   const launch = useMemo(() => (key: string) => {
     switch (key) {
       case "register-patient":
+        if (!canCreate) return toast.error("You do not have permission to register patients.");
         setRegisterOpen(true); return;
       case "search-patient":
       case "view-profile":
       case "view-document-history":
       case "resolve-duplicate":
+        if (!canView) return toast.error("You do not have permission to view patients.");
         setBrowserOpen(true); return;
       case "update-contact":
+        if (!canUpdate) return toast.error("You do not have permission to update contact details.");
         openContact(null); return;
       case "print-past-documents":
+        if (!canPrint) return toast.error("You do not have permission to print past documents.");
         openPrint(null); return;
       default:
         toast.warning("Process not available", { description: `No handler registered for '${key}'.` });
     }
-  }, []);
+  }, [canCreate, canView, canUpdate, canPrint]);
 
   return (
     <div className="space-y-6">
@@ -104,31 +116,34 @@ function PatientMaintenanceRoute() {
           <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             Front Office · Patient Maintenance
           </div>
-          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">Patient maintenance</h1>
+          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">Patient Maintenance</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Register patients, keep demographics and contact details current, and reprint historic documents.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm" className="gap-1.5" onClick={() => setRegisterOpen(true)}>
-            <UserPlus className="h-4 w-4" /> Register patient
+          <Button size="sm" className="gap-1.5" onClick={() => setRegisterOpen(true)} disabled={!canCreate}>
+            <UserPlus className="h-4 w-4" /> Register Patient
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setBrowserOpen(true)}>
-            <Search className="h-4 w-4" /> Search patient
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setBrowserOpen(true)} disabled={!canView}>
+            <Search className="h-4 w-4" /> Search Patient
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openContact(null)}>
-            <Users className="h-4 w-4" /> Update contact
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openContact(null)} disabled={!canUpdate}>
+            <Users className="h-4 w-4" /> Update Contact Details
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openPrint(null)}>
-            <Printer className="h-4 w-4" /> Print documents
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openPrint(null)} disabled={!canPrint}>
+            <Printer className="h-4 w-4" /> Print Past Documents
           </Button>
         </div>
       </header>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as "processes" | "worklist")} className="space-y-4">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="space-y-4">
         <TabsList>
           <TabsTrigger value="processes" className="gap-1.5">
             <LayoutGrid className="h-4 w-4" /> Guided processes
+          </TabsTrigger>
+          <TabsTrigger value="directory" className="gap-1.5">
+            <Users2 className="h-4 w-4" /> Patient directory
           </TabsTrigger>
           <TabsTrigger value="worklist" className="gap-1.5">
             <ListChecks className="h-4 w-4" /> Activity worklist
@@ -141,15 +156,17 @@ function PatientMaintenanceRoute() {
           </div>
         </TabsContent>
 
-        <TabsContent value="worklist" className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-muted/20 p-3 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <Eye className="h-3.5 w-3.5" /> Use the patient directory for name, MRN and identifier searches.
-            </span>
-            <Button size="sm" variant="outline" onClick={() => setBrowserOpen(true)}>
-              <Search className="mr-1 h-3.5 w-3.5" /> Open patient directory
-            </Button>
+        <TabsContent value="directory" className="space-y-4">
+          <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
+            <PatientBrowser
+              onOpenPatient={canView ? openProfile : undefined}
+              onUpdateContact={canUpdate ? (id) => openContact(id) : undefined}
+              onPrintDocuments={canPrint ? (id) => openPrint(id) : undefined}
+            />
           </div>
+        </TabsContent>
+
+        <TabsContent value="worklist" className="space-y-4">
           <ModuleWorklist config={worklistConfig} />
         </TabsContent>
       </Tabs>
@@ -173,6 +190,8 @@ function PatientMaintenanceRoute() {
         open={browserOpen}
         onOpenChange={setBrowserOpen}
         onOpenPatient={openProfile}
+        onUpdateContact={canUpdate ? (id) => { setBrowserOpen(false); openContact(id); } : undefined}
+        onPrintDocuments={canPrint ? (id) => { setBrowserOpen(false); openPrint(id); } : undefined}
       />
       <PatientProfileModal
         patientId={profileId}
