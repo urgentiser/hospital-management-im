@@ -31,9 +31,15 @@ type Props = {
 
 export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateContact, onPrintDocuments }: Props) {
   const [patient, setPatient] = useState<PatientRecord | null>(null);
+  const [revealIdentifier, setRevealIdentifier] = useState(false);
+  const { principal } = useAuth();
+  const canView = hasPermission(principal, Permissions.PatientView);
+  const canUpdate = hasPermission(principal, Permissions.PatientUpdate);
+  const canPrint = hasPermission(principal, Permissions.DocumentView);
 
   useEffect(() => {
     if (open && patientId) setPatient(patientMaintenanceService.getPatient(patientId));
+    if (!open) setRevealIdentifier(false);
   }, [open, patientId]);
 
   const printJobs = useMemo(() => patient ? patientMaintenanceService.listPrintJobs(patient.id) : [], [patient]);
@@ -46,6 +52,10 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
       : patientMaintenanceService.lockPatient(patient.id, "Reception · current user");
     if (updated) setPatient({ ...updated });
   };
+
+  const identifierDisplay = revealIdentifier && canView
+    ? (patient.identifierValue ?? patient.identifierUnavailableReason ?? "—")
+    : maskIdentifier(patient.identifierValue);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
