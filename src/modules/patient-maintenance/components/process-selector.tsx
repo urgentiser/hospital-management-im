@@ -1,0 +1,195 @@
+/**
+ * Patient Maintenance process selector.
+ * Mirrors the Admissions / Clinical Assessments selector pattern.
+ */
+import { useMemo, useState } from "react";
+import { Search, ChevronRight, Lock, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/security/auth-provider";
+import { hasPermission } from "@/security/permissions";
+import {
+  patientMaintenanceGroups,
+  patientMaintenanceProcesses,
+  type PatientMaintenanceGroupKey,
+  type PatientMaintenanceProcessDef,
+} from "@/modules/patient-maintenance/workflows/process-registry";
+
+type Props = { onLaunch: (process: PatientMaintenanceProcessDef) => void };
+
+export function PatientMaintenanceProcessSelector({ onLaunch }: Props) {
+  const [query, setQuery] = useState("");
+  const [activeGroup, setActiveGroup] = useState<PatientMaintenanceGroupKey | "all">("all");
+  const { principal } = useAuth();
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return patientMaintenanceProcesses.filter((p) => {
+      if (activeGroup !== "all" && p.group !== activeGroup) return false;
+      if (!q) return true;
+      return (
+        p.label.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.key.toLowerCase().includes(q)
+      );
+    });
+  }, [query, activeGroup]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<PatientMaintenanceGroupKey, PatientMaintenanceProcessDef[]>();
+    for (const p of filtered) {
+      const arr = map.get(p.group) ?? [];
+      arr.push(p);
+      map.set(p.group, arr);
+    }
+    return map;
+  }, [filtered]);
+
+  return (
+    <section className="space-y-4">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">Patient maintenance processes</h2>
+          <p className="text-sm text-muted-foreground">
+            Register a patient, keep their record current, or reprint past documents.
+          </p>
+        </div>
+        <div className="relative w-full sm:w-72">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            aria-label="Search patient maintenance processes"
+            placeholder="Search processes…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      </header>
+
+      <div className="flex flex-wrap gap-1.5">
+        <GroupChip active={activeGroup === "all"} onClick={() => setActiveGroup("all")} label="All" count={patientMaintenanceProcesses.length} />
+        {patientMaintenanceGroups.map((g) => (
+          <GroupChip
+            key={g.key}
+            active={activeGroup === g.key}
+            onClick={() => setActiveGroup(g.key)}
+            label={g.title}
+            count={patientMaintenanceProcesses.filter((p) => p.group === g.key).length}
+          />
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+          No processes match “{query}”.
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {patientMaintenanceGroups
+            .filter((g) => (grouped.get(g.key)?.length ?? 0) > 0)
+            .map((g) => {
+              const Icon = g.icon;
+              const items = grouped.get(g.key) ?? [];
+              return (
+                <div key={g.key} className="space-y-3">
+                  <div className={cn("flex items-center gap-3 rounded-xl border bg-gradient-to-r p-3", g.accent)}>
+                    <div className="grid h-9 w-9 place-items-center rounded-lg bg-background/70 shadow-sm ring-1 ring-border">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold">{g.title}</div>
+                      <div className="text-[11px] text-muted-foreground">{g.tagline}</div>
+                    </div>
+                    <Badge variant="secondary" className="ml-auto">{items.length}</Badge>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                    {items.map((p) => (
+                      <ProcessCard
+                        key={p.key}
+                        process={p}
+                        allowed={hasPermission(principal, p.permission)}
+                        onLaunch={onLaunch}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function GroupChip({ active, onClick, label, count }: { active: boolean; onClick: () => void; label: string; count: number }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition",
+        active
+          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+          : "border-border bg-background hover:bg-accent",
+      )}
+    >
+      {label}
+      <span className={cn("rounded-full px-1.5 text-[10px]", active ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground")}>
+        {count}
+      </span>
+    </button>
+  );
+}
+
+function ProcessCard({
+  process, allowed, onLaunch,
+}: { process: PatientMaintenanceProcessDef; allowed: boolean; onLaunch: (p: PatientMaintenanceProcessDef) => void }) {
+  const Icon = process.icon;
+  return (
+    <button
+      type="button"
+      onClick={() => allowed && onLaunch(process)}
+      disabled={!allowed}
+      aria-disabled={!allowed}
+      title={allowed ? process.description : "You do not have permission to launch this process."}
+      className={cn(
+        "group flex w-full items-start gap-3 rounded-xl border bg-card p-3 text-left shadow-sm transition",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+        allowed ? "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md" : "cursor-not-allowed opacity-60",
+        process.destructive && allowed && "hover:border-rose-400/60",
+      )}
+    >
+      <div className={cn(
+        "grid h-10 w-10 shrink-0 place-items-center rounded-lg ring-1 ring-border transition",
+        process.destructive
+          ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:bg-rose-500/15"
+          : "bg-primary/10 text-primary group-hover:bg-primary/15",
+      )}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="truncate text-sm font-medium">{process.label}</div>
+          {process.primary && (
+            <Badge variant="outline" className="gap-1 border-primary/40 text-[10px] text-primary">
+              <Sparkles className="h-2.5 w-2.5" /> Primary
+            </Badge>
+          )}
+          {process.elevated && (
+            <Badge variant="outline" className="border-rose-400/50 text-[10px] text-rose-600 dark:text-rose-400">
+              Elevated
+            </Badge>
+          )}
+          {!allowed && (
+            <Badge variant="outline" className="gap-1 border-muted-foreground/30 text-[10px] text-muted-foreground">
+              <Lock className="h-2.5 w-2.5" /> No access
+            </Badge>
+          )}
+        </div>
+        <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{process.description}</div>
+      </div>
+      <ChevronRight className="mt-2 h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
+    </button>
+  );
+}
