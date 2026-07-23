@@ -143,7 +143,7 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
                     ["Country", patient.country],
                     ["Patient type", patient.patientType],
                     ["Identifier type", patient.identifierType],
-                    ["Identifier value", patient.identifierValue ?? patient.identifierUnavailableReason ?? "—"],
+                    ["Identifier value", identifierDisplay],
                     ["Facility", patient.facility],
                     ["Created", formatDateZA(patient.createdAt)],
                     ["Last updated", formatDateZA(patient.updatedAt)],
