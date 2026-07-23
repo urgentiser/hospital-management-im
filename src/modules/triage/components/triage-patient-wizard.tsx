@@ -804,5 +804,3 @@ const FINDING_GROUPS: Array<{ title: string; keys: Array<keyof TriageFindingFlag
   { title: "Metabolic & other", keys: ["diabeticConcern", "vomiting", "abdominalPain", "poisoning", "pregnancy", "pain"] },
 ];
 
-// Fix missing Lock import above (used in override block)
-import { Lock } from "lucide-react";
