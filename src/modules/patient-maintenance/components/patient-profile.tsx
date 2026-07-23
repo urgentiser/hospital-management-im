@@ -86,11 +86,11 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
                   <Lock className="h-3 w-3" /> Locked by {patient.lockedBy}
                 </Badge>
               )}
-              <Button size="sm" variant="outline" onClick={() => onUpdateContact?.(patient.id)}>
-                <PhoneCall className="mr-1 h-3.5 w-3.5" /> Update contact
+              <Button size="sm" variant="outline" onClick={() => onUpdateContact?.(patient.id)} disabled={!canUpdate}>
+                <PhoneCall className="mr-1 h-3.5 w-3.5" /> Update Contact Details
               </Button>
-              <Button size="sm" variant="outline" onClick={() => onPrintDocuments?.(patient.id)}>
-                <Printer className="mr-1 h-3.5 w-3.5" /> Print documents
+              <Button size="sm" variant="outline" onClick={() => onPrintDocuments?.(patient.id)} disabled={!canPrint}>
+                <Printer className="mr-1 h-3.5 w-3.5" /> Print Past Documents
               </Button>
               <Button size="sm" variant="ghost" onClick={toggleLock}>
                 {patient.lockedBy ? <Unlock className="mr-1 h-3.5 w-3.5" /> : <Lock className="mr-1 h-3.5 w-3.5" />}
