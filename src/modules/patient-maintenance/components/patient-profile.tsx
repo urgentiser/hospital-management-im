@@ -156,6 +156,8 @@ export function PatientProfileModal({ patientId, open, onOpenChange, onUpdateCon
                     </Button>
                   </div>
                 )}
+              </TabsContent>
+
 
               <TabsContent value="contact" className="mt-0 space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2">
