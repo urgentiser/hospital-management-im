@@ -1,206 +1,198 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
-  UserPlus, Printer, PhoneCall, IdCard, Search, Users,
-  FileText, UserCheck, ShieldAlert,
+  Eye, LayoutGrid, ListChecks, Printer, Search, UserPlus, Users,
 } from "lucide-react";
-import { ModuleConsole, type ModuleConsoleConfig } from "@/components/module-console";
-import { makeDefaultWorklist } from "@/components/worklist";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModuleWorklist } from "@/components/worklist/module-worklist";
+import type { WorklistConfig } from "@/components/worklist/types";
+import { PatientBanner } from "@/components/patient-banner";
+import { PatientMaintenanceProcessSelector } from "@/modules/patient-maintenance/components/process-selector";
+import { RegisterPatientWizard } from "@/modules/patient-maintenance/components/register-patient-wizard";
+import { UpdateContactWizard } from "@/modules/patient-maintenance/components/update-contact-wizard";
+import { PastDocumentsWizard } from "@/modules/patient-maintenance/components/past-documents-wizard";
+import { PatientProfileModal } from "@/modules/patient-maintenance/components/patient-profile";
+import { PatientBrowserModal } from "@/modules/patient-maintenance/components/patient-browser";
 
-const config: ModuleConsoleConfig = {
+const worklistConfig: WorklistConfig = {
   moduleKey: "patients",
-  patientScoped: true,
-  eyebrow: "Front Office · Patient Maintenance",
-  title: "Patient Maintenance",
-  description: "Register patients, keep demographics and contact details current and reprint prior documents.",
-  heroHeadline: "One place to keep every patient record clean, current and complete.",
-  heroBlurb: "Register new patients, update contact details and reprint historic documents — with a scoped feed of every change.",
-  heroBadge: "Live · Patient index",
-  heroCtas: [
-    { label: "Register a patient", sectionKey: "registration", primary: true },
-    { label: "Update contact details", sectionKey: "maintenance" },
-    { label: "Print past documents", sectionKey: "documents" },
-  ],
-  overviewKpis: (items) => {
-    const active = items.filter((i) => i.status === "active").length;
-    const pending = items.filter((i) => i.status === "pending" || i.status === "invited").length;
-    return [
-      { label: "Patients on file", value: items.length, icon: Users, accent: "from-primary/30 to-transparent" },
-      { label: "Active", value: active, icon: UserCheck, accent: "from-emerald-500/30 to-transparent", tone: "success" },
-      { label: "Pending verification", value: pending, icon: ShieldAlert, accent: "from-amber-500/30 to-transparent", tone: "warning" },
-      { label: "Documents on file", value: items.length * 3, icon: FileText, accent: "from-sky-500/30 to-transparent" },
-    ];
+  name: "Patient maintenance worklist",
+  tagline: "Registrations, contact updates and document reprints tracked against this facility.",
+  exportable: true,
+  defaultSortBy: "updatedAt",
+  defaultSortDir: "desc",
+  pageSize: 25,
+  statusMap: {
+    active: { label: "Active", tone: "success" },
+    pending: { label: "Pending", tone: "warning" },
+    invited: { label: "Invited", tone: "info" },
+    inactive: { label: "Inactive", tone: "muted" },
   },
-  sections: [
-    {
-      key: "registration",
-      title: "Registration",
-      tagline: "Create · verify",
-      description: "Register a new patient and capture core demographic and scheme data.",
-      icon: UserPlus,
-      accent: "from-primary/25 via-accent/15 to-transparent",
-      ring: "ring-primary/30",
-      actions: [
-        { key: "register-patient", label: "Register Patient", icon: UserPlus, hint: "Create a new patient record", kind: "Register Patient", startStatus: "active",
-          fields: [
-            { name: "patient", label: "Full name", required: true },
-            { name: "idNumber", label: "ID / Passport", required: true },
-            { name: "dob", label: "Date of birth", placeholder: "YYYY-MM-DD" },
-            { name: "gender", label: "Gender" },
-            { name: "scheme", label: "Scheme" },
-            { name: "facility", label: "Facility" },
-          ]},
-        { key: "search-patient", label: "Search Patient", icon: Search, hint: "Find a patient record", kind: "Search Patient", startStatus: "active",
-          fields: [
-            { name: "query", label: "Search term", required: true, placeholder: "Name / ID / MRN" },
-          ]},
-      ],
-    },
-    {
-      key: "maintenance",
-      title: "Maintenance",
-      tagline: "Demographics · contacts",
-      description: "Keep patient contact details and identity data current.",
-      icon: IdCard,
-      accent: "from-emerald-500/25 via-teal-500/15 to-transparent",
-      ring: "ring-emerald-400/30",
-      actions: [
-        { key: "update-contact-details", label: "Update Contact Details", icon: PhoneCall, hint: "Change phone, email or address", kind: "Update Contact Details", startStatus: "active",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "phone", label: "Phone" },
-            { name: "email", label: "Email" },
-            { name: "address", label: "Address", type: "textarea" },
-          ]},
-        { key: "update-identity", label: "Update Identity", icon: IdCard, hint: "Correct ID / scheme details", kind: "Update Identity", startStatus: "active",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "idNumber", label: "ID / Passport" },
-            { name: "scheme", label: "Scheme" },
-            { name: "membership", label: "Membership no." },
-          ]},
-      ],
-    },
-    {
-      key: "documents",
-      title: "Documents",
-      tagline: "Reprint · reissue",
-      description: "Reprint historic documents (discharge summaries, consent forms, invoices).",
-      icon: Printer,
-      accent: "from-sky-500/25 via-primary/15 to-transparent",
-      ring: "ring-sky-400/30",
-      actions: [
-        { key: "print-past-documents", label: "Print Past Documents", icon: Printer, hint: "Reprint any historic document", kind: "Print Past Documents", startStatus: "active",
-          fields: [
-            { name: "patient", label: "Patient", required: true },
-            { name: "documents", label: "Documents", placeholder: "e.g. Discharge summary, Consent" },
-            { name: "period", label: "Period", placeholder: "YYYY-MM" },
-          ]},
-      ],
-    },
+  columns: [
+    { key: "id", label: "Reference", sortable: true, width: "150px",
+      render: (r) => <span className="font-mono text-xs">{r.id}</span> },
+    { key: "title", label: "Patient / activity", sortable: true,
+      render: (r) => (
+        <div className="min-w-0">
+          <div className="truncate font-medium">{r.title}</div>
+          {r.subtitle && <div className="truncate text-[11px] text-muted-foreground">{r.subtitle}</div>}
+        </div>
+      ) },
+    { key: "kind", label: "Action", render: (r) => <span className="text-xs">{String(r.fields["kind"] ?? r.fields["Kind"] ?? "—")}</span> },
+    { key: "Facility", label: "Facility", render: (r) => String(r.fields["Facility"] ?? r.fields["facility"] ?? "—") },
+    { key: "status", label: "Status", render: (r) => <span className="font-medium capitalize">{r.status}</span> },
+    { key: "updatedAt", label: "Updated", sortable: true,
+      render: (r) => <span className="text-[11px] text-muted-foreground">{new Date(r.updatedAt || r.createdAt).toLocaleString("en-ZA")}</span> },
   ],
-  worklist: makeDefaultWorklist("patients", "Patient Maintenance"),
-
-  businessFlow: {
-    moduleKey: "patients",
-    title: "Patient Maintenance",
-    purpose: "Create and maintain the authoritative patient identity and demographic record used throughout the Impilo patient journey.",
-    legacySource: "Rich/Patient/Client.Implet; rich.patient.menu.xml",
-    routeFamily: ["/patients", "/patients/new", "/patients/{id}", "/patients/{id}/documents", "/patients/{id}/timeline"],
-    patientRequired: true,
-    completionKind: "Register Patient",
-    completionStatus: "active",
-    completionLabel: "Patient registration",
-    titleFrom: (v) => v.patient || v.name || "New patient",
-    subtitleFrom: (v) => [v.mrn, v.scheme, v.facility].filter(Boolean).join(" · "),
-    events: [
-      "PatientCreated", "PatientUpdated", "PatientContactChanged",
-      "PatientConsentCaptured", "PatientDocumentLinked",
-    ],
-    handoffs: ["Preadmission", "Admissions", "Documents", "Authorisations"],
-    globalRules: [
-      "Duplicate search must run before patient creation.",
-      "Required identifiers depend on country, age and patient type.",
-      "Editable fields are scoped by permission and facility.",
-      "Allergies and clinical warnings are visible but not editable from demographics unless authorised.",
-      "Every create, merge, update and document access must be audited.",
-      "Identity merges require elevated permission, reason and a reversible admin process.",
-    ],
-    acceptance: [
-      "Search and open an existing patient without exposing patients outside the active facility scope.",
-      "Register a new patient after resolving duplicate matches.",
-      "Update permitted contact details and verify before/after values in the audit timeline.",
-    ],
-    steps: [
-      { key: "facility", title: "Select facility context", description: "Choose the active hospital or facility. Search scope is limited to this facility.",
-        fields: [{ name: "facility", label: "Facility", type: "select", required: true, options: ["Life Fourways", "Life Groenkloof", "Life Kingsbury", "Life Vincent Pallotti", "Life The Glynnwood", "Life East London", "Life Westville", "Life Entabeni"] }],
-        rules: ["User must have access to the selected facility."] },
-      { key: "search", title: "Search for existing person", description: "Look up by national ID, passport, MRN, name, DOB or contact details.",
-        fields: [
-          { name: "idNumber", label: "National ID / Passport", placeholder: "e.g. 8506010001081" },
-          { name: "mrn", label: "MRN", placeholder: "IMP-…" },
-          { name: "name", label: "Name (surname, first name)" },
-          { name: "dob", label: "Date of birth", placeholder: "YYYY-MM-DD" },
-          { name: "phone", label: "Phone" },
-        ],
-        rules: ["Duplicate search is mandatory before creation."] },
-      { key: "duplicates", title: "Review duplicate matches", description: "Review exact and probable matches. An explicit decision is required before continuing.",
-        checklist: [
-          "Reviewed all exact-match candidates",
-          "Reviewed probable matches (name + DOB / phone)",
-          "Confirmed no duplicate exists, OR selected an existing person",
-        ] },
-      { key: "decision", title: "Select existing or create new", description: "Confirm whether to reuse an existing record or create a net-new patient identity.",
-        fields: [
-          { name: "decision", label: "Decision", type: "select", required: true, options: ["Create new patient", "Reuse existing person"] },
-          { name: "existingId", label: "Existing patient ID (if reuse)" },
-        ] },
-      { key: "demographics", title: "Capture demographics", description: "Capture core identifiers, addresses and communication details.",
-        fields: [
-          { name: "patient", label: "Full name (surname, first name)", required: true },
-          { name: "gender", label: "Gender", type: "select", options: ["Female", "Male", "Other", "Unknown"] },
-          { name: "address", label: "Residential address", type: "textarea" },
-          { name: "email", label: "Email" },
-          { name: "language", label: "Preferred language" },
-        ] },
-      { key: "contacts", title: "Next of kin, employer, GP", description: "Capture next of kin, employer, family practitioner and preferred communication channel.",
-        fields: [
-          { name: "nextOfKin", label: "Next of kin (name · relation · phone)" },
-          { name: "employer", label: "Employer" },
-          { name: "gp", label: "Family practitioner" },
-          { name: "prefContact", label: "Preferred contact channel", type: "select", options: ["Phone", "SMS", "Email", "WhatsApp"] },
-        ] },
-      { key: "consent", title: "Consent, privacy and signature", description: "Capture privacy acknowledgement, treatment consent and digital signature where required.",
-        checklist: [
-          "POPIA / privacy notice acknowledged",
-          "General treatment consent captured",
-          "Digital signature captured (where required)",
-        ],
-        events: ["PatientConsentCaptured"],
-        rules: ["Consent capture is a required audit event."] },
-      { key: "funding", title: "Funding and guarantor", description: "Link the patient to a medical scheme, plan and guarantor.",
-        fields: [
-          { name: "scheme", label: "Scheme", type: "select", options: ["Discovery Health", "Bonitas", "GEMS", "Momentum Health", "Polmed", "Private / cash"] },
-          { name: "plan", label: "Plan / option" },
-          { name: "membership", label: "Membership number" },
-          { name: "guarantor", label: "Guarantor (if not the patient)" },
-        ] },
-      { key: "documents", title: "Review documents and images", description: "Upload / link any ID document, medical aid card and prior clinical documentation.",
-        checklist: ["ID document captured", "Medical aid card captured", "Any prior clinical documents linked"],
-        events: ["PatientDocumentLinked"] },
-      { key: "validate", title: "Validate mandatory and duplicate rules", description: "The system re-runs mandatory and duplicate checks before you can confirm.",
-        checklist: ["All mandatory fields captured", "Duplicate resolution decision recorded", "Facility scope respected"] },
-      { key: "confirm", title: "Confirm and save", description: "Confirm the record. On save the patient identifier is issued.",
-        fields: [{ name: "confirm", label: "Confirmation note", type: "textarea", placeholder: "Any additional notes on this registration" }] },
-    ],
-  },
+  filters: [
+    { key: "status", label: "Status", kind: "select", options: [
+      { value: "active", label: "Active" },
+      { value: "pending", label: "Pending" },
+      { value: "invited", label: "Invited" },
+      { value: "inactive", label: "Inactive" },
+    ] },
+    { key: "kind", label: "Action", kind: "text", placeholder: "e.g. Register Patient" },
+    { key: "updated", label: "Updated between", kind: "date-range" },
+  ],
+  savedViews: [
+    { key: "recent-registrations", label: "Recent registrations", description: "Newly registered patients.", filters: { kind: "Register Patient" } },
+    { key: "contact-updates", label: "Contact updates", description: "Contact-detail changes.", filters: { kind: "Update Contact Details" } },
+  ],
+  rowActions: [{ key: "open", label: "Open activity", permission: "view" }],
+  bulkActions: [],
 };
+
+function PatientMaintenanceRoute() {
+  const [tab, setTab] = useState<"processes" | "worklist">("processes");
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
+  const [browserOpen, setBrowserOpen] = useState(false);
+  const [profileId, setProfileId] = useState<string | null>(null);
+  const [contactPatientId, setContactPatientId] = useState<string | null>(null);
+  const [printPatientId, setPrintPatientId] = useState<string | null>(null);
+
+  const openProfile = (id: string) => { setBrowserOpen(false); setProfileId(id); };
+  const openContact = (id: string | null) => { setContactPatientId(id); setContactOpen(true); };
+  const openPrint = (id: string | null) => { setPrintPatientId(id); setPrintOpen(true); };
+
+  const launch = useMemo(() => (key: string) => {
+    switch (key) {
+      case "register-patient":
+        setRegisterOpen(true); return;
+      case "search-patient":
+      case "view-profile":
+      case "view-document-history":
+      case "resolve-duplicate":
+        setBrowserOpen(true); return;
+      case "update-contact":
+        openContact(null); return;
+      case "print-past-documents":
+        openPrint(null); return;
+      default:
+        toast.warning("Process not available", { description: `No handler registered for '${key}'.` });
+    }
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <PatientBanner />
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Front Office · Patient Maintenance
+          </div>
+          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">Patient maintenance</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Register patients, keep demographics and contact details current, and reprint historic documents.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" className="gap-1.5" onClick={() => setRegisterOpen(true)}>
+            <UserPlus className="h-4 w-4" /> Register patient
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setBrowserOpen(true)}>
+            <Search className="h-4 w-4" /> Search patient
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openContact(null)}>
+            <Users className="h-4 w-4" /> Update contact
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openPrint(null)}>
+            <Printer className="h-4 w-4" /> Print documents
+          </Button>
+        </div>
+      </header>
+
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "processes" | "worklist")} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="processes" className="gap-1.5">
+            <LayoutGrid className="h-4 w-4" /> Guided processes
+          </TabsTrigger>
+          <TabsTrigger value="worklist" className="gap-1.5">
+            <ListChecks className="h-4 w-4" /> Activity worklist
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="processes" className="space-y-4">
+          <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
+            <PatientMaintenanceProcessSelector onLaunch={(p) => launch(p.key)} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="worklist" className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-muted/20 p-3 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Eye className="h-3.5 w-3.5" /> Use the patient directory for name, MRN and identifier searches.
+            </span>
+            <Button size="sm" variant="outline" onClick={() => setBrowserOpen(true)}>
+              <Search className="mr-1 h-3.5 w-3.5" /> Open patient directory
+            </Button>
+          </div>
+          <ModuleWorklist config={worklistConfig} />
+        </TabsContent>
+      </Tabs>
+
+      <RegisterPatientWizard
+        open={registerOpen}
+        onOpenChange={setRegisterOpen}
+        onOpenProfile={(id) => setProfileId(id)}
+      />
+      <UpdateContactWizard
+        open={contactOpen}
+        onOpenChange={(v) => { setContactOpen(v); if (!v) setContactPatientId(null); }}
+        initialPatientId={contactPatientId}
+      />
+      <PastDocumentsWizard
+        open={printOpen}
+        onOpenChange={(v) => { setPrintOpen(v); if (!v) setPrintPatientId(null); }}
+        initialPatientId={printPatientId}
+      />
+      <PatientBrowserModal
+        open={browserOpen}
+        onOpenChange={setBrowserOpen}
+        onOpenPatient={openProfile}
+      />
+      <PatientProfileModal
+        patientId={profileId}
+        open={profileId !== null}
+        onOpenChange={(v) => !v && setProfileId(null)}
+        onUpdateContact={(id) => { setProfileId(null); openContact(id); }}
+        onPrintDocuments={(id) => { setProfileId(null); openPrint(id); }}
+      />
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/_app/patients")({
   head: () => ({
     meta: [
       { title: "Patient Maintenance — Impilo" },
-      { name: "description", content: config.description },
+      { name: "description", content: "Register patients, keep records current and reprint documents in a guided, mock-driven workspace." },
+      { property: "og:title", content: "Patient Maintenance — Impilo" },
+      { property: "og:description", content: "Register patients, keep records current and reprint documents in a guided, mock-driven workspace." },
     ],
   }),
-  component: () => <ModuleConsole config={config} />,
+  component: PatientMaintenanceRoute,
 });
