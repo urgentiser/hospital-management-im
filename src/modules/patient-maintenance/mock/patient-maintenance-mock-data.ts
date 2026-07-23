@@ -439,7 +439,7 @@ export const PM_SEED_PATIENTS: PatientRecord[] = [
     visits: [],
     alerts: [],
     timeline: [
-      { at: ts(-500), entry: "Legacy record — flagged as possible duplicate of P-10241", by: "System", category: "System" },
+      { at: ts(-500), entry: "Historical record flagged as a possible duplicate of P-10241", by: "System", category: "System" },
     ],
     createdAt: ts(-500),
     updatedAt: ts(-500),
