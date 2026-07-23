@@ -40,7 +40,7 @@ const worklistConfig: WorklistConfig = {
           {r.subtitle && <div className="truncate text-[11px] text-muted-foreground">{r.subtitle}</div>}
         </div>
       ) },
-    { key: "kind", label: "Action", render: (r) => <span className="text-xs">{r.kind}</span> },
+    { key: "kind", label: "Action", render: (r) => <span className="text-xs">{String(r.fields["kind"] ?? r.fields["Kind"] ?? "—")}</span> },
     { key: "Facility", label: "Facility", render: (r) => String(r.fields["Facility"] ?? r.fields["facility"] ?? "—") },
     { key: "status", label: "Status", render: (r) => <span className="font-medium capitalize">{r.status}</span> },
     { key: "updatedAt", label: "Updated", sortable: true,
